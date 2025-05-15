@@ -1,0 +1,50 @@
+@import '../_variables.css';
+
+.footer{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 20px 100px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    height: 250px;
+}
+
+.footer-container{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+.qr-code{
+    width: 200px;
+    height: 200px;
+    background-color: var(--color-white);
+}
+
+p{
+    color: var(--color-gray);
+    text-align: center;
+    font-size: 20px;
+    margin: 0px;
+    align-content: center;
+}
+.media{
+    display: flex;
+    flex-direction: column;
+    height: 150px;
+    justify-content: space-between;
+    align-items: end;
+}
+
+.vk, .telegram, .instagram{
+    width: 150px;
+    display: flex;
+    gap:15px;
+}
+.icon-temp{
+    width: 40px;
+    height: 40px;
+    background-color: var(--color-white);
+}

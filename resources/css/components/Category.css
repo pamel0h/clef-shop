@@ -1,0 +1,18 @@
+@import '../_variables.css';
+
+.category{
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    width: 200px;
+    height: 200px;
+    padding: 20px;
+    margin:10px;
+    background-color: var(--color-light-gray);
+    color:var(--color-primary);
+}
+
+.category p{
+    color:var(--color-primary);
+    text-align: left;
+}

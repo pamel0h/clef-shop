@@ -1,0 +1,40 @@
+@import './components/Button.css';
+@import './_variables.css';
+
+@font-face {
+    font-family: 'Eina01';
+    src: url('/public/fonts/Eina01-Bold.ttf');
+  }
+  
+  @font-face {
+    font-family: 'TildaSans';
+    src: url('/public/fonts/TildaSans-Regular.ttf');
+  }
+
+  @font-face {
+    font-family: 'TildaSans-SemiBold';
+    src: url('/public/fonts/TildaSans-SemiBold.ttf');
+  }
+  
+  body {
+    font-family: var(--font-main);
+    margin: 0;
+    padding: 0;
+  }
+
+  h1{
+    font-family: var(--font-title);
+    margin: 0;
+  }
+
+  .content{
+    margin: 20px 100px;
+  }
+
+  .page{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
