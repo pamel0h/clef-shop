@@ -1,17 +1,12 @@
-import React from 'react';
-import Header from '../../layout/Header';
-import Category from '../../UI/Category'
+// pages/CatalogPage.jsx
+import { Outlet } from 'react-router-dom';
 
 const CatalogPage = () => {
     return (
-        <div>
-            <Header/>
+        <div className="catalog-page">
             <h1>Catalog</h1>
-            <Category>Гитары</Category>
-            <Category>Клавишные</Category>
-            <Category>Ударные</Category>
+            <Outlet /> 
         </div>
     );
 };
-
-export default CatalogPage; 
+export default CatalogPage;

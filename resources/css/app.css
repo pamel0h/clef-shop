@@ -22,19 +22,19 @@
     padding: 0;
   }
 
-  h1{
+  /* h1{
     font-family: var(--font-title);
     margin: 0;
   }
 
   .content{
     margin: 20px 100px;
-  }
-
+  } */
+/* 
   .page{
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-  }
+  } */
 
