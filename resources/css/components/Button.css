@@ -64,8 +64,11 @@
   }
   
   .btn--small {
-    padding: 0.25rem 0.5rem; 
+    padding: 0.15rem 0.15rem!important; 
     font-size: 0.875rem; 
+    width: 40px;
+    height: 40px;
+    line-height: 30px;
   }
   
   .btn--medium {

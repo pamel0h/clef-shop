@@ -6,7 +6,7 @@ import '../../../../css/components/HomePage.css';
 
 const HomePage = () => {
     return (
-        <div className='page'>
+        <div className='page page--home'>
 
             <div className='content '>
                 <h1 className='mainTitle'>

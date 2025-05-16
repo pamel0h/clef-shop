@@ -1,0 +1,20 @@
+@import '../_variables.css';
+
+.news{
+    background-color: var(--color-light-gray);
+    display: flex;
+    justify-content: end;
+    flex-direction: column;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+
+.news--big h3{
+    font-size: 4rem;
+    margin: 0;
+}
+
+.news--small h3{
+    font-size: 2rem;
+    margin: 0;
+}
