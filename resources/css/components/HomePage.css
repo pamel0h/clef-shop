@@ -1,0 +1,59 @@
+@import '../_variables.css';
+
+.notes { grid-area: 1 / 3 / 2 / 4; }
+.actionBanner { grid-area: 3 / 1 / 4 / 4; }
+.actionBig { grid-area: 4 / 1 / 6 / 3; }
+.action1 { grid-area: 4 / 3 / 5 / 4; }
+.action2 { grid-area: 5 / 3 / 6 / 4; }
+.titleBrands { grid-area: 6 / 2 / 7 / 3; }
+.brands { grid-area: 7 / 1 / 8 / 4; }
+.titleWhy { grid-area: 8 / 1 / 9 / 3; }
+.quality { grid-area: 9 / 1 / 10 / 2; }
+.service { grid-area: 10 / 2 / 11 / 3; }
+.delivery { grid-area: 11 / 3 / 12 / 4; }
+
+.content{
+    display: inline;
+    align-content: center;
+    grid-area: 1 / 1 / 2 / 3;
+}
+
+.mainTitle {
+    font-family: var(--font-title);
+    font-size: 6rem;
+    text-align: left;
+}
+
+.mainButton{
+    grid-area: 2 / 2 / 3 / 3;
+    align-self: start;
+    margin:0 auto;
+    
+}
+.notes{
+    margin: auto;
+}
+
+.notes img{
+    width:350px;
+    height: 300px;
+  
+}
+
+.titleBrands, .titleWhy{
+    font-size: 4rem;
+    width: fit-content;
+    text-align: center;
+    margin: 100px 0px 40px;
+}
+
+.text-block h3{
+    font-size: 2.25rem;
+    margin: 0;
+
+}
+
+.text-block p{
+    font-size: 1.25rem;
+
+}

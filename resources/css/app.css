@@ -1,4 +1,3 @@
-@import './components/Button.css';
 @import './_variables.css';
 
 @font-face {
@@ -16,25 +15,22 @@
     src: url('/public/fonts/TildaSans-SemiBold.ttf');
   }
   
-  body {
+html{
+  font-size: 16px;
+}
+
+body {
     font-family: var(--font-main);
     margin: 0;
     padding: 0;
-  }
 
-  /* h1{
-    font-family: var(--font-title);
-    margin: 0;
-  }
+}
 
-  .content{
-    margin: 20px 100px;
-  } */
-/* 
-  .page{
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  } */
+.app{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
 

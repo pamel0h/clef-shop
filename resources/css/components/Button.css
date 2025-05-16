@@ -63,7 +63,6 @@
     background: none; 
   }
   
-  /* Размеры */
   .btn--small {
     padding: 0.25rem 0.5rem; 
     font-size: 0.875rem; 
@@ -76,12 +75,11 @@
   
   .btn--large {
     padding: 0.75rem 1.5rem; 
-    font-size: 1.125rem; 
+    font-size: 1.4rem; 
+    width: 320px;
+    height: 60px;
   }
   
-
-  
-  /* Отключенное состояние */
   .btn--disabled {
     opacity: 0.5;
     cursor: not-allowed;

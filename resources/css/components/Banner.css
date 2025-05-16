@@ -1,0 +1,48 @@
+@import '../_variables.css';
+
+.banner{
+    padding: 20px 40px;
+    display: flex;
+}
+
+.ban--line{
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    justify-content: space-between;
+    align-items: center;
+    font-size: 3.2rem;
+    grid-column:  1/-1;
+  
+}
+
+.ban--line h3{
+    margin: 0px;
+}
+
+.ban--main{
+    background-color: var(--color-light-gray);
+    color: var(--color-primary);
+    grid-row: span 2;    
+    grid-column: span 2;
+    flex-direction: column;
+    justify-content: end;
+}
+
+.ban--main h3{
+    font-size: 4rem;
+    margin: 0px;
+}
+
+.ban--mini{
+    background-color: var(--color-light-gray);
+    color: var(--color-primary);
+    grid-row: span 1;    
+    grid-column: span 1;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.ban--mini h3{
+    font-size: 2.4rem;
+    margin: 0px;
+}

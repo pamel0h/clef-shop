@@ -1,0 +1,33 @@
+.carousel-container {
+  overflow: hidden;
+  grid-column: 1/-1;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 50px;
+  will-change: transform; 
+  width: max-content; 
+  animation: scroll 60s linear infinite; 
+}
+
+.carousel-item {
+  flex-shrink: 0;
+}
+
+.carousel-item .brand {
+  height: 100px; 
+  width: 300px;
+  background-color: black;
+  filter: grayscale(100%) opacity(0.7);
+  transition: filter 0.3s;
+}
+
+.carousel-item .brand:hover {
+  filter: grayscale(0) opacity(1);
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
