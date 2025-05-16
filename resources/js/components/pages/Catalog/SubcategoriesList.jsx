@@ -1,21 +1,25 @@
 import { Link, useParams } from 'react-router-dom';
 import { subcategories } from '../../../config/mockData';
+import Category from '../../UI/Category';
+import '../../../../css/components/Categories.css'
+//добавить иконки
 
 export const SubcategoriesList = () => {
   const { categorySlug } = useParams();
 
   return (
-    <div>
+    <div  className="categories-list">
       <h2>Подкатегории для {categorySlug}</h2>
-      <ul>
+      <div className='categories-grid'>
         {(subcategories[categorySlug] || []).map(sub => (
-          <li key={`subcat-${sub.slug}`}>
-            <Link to={`/catalog/${categorySlug}/${sub.slug}`}>
-              {sub.name}
-            </Link>
-          </li>
+          <Category
+            key={`subcat-${sub.slug}`}
+            to={`/catalog/${categorySlug}/${sub.slug}`}
+            title={sub.name}
+            >
+          </Category>
         ))}
-      </ul>
+       </div>
     </div>
   );
 };

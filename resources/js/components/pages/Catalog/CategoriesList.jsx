@@ -1,20 +1,23 @@
-// components/pages/Catalog/CategoriesList.jsx
-import { Link } from 'react-router-dom';
 import { categories } from '../../../config/mockData';
+import Category from '../../UI/Category';
+import '../../../../css/components/Categories.css'
+//добавить иконки и переход по хлебным крошкам
 
 const CategoriesList = () => {
+
   return (
-    <div>
+    <div className="categories-list">
       <h2>All Categories</h2>
-      <ul>
-        {categories.map((category, index) => (
-          <li key={`cat-${category.slug}-${index}`}> {/* Используем slug + index */}
-            <Link to={`/catalog/${category.slug}`}>
-              {category.name}
-            </Link>
-          </li>
+      <div className='categories-grid'>
+          {categories.map((category) => (
+            <Category
+              key={`cat-${category.slug}`}
+              to={`/catalog/${category.slug}`}
+              title={category.name}
+            />
         ))}
-      </ul>
+      </div>
+      
     </div>
   );
 };

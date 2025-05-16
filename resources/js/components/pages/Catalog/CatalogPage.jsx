@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 
 const CatalogPage = () => {
     return (
-        <div className="catalog-page">
+        <div className="catalog-page page">
             <h1>Catalog</h1>
             <Outlet /> 
         </div>

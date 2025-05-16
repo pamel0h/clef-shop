@@ -1,21 +1,25 @@
-import '../../../css/components/Category.css'; 
+import '../../../css/components/Category.css';
+import { Link } from 'react-router-dom';
 
 const Category = ({
-    children,
-    onClick,
-    icon = null
-})=> {
-    const baseClass = 'category';
-    return(
-        <div onClick={onClick}
-             className={baseClass}
-        >
-            {icon && (
-                <span>{icon}</span>
-            )}
-            <p>{children}</p>
+  title,
+  to,
+  icon = null,
+  className = ''
+}) => {
+  return (
+    <Link 
+      to={to} 
+      className={`category ${className}`}
+    >
+      {icon && (
+        <div className="category__icon">
+          {icon}
         </div>
-    )
-}
+      )}
+      <h3 className="category__title">{title}</h3>
+    </Link>
+  );
+};
 
 export default Category;

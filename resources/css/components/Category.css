@@ -1,18 +1,27 @@
 @import '../_variables.css';
-
-.category{
-    display: flex;
-    flex-direction: column;
-    justify-content: end;
-    width: 200px;
-    height: 200px;
-    padding: 20px;
-    margin:10px;
-    background-color: var(--color-light-gray);
-    color:var(--color-primary);
+.category {
+  align-content: end;
+  width: 100%;
+  height: 200px;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: var(--color-light-gray);
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.category p{
-    color:var(--color-primary);
-    text-align: left;
+.category:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background-color: var(--color-light-gray);
 }
+
+.category__title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
