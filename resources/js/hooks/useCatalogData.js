@@ -1,3 +1,46 @@
+// // export default function useCatalogData(type, category = null, subcategory = null) {
+// //   const [data, setData] = useState([]);
+// //   const [loading, setLoading] = useState(true);
+// //   const [error, setError] = useState(null);
+
+// //   useEffect(() => {
+// //     const fetchData = async () => {
+// //       try {
+// //         setLoading(true);
+// //         setError(null);
+        
+// //         const params = new URLSearchParams({ type });
+// //         if (category) params.append('category', category);
+// //         if (subcategory) params.append('subcategory', subcategory);
+        
+// //         const response = await fetch(`/catalog/data?${params}`);
+        
+// //         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+// //         const result = await response.json();
+        
+// //         if (!result?.success) throw new Error(result.error || 'Invalid response');
+        
+// //         // Гарантируем, что data будет массивом
+// //         setData(Array.isArray(result.data) ? result.data : []);
+
+// //       } catch (err) {
+// //         setError(err.message);
+// //         console.error('Fetch error:', err);
+// //       } finally {
+// //         setLoading(false);
+// //       }
+// //     };
+
+// //     fetchData();
+// //   }, [type, category, subcategory]);
+
+// //   return { data, loading, error };
+// // }
+
+
+// import { useState, useEffect } from 'react'; // Убедитесь, что есть этот импорт
+
 // export default function useCatalogData(type, category = null, subcategory = null) {
 //   const [data, setData] = useState([]);
 //   const [loading, setLoading] = useState(true);
@@ -6,27 +49,18 @@
 //   useEffect(() => {
 //     const fetchData = async () => {
 //       try {
-//         setLoading(true);
-//         setError(null);
-        
 //         const params = new URLSearchParams({ type });
 //         if (category) params.append('category', category);
 //         if (subcategory) params.append('subcategory', subcategory);
         
 //         const response = await fetch(`/catalog/data?${params}`);
-        
-//         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
 //         const result = await response.json();
         
-//         if (!result?.success) throw new Error(result.error || 'Invalid response');
+//         if (!result.success) throw new Error(result.error || 'Request failed');
         
-//         // Гарантируем, что data будет массивом
-//         setData(Array.isArray(result.data) ? result.data : []);
-
+//         setData(result.data);
 //       } catch (err) {
-//         setError(err.message);
-//         console.error('Fetch error:', err);
+//         setError(err);
 //       } finally {
 //         setLoading(false);
 //       }
@@ -37,11 +71,10 @@
 
 //   return { data, loading, error };
 // }
+import { useState, useEffect } from 'react';
 
-
-import { useState, useEffect } from 'react'; // Убедитесь, что есть этот импорт
-
-export default function useCatalogData(type, category = null, subcategory = null) {
+// Явно экспортируем хук как default
+export default function useCatalogData(type, category = null) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -49,16 +82,15 @@ export default function useCatalogData(type, category = null, subcategory = null
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const params = new URLSearchParams({ type });
         if (category) params.append('category', category);
-        if (subcategory) params.append('subcategory', subcategory);
         
         const response = await fetch(`/catalog/data?${params}`);
         const result = await response.json();
         
-        if (!result.success) throw new Error(result.error || 'Request failed');
-        
-        setData(result.data);
+        if (!result?.success) throw new Error(result.error || 'Server error');
+        setData(result.data || []);
       } catch (err) {
         setError(err);
       } finally {
@@ -67,7 +99,7 @@ export default function useCatalogData(type, category = null, subcategory = null
     };
 
     fetchData();
-  }, [type, category, subcategory]);
+  }, [type, category]);
 
   return { data, loading, error };
 }

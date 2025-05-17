@@ -25,16 +25,23 @@ export const routes = [
     },
     {
       path: ':categorySlug', 
+      element: <SubcategoriesList />, 
       children: [
-        {
-          index: true,
-          element: <SubcategoriesList />,
-        },
         {
           path: ':subcategorySlug',
           element: <ProductsList />,
         }
       ]
+      // children: [
+      //   {
+      //     index: true,
+      //     element: <SubcategoriesList />,
+      //   },
+      //   {
+      //     path: ':subcategorySlug',
+      //     element: <ProductsList />,
+      //   }
+      // ]
     }
   ]
 },
