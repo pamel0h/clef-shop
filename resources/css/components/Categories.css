@@ -12,9 +12,24 @@
     grid-column: span 3;  
 }
 .categories-grid{
+    min-height: 400px; /*чтобы футер не скакал при загрузке */
     margin: 40px 0px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-column-gap: 20px;
     grid-row-gap: 20px;
 }
+
+/* .skeleton-category {
+    width: 200px;
+    height: 100px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    animation: pulse 1.5s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  } */
