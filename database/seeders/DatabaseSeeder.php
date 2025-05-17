@@ -16,9 +16,9 @@ class DatabaseSeeder extends Seeder
         $this->call(
             // GuitarsSeeder::class,
             // KeyboardsSeeder::class,
-            DrumsSeeder::class,
+            // DrumsSeeder::class,
             // AudioSeeder::class,
-            // AccessoriesSeeder::class,
+            AccessoriesSeeder::class,
         );
     }
 }
