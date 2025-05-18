@@ -1,35 +1,17 @@
-// components/Catalog/ProductFilters.jsx
 import { useState, useEffect } from 'react';
 
 export const ProductFilter = ({ products, onFilterChange }) => {
   const [filters, setFilters] = useState({
     priceRange: [0, 100000],
-    inStock: false,
-    // Динамические характеристики
-    dynamicFilters: {}
+    brand: 'all',
   });
 
-  // Автоматически определяем доступные характеристики
   useEffect(() => {
     if (products.length > 0) {
-      const dynamicFilters = {};
-      
-      // Собираем все уникальные характеристики товаров
-      products.forEach(product => {
-        Object.keys(product).forEach(key => {
-          if (!['id', 'name', 'price', 'discount'].includes(key)) {
-            dynamicFilters[key] = dynamicFilters[key] || new Set();
-            dynamicFilters[key].add(product[key]);
-          }
-        });
-      });
-
+      const brands = [...new Set(products.map(p => p.brand).filter(Boolean))];
       setFilters(prev => ({
         ...prev,
-        dynamicFilters: Object.fromEntries(
-          Object.entries(dynamicFilters).map(([key, values]) => 
-            [key, Array.from(values)]
-        ))
+        brands: brands,
       }));
     }
   }, [products]);
@@ -43,8 +25,6 @@ export const ProductFilter = ({ products, onFilterChange }) => {
   return (
     <div className="filters">
       <h3>Фильтры</h3>
-      
-      {/* Общие фильтры */}
       <div className="filter-group">
         <label>Цена:</label>
         <input 
@@ -56,24 +36,20 @@ export const ProductFilter = ({ products, onFilterChange }) => {
         />
         <span>до {filters.priceRange[1]} ₽</span>
       </div>
-
-      {/* Динамические фильтры */}
-      {Object.entries(filters.dynamicFilters).map(([key, values]) => (
-        <div key={key} className="filter-group">
-          <label>{key}:</label>
-          <select 
-            onChange={(e) => handleChange(key, e.target.value)}
-            defaultValue="all"
-          >
-            <option value="all">Все</option>
-            {values.map(value => (
-              <option key={value} value={value}>
-                {value.toString()}
-              </option>
-            ))}
-          </select>
-        </div>
-      ))}
+      <div className="filter-group">
+        <label>Бренд:</label>
+        <select 
+          onChange={(e) => handleChange('brand', e.target.value)}
+          value={filters.brand}
+        >
+          <option value="all">Все</option>
+          {filters.brands?.map(brand => (
+            <option key={brand} value={brand}>
+              {brand}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 };

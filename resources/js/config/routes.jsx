@@ -6,8 +6,8 @@ import ContactPage from '../components/pages/Contact/ContactPage';
 import { Layout } from '../components/layout/Layout';
 import CategoriesList from '../components/pages/Catalog/CategoriesList';
 import {SubcategoriesList} from '../components/pages/Catalog/SubcategoriesList';
-import { ProductsList } from '../components/pages/Catalog/ProductsList'; 
-import {ProductFilter } from '../components/pages/Catalog/ProductFilter'; 
+import ProductsPage  from '../components/pages/Catalog/ProductsPage'; 
+import ProductDetailsPage from '../components/pages/Catalog/ProductDetailsPage'; 
 
 
 export const routes = [
@@ -27,7 +27,11 @@ export const routes = [
           },
           {
             path: ':categorySlug/:subcategorySlug',
-            element: <ProductsList />,
+            element: <ProductsPage />,
+          },
+          {
+            path: ':categorySlug/:subcategorySlug/:productId',
+            element: <ProductDetailsPage />,
           },
         ],
       },

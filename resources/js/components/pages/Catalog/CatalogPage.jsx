@@ -1,9 +1,9 @@
 // pages/CatalogPage.jsx
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import  Breadcrumbs  from './Breadcrumbs';
 
 const CatalogPage = () => {
-    console.log('CatalogPage rendered');
+
     return (
         <div className="catalog-page page">
             <h1>Catalog</h1>

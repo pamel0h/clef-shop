@@ -14,7 +14,7 @@
     grid-column: span 3;  
 }
 .categories-grid{
-    min-height: 400px; /*чтобы футер не скакал при загрузке */
+    min-height: 400px; 
     margin: 40px 0px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);

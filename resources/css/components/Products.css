@@ -1,6 +1,6 @@
 /* resources/css/components/Products.css */
 
-.products-list {
+/* .products-list {
     padding: 20px;
   }
   
@@ -8,9 +8,9 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
-    min-height: 400px; /* Предотвращает скачки футера */
-  }
-  
+    min-height: 400px;  
+  } */
+/*   
   .product-card {
     border: 1px solid #e0e0e0;
     border-radius: 8px;
@@ -27,7 +27,7 @@
   .product-image {
     width: 200px;
     height: 200px;
-    background: #f0f0f0; /* Заглушка для изображения */
+    background: #f0f0f0; 
     border-radius: 4px;
     margin: 0 auto 10px;
     animation: pulse 1.5s infinite;
@@ -43,10 +43,169 @@
     font-size: 1.2em;
     color: #d32f2f;
     font-weight: bold;
-  }
-/*   
-  @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
   } */
+
+  /* Products.css */
+
+/* .products-list-container {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 20px; 
+  padding: 20px;
+} */
+
+/* .filters {
+  Стили для фильтров (ширина задана в grid-template-columns) 
+}
+
+.products {
+  Стили для списка товаров
+} */
+
+/* .products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+  gap: 20px; 
+} */
+
+/* Остальные стили (product-card, и т.д.) остаются без изменений */
+
+    /* CatalogPage.css */
+    /* .catalog-page.page {
+      padding: 20px;
+  }
+
+  .catalog-page.page.has-filters {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      grid-gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+  }
+
+  .filters {
+    width: 250px;
+    overflow-y: auto;
+    grid-column: 1 / 2;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .products {
+      grid-column: 2 / 3;
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    min-height: 400px; 
+} */
+.page {
+  margin: 40px 100px;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-column-gap: 30px;
+}
+
+.products-list-container {
+  display: contents;
+}
+
+.filters {
+  grid-column: 1;
+  background: #f8f8f8;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.filters h3 {
+  margin-top: 0;
+}
+
+.filter-group {
+  margin-bottom: 15px;
+}
+
+.products {
+  grid-column: 2;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-gap: 20px;
+}
+
+.product-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  min-height: 300px; /* Увеличиваем минимальную высоту карточки */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-image {
+  height: 150px;
+  background: #eee;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.product-name {
+  margin: 10px 0;
+  font-size: 1.1em;
+}
+
+.product-price {
+  margin: 10px 0;
+  font-weight: bold;
+  flex-grow: 1;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .page {
+    margin: 20px;
+    grid-template-columns: 1fr;
+    grid-row-gap: 20px;
+  }
+
+  .filters {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .products {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
+
+/* Стили для фильтров */
+.filters hr {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid #ccc;
+}
+
+.filters .collapsible {
+  cursor: pointer;
+  padding: 5px 0;
+  font-weight: bold;
+}
+
+.filters .content {
+  display: none;
+  padding-top: 10px;
+}
+
+.filters .content.active {
+  display: block;
+}
