@@ -1,0 +1,12 @@
+/*breadcrumbs.css*/
+
+@import '../_variables.css';
+
+.breadcrumbs a{
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+
+.breadcrumbs{
+    grid-column: span 3;  
+}

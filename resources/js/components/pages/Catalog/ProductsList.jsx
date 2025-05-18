@@ -1,3 +1,5 @@
+//ProductList.jsx
+
 import { useParams } from 'react-router-dom';
 
 export const ProductsList = () => {
@@ -5,7 +7,7 @@ export const ProductsList = () => {
   console.log('Params:', { categorySlug, subcategorySlug }); // Для отладки
 
   return (
-    <div>
+    <div className='products'>
       <h2>Товары: {categorySlug} → {subcategorySlug}</h2>
       <p>Список товаров будет здесь</p>
     </div>

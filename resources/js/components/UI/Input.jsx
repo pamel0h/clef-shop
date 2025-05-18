@@ -1,28 +1,53 @@
 import { useState } from 'react';
-import SearchIcon from "../icons/SearchIcon"
+import SearchIcon from "../icons/SearchIcon";
+import Eye from "../icons/Eye";
+import EyeClosed from "../icons/EyeClosed";
+import Button from './Button';
 import '../../../css/components/Input.css'; 
 
-const SearchBar = ({
+const Input = ({
     placeholder,
-    variant = null, //"search"
+    variant = null, // "search" или "password"
+    disabled = false,
+    type = "text", // "text", "password", "email" и т.д.
+    value = "",   
+    onChange = () => {}, // Колбэк для обновления значения
 }) => {
-  const [query, setQuery] = useState('');
-    const baseClass = 'input';
-    const SearchClass = variant ? 'search' : '';
+  const [showPassword, setShowPassword] = useState(false);
+  const eye_password = showPassword ? <Eye/> : <EyeClosed /> ;
+  const baseClass = 'input';
+  const variantClass = variant ? `input--${variant}` : '';
+
+  // Определяем тип инпута в зависимости от настроек
+  const inputType = variant === 'password' 
+    ? (showPassword ? 'text' : 'password') 
+    : type;
+
   return (
-    <div className={baseClass}>
+    <div className={`${baseClass} ${variantClass}`}>
       <input
-        type="text"
+        type={inputType}
         placeholder={placeholder}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        value={value} 
+        onChange={onChange} 
+        disabled={disabled}
+        className={disabled ? 'input--disabled' : ''}
       />
-      
-      {variant && (
-        <div className={SearchClass}>{<SearchIcon/>}</div>
+
+      {/* Иконка поиска (если variant="search") */}
+      {variant === 'search' && (
+        <div className="input__icon">{<SearchIcon />}</div>
+      )}
+
+      {/* Кнопка показа/скрытия пароля (если variant="password") */}
+      {variant === 'password' && (
+        <Button size='small' variant='icon' icon={eye_password} 
+          onClick={() => setShowPassword(!showPassword)}
+        >
+        </Button>
       )}
     </div>
   );
 };
 
-export default SearchBar;
+export default Input;

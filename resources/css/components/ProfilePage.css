@@ -1,0 +1,69 @@
+@import '../_variables.css';
+
+.page--user{
+     grid-template-rows: 
+    repeat(1, 100px)     
+    repeat(1, 2fr) 
+    repeat(1, 200px)  
+    
+}
+
+.page--user h1{
+    grid-column: span 3; 
+    font-size: 4rem; 
+}
+
+.page--user h3, .page--user p, .page--user h2{
+    margin: 0;
+}
+.user--container{
+    grid-column: span 2;
+    border: 2px solid var(--color-light-gray);
+    border-radius: 5px; 
+    padding: 20px;
+}
+
+.orders-container, .purchases-container, .profile-container{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.orders{
+    display: flex;
+    flex-direction: column;
+    gap:20px;
+   
+}
+
+.menu{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu ul{
+    display: flex;
+    gap: 5px;
+    flex-direction: column;
+    padding-inline-start: 0px;
+    margin: 0;
+}
+
+.menu li{
+    cursor: pointer;
+    padding: 10px;
+    list-style: none;
+    /* background-color: var(--color-light-gray); */
+    border: 2px solid var(--color-light-gray);
+    border-radius: 5px; 
+}
+
+.menu li:hover{
+    background-color: var(--color-light-gray);
+
+}
+
+.menu li.active{
+    background-color: var(--color-light-gray);
+}
