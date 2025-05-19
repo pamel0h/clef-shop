@@ -1,0 +1,33 @@
+@import '../_variables.css';
+
+.page--cart{
+        grid-template-rows: 
+    repeat(1, 100px)     
+    repeat(1, 2fr) 
+    repeat(1, 200px)  
+}
+.page--cart h1{
+    grid-column: span 3; 
+    font-size: 4rem; 
+}
+
+.productsCart{
+    background-color: var(--color-light-gray);
+    grid-column: span 2; 
+    padding: 20px;
+}
+
+.final{
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100px;
+    justify-content: space-between;
+    background-color: var(--color-primary);
+    grid-column: span 1; 
+}
+
+.final h2{
+    color: var(--color-light-gray);
+
+}

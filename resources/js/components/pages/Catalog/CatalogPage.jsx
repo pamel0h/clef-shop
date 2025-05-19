@@ -1,5 +1,5 @@
 // pages/CatalogPage.jsx
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import  Breadcrumbs  from './Breadcrumbs';
 
 const CatalogPage = () => {

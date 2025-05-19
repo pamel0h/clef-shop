@@ -6,13 +6,15 @@ import LogoIcon from '../icons/LogoIcon';
 import CartIcon from '../icons/CartIcon'
 import ProfileIcon from '../icons/ProfileIcon'
 import LanguageIcon from '../icons/LanguageIcon'
+import { Link } from 'react-router-dom';
+
 
 function Header() {
     return(
         <div className='container'>
             <div className='header'>
                 <LogoIcon className='logo' />
-                <div className='block'>
+                <div className='block block--search'>
                     <Input placeholder="Поиск..." variant="search"/>
                     <Navbar/>
                 </div>
@@ -23,8 +25,8 @@ function Header() {
                     </div>
                     <div className='icons'>
                         <Button variant = 'icon' icon={<LanguageIcon />} ></Button>
-                        <Button variant = 'icon' icon={<ProfileIcon />} ></Button>
-                        <Button variant = 'icon' icon={<CartIcon />} ></Button>
+                        <Link to="/profile"><Button variant = 'icon' icon={<ProfileIcon />} ></Button></Link>
+                        <Link to="/cart"><Button variant = 'icon' icon={<CartIcon />} ></Button></Link>
                     </div>
                 </div>
             </div>

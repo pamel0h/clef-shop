@@ -26,6 +26,10 @@
     justify-content: space-around;
 }
 
+.block--search{
+    width:660px;
+}
+
 .icons{
     display: flex;
     justify-content: end;

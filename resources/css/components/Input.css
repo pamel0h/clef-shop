@@ -1,7 +1,6 @@
 @import '../_variables.css';
 
 .input{
-    width: 660px;
     height: 25px;
     border-radius: 0.15rem;
     justify-content: space-between;

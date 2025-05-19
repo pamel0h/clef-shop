@@ -1,0 +1,31 @@
+.order{
+    width: 100%;
+    padding: 20px;
+    background-color: var(--color-light-gray);
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+     box-sizing: border-box;
+     transition: all 0.3s ease;
+}
+
+.order:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background-color: var(--color-light-gray);
+}
+
+.titleOrder{
+    display: flex;
+    justify-content: space-between;
+}
+
+.details{
+    overflow: hidden;
+    transition: all 0.5s ease-in-out;
+    max-height: 0;
+}
+
+.details.visible{
+    max-height: 300px;
+}
