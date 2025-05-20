@@ -1,0 +1,23 @@
+@import '../_variables.css';
+
+.page--news-item{
+    grid-template-rows: 
+    repeat(1, 0.6fr)
+    repeat(2, 1fr)  
+}
+
+.page--news-item h2{
+     font-size: 3rem;
+     margin: 0;
+     grid-column: span 3;
+}
+
+.page--news-item p{
+     grid-column: span 3;
+}
+
+.blocknews{
+    grid-column: span 2;
+    background-color: var(--color-light-gray) ;
+    height: 250px;
+}

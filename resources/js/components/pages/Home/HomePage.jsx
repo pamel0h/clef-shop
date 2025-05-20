@@ -7,7 +7,15 @@ import '../../../../css/components/HomePage.css';
 const HomePage = () => {
     return (
         <div className='page page--home'>
-
+            <div className='lines lines-top'>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+            </div>
             <div className='content '>
                 <h1 className='mainTitle'>
                     YOUR PERFECT
@@ -33,6 +41,15 @@ const HomePage = () => {
             <BrandCarousel></BrandCarousel>
             <h1 className='titleWhy'>WHY CLEF?</h1>
             {/* сюда тоже добавить картинки бы */}
+            <div className='lines lines-bottom'>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+            </div>
             <div className='quality text-block'> 
                 <h3>Quality assurance</h3>
                 <p>Direct deliveries from the manufacturer and warranty service after purchase</p>

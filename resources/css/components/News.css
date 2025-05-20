@@ -7,6 +7,9 @@
     flex-direction: column;
     padding: 40px 20px;
     box-sizing: border-box;
+    transition: all 0.3s ease;
+    color: var(--color-primary);
+    text-decoration: none;
 }
 
 .news--big h3{
@@ -17,4 +20,10 @@
 .news--small h3{
     font-size: 2rem;
     margin: 0;
+}
+
+.news:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background-color: var(--color-light-gray);
 }
