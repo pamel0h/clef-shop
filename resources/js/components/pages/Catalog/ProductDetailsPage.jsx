@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import useCatalogData from '../../../hooks/useCatalogData';
 import '../../../../css/components/ProductDetails.css';
 
+
 const ProductDetailsPage = () => {
   const { categorySlug, subcategorySlug, productId } = useParams();
 
