@@ -4,11 +4,11 @@ import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import useCatalogData from '../../../hooks/useCatalogData';
 import ProductCard from './ProductCard';
-import { ProductFilter } from './ProductFilter';
+import  {ProductFilter}  from './ProductFilter';
 import '../../../../css/components/Products.css';
 import '../../../../css/components/Loading.css';
 
-export const ProductsList = () => {
+const ProductsList = () => {
   const { categorySlug, subcategorySlug } = useParams();
   const { data: products, loading, error } = useCatalogData('products', {
     category: categorySlug,
@@ -24,12 +24,8 @@ export const ProductsList = () => {
   const handleFilterChange = (newFilters) => {
     const filtered = products.filter((product) => {
       const price = Number(product.price);
-      if (newFilters.priceRange && price > newFilters.priceRange[1]) {
-        return false;
-      }
-      if (newFilters.brand !== 'all' && product.brand !== newFilters.brand) {
-        return false;
-      }
+      if (newFilters.priceRange && price > newFilters.priceRange[1]) return false;
+      if (newFilters.brand !== 'all' && product.brand !== newFilters.brand) return false;
       return true;
     });
     setFilteredProducts(filtered);
