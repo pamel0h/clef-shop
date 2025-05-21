@@ -4,7 +4,8 @@ import Category from '../../UI/Category';
 import '../../../../css/components/Categories.css';
 import useCatalogData from '../../../hooks/useCatalogData';
 import { useParams } from 'react-router-dom'; 
-import { getReadableCategory, getReadableSubcategory } from '../../../config/categoryMapping'; // Новый путь к маппингу
+import { getReadableCategory, getReadableSubcategory } from '../../../config/categoryMapping';
+import '../../../../css/components/Loading.css';
 //добавить иконки
 
 export const SubcategoriesList = () => {
@@ -20,7 +21,7 @@ export const SubcategoriesList = () => {
   const { data, loading, error } = useCatalogData('subcategories', { category: categorySlug });
   console.log('Subcategories data:', { data, loading, error });
 
-  // if (loading) return <div className="subcategories-page">Загрузка подкатегорий...</div>;
+  if (loading) return <div className="subcategories-page">Загрузка подкатегорий...</div>;
   if (error) return <div className="subcategories-page">Ошибка: {error.message}</div>;
 
   return (

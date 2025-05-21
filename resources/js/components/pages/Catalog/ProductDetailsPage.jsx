@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import useCatalogData from '../../../hooks/useCatalogData';
 import '../../../../css/components/ProductDetails.css';
+import '../../../../css/components/Loading.css';
 
 
 const ProductDetailsPage = () => {

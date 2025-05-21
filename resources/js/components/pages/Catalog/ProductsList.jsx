@@ -6,6 +6,7 @@ import useCatalogData from '../../../hooks/useCatalogData';
 import ProductCard from './ProductCard';
 import { ProductFilter } from './ProductFilter';
 import '../../../../css/components/Products.css';
+import '../../../../css/components/Loading.css';
 
 export const ProductsList = () => {
   const { categorySlug, subcategorySlug } = useParams();
