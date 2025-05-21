@@ -94,7 +94,9 @@ a{
   color: #888; 
   font-size: 24px;
 } */
-
+a{
+  text-decoration: none;
+}
 .products-list-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -191,8 +193,11 @@ a{
   display: flex;
   align-items: center;
   gap: 15px;
+  
 }
-
+.product-price{
+  font-weight: bold;
+}
 .product-discounted-price {
   color: #e00;
   font-weight: bold;
@@ -203,4 +208,5 @@ a{
   text-decoration: line-through;
   color: #888;
   font-size: 24px;
+
 }

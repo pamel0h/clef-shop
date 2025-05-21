@@ -100,6 +100,7 @@ class CatalogController extends Controller
     
         return $product ? $this->formatProductDetails($product) : [];
     }
+
     private function formatProduct($item)
     {
         return [
@@ -121,6 +122,7 @@ class CatalogController extends Controller
             'name' => $item->name,
             'description' => $item->description,
             'price' => $item->price,
+            'discount' => $item->discount,
             'brand' => $item->brand,
             // 'images' => $this->getAllImageUrls($item->images),
             'image' => $this->getFirstImageUrl($item->images),
