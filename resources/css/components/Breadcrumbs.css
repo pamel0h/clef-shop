@@ -2,11 +2,47 @@
 
 @import '../_variables.css';
 
-.breadcrumbs a{
+/* .breadcrumbs a{
     font-size: 1.5rem;
     text-decoration: none;
 }
 
 .breadcrumbs{
     grid-column: span 3;  
+} */
+
+/* components/Breadcrumbs.css */
+.breadcrumbs-container {
+    padding: 10px 0;
+    font-size:  1.5rem;
+    margin-bottom: 20px;
+    grid-column: span 3; 
 }
+
+.breadcrumbs {
+    padding: 10px 0;
+    font-size:  1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .breadcrumbs .breadcrumb-item {
+    display: inline;
+}
+
+  .breadcrumb-separator {
+    margin: 0 5px;
+    color: var(--color-primary);
+  }
+  
+  .breadcrumb-link {
+    text-decoration: none;
+  }
+  
+  .breadcrumb-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Убираем стандартные стили ссылок */
+.breadcrumb-link, .breadcrumb-link:visited {
+    color: var(--color-primary);
+  }

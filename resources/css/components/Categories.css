@@ -1,5 +1,7 @@
 /*categories.css*/
 
+/*categories.css*/
+
 .catalog-page h1{
     grid-column: span 3;    
     font-size: 6rem;
@@ -14,6 +16,7 @@
     grid-column: span 3;  
 }
 .categories-grid{
+    min-height: 400px; 
     margin: 40px 0px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -25,4 +28,3 @@
     grid-column: span 3;  
     
 }
-
