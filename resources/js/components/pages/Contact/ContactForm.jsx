@@ -1,13 +1,23 @@
+import "../../../../css/components/ContactForm.css"
+import Button from "../../UI/Button"
+import Input from "../../UI/Input"
 
 const ContactForm = () =>{
     return(
-        <form>
+        <form className='form'>
             <label>Ваше имя</label>
-            <input></input>
+            <Input/>
             <label>Ваша почта</label>
-            <input></input>
+            <Input/>
             <label>Сообщение</label>
-            <input></input>
+            <Input/>
+            <div className="buttons">
+                <Button>Отправить</Button>
+                <Button>Сбросить</Button>
+            </div>
+           
         </form>
     )
 }
+
+export default ContactForm;

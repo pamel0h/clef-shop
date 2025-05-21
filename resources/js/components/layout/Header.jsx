@@ -13,7 +13,9 @@ function Header() {
     return(
         <div className='container'>
             <div className='header'>
-                <LogoIcon className='logo' />
+                <div className='logo' >
+                    <LogoIcon />
+                </div>
                 <div className='block block--search'>
                     <Input placeholder="Поиск..." variant="search"/>
                     <Navbar/>

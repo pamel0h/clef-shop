@@ -1,4 +1,5 @@
 import '../../../../css/components/ContactPage.css'; 
+import ContactForm from './ContactForm';
 
 const ContactPage = () => {
     return (
@@ -18,7 +19,7 @@ const ContactPage = () => {
             <p>We are located at the address .... You need to go... blah blah</p>
             <h2>Still have questions?</h2>
             <p>Fill out the feedback form!</p>
-            <div className='form'></div>
+            <ContactForm />
         </div>
     );
 };
