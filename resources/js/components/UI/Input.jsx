@@ -12,6 +12,7 @@ const Input = ({
     type = "text", // "text", "password", "email" и т.д.
     value = "",   
     onChange = () => {}, // Колбэк для обновления значения
+    onKeyDown = () => {}, // Добавляем пропс для обработки нажатия клавиш
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const eye_password = showPassword ? <Eye/> : <EyeClosed /> ;
@@ -30,6 +31,7 @@ const Input = ({
         placeholder={placeholder}
         value={value} 
         onChange={onChange} 
+        onKeyDown={onKeyDown} // Передаем onKeyDown в <input>
         disabled={disabled}
         className={disabled ? 'input--disabled' : ''}
       />
