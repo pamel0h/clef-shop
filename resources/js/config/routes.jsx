@@ -10,6 +10,7 @@ import CategoriesList from '../components/pages/Catalog/CategoriesList';
 import {SubcategoriesList} from '../components/pages/Catalog/SubcategoriesList';
 import ProductsPage  from '../components/pages/Catalog/ProductsPage'; 
 import ProductDetailsPage from '../components/pages/Catalog/ProductDetailsPage'; 
+import NewsItem from '../components/pages/News/NewsItem'
 
 
 export const routes = [
