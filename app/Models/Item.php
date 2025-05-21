@@ -75,7 +75,8 @@ class Item extends Model
         'subcategory', 
         'brand', 
         'images', 
-        'specs'
+        'specs',
+        'discount',
     ];
     public static function getAllCategories()
     {
