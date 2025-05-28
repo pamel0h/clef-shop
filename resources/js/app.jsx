@@ -1,6 +1,7 @@
 import './bootstrap';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import React from 'react';
+import './i18n';
 import ReactDOM from 'react-dom/client';
 import { routes } from './config/routes';
 

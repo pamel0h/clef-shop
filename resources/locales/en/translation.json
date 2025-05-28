@@ -1,0 +1,53 @@
+{
+  "header": {
+    "search": "Search...",
+    "address": "Sevastopol, st. Bolshaya Morskaya, 17"
+  },
+  "nav": {
+    "home": "Home",
+    "news": "News",
+    "catalog": "Catalog",
+    "about": "About",
+    "contacts": "Contacts"
+  },
+  "home":{
+    "mainTitle": "YOUR PERFECTSOUND STARTS HERE",
+    "mainButton":"go to catalog",
+    "brandsTitle":"OUR BRANDS",
+    "whyTitle":"WHY CLEF?",
+    "qualityTitle": "Quality assurance",
+    "qualityText": "Direct deliveries from the manufacturer and warranty service after purchase",
+    "serviceTitle": "Service",
+    "serviceText": "Consultations with qualified personnel, delivery at a time convenient for you and the possibility of returning the goods if you are not satisfied with them",
+    "deliveryTitle": "Delivery and payment",
+    "deliveryText": "You can choose a payment scheme that suits you and a convenient delivery method: courier or pick-up"
+  },
+  "about":{
+    "mainTitle":"About us",
+    "title1":"music for everyone",
+    "text1":"We believe that music is a universal language that unites people. Our store is designed to help everyone, from beginners to professionals, find an instrument to their liking. We have everything: guitars, keyboards, drums, brass instruments and more. Quality, affordable prices and an individual approach - that's what makes us the best choice for your musical journey.",
+    "text2": "No matter what style you play or what level you are, music should be fun. We help musicians find the perfect instruments, accessories, and gear to make creativity inspiring and comfortable. Join our community and discover a world of sounds!",
+    "title2":"With you for more than 10 years",
+    "text3":"Since 2013, our store has been helping musicians bring their creative ideas to life. During this time, we have come a long way: we started with a small assortment, and today we offer thousands of products - from budget options for beginners to professional equipment for studios and stages. People choose us for our honesty, expert approach and attention to detail. We do not just sell instruments - we help you choose what really suits your sound, style and budget. Our customers come back to us again and again, and this is the best assessment of our work. Thanks to your trust, we grow and develop: we expand our range, improve service and support the music community. It is important to us that everyone who comes to our store - online or offline - feels that music is available to everyone.Thank you for staying with us! There are more new opportunities ahead, and we look forward to sharing them with you. 🎶",
+    "title3":"follow us on our social networks"
+  },
+  "news":{
+    "mainTitle":"NEWS",
+    "description":"Current events and promotions",
+    "archiveTitle":"Archive",
+    "page":"Page"
+  },
+  "catalog":{
+    "mainTitle":"Catalog"
+  },
+  "contacts":{
+    "mainTitle":"Contacts",
+    "phones": "Our phone numbers",
+    "aviable": "ПReception by phone from 10 am to 7 pm",
+    "howTitle": "How to get to us?",
+    "howText": "We are located at the address .... You need to go...",
+    "questionsTitle": "Still have questions?",
+    "questionsText": "Fill out the feedback form!"
+  }
+}
+  

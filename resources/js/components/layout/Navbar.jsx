@@ -1,9 +1,13 @@
-import '../../../css/components/Navbar.css'; 
-import { NAV_LINKS } from "../../config/navLinks";
-import { Link } from "react-router-dom"; 
 
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { NAV_LINKS } from '../../config/navLinks';
+import { Link } from 'react-router-dom';
+import '../../../css/components/Navbar.css';
 
 const Navbar = () => {
+  const { t } = useTranslation(); 
+
   return (
     <nav>
       {NAV_LINKS.map((link) => (
@@ -11,7 +15,7 @@ const Navbar = () => {
           key={link.href}
           to={link.href}
         >
-          {link.label}
+          {t(link.labelKey)} 
         </Link>
       ))}
     </nav>

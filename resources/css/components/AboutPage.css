@@ -23,8 +23,12 @@
 .sign { grid-area: 9 / 2 / 10 / 3; }
 
 .page--about div{
-    background-color: rgb(136, 136, 136);
+    font-size: 1.4rem;
+    /* background-color: beige; */
+}
 
+.text1, .text2{
+    padding: 100px 0px 0px;
 }
 
 .titleAbout{
