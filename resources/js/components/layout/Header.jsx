@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+
 function Header() {
      const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState('');
@@ -24,6 +25,8 @@ function Header() {
             setSearchQuery('');
         }
     };
+    const { t } = useTranslation();
+
     return(
         <div className='container'>
             <div className='header'>
@@ -41,6 +44,7 @@ function Header() {
                         }}
                         onKeyDown={handleSearch}
                     />
+                    <Input placeholder={t('header.search')} variant="search"/>
                     <Navbar/>
                 </div>
                 <div className='block'>
