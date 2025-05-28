@@ -50,4 +50,5 @@
 .listpages .buttons{
     gap:10px;
     display: flex;
+    justify-content: center;
 }

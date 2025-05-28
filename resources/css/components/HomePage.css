@@ -1,7 +1,7 @@
 @import '../_variables.css';
 
 .page--home{
-     grid-template-rows: 
+    grid-template-rows: 
     repeat(2, 0.6fr)     
     repeat(1, 0.3fr)  
     repeat(3, 0.6fr)
@@ -67,4 +67,31 @@
 .text-block p{
     font-size: 1.25rem;
 
+}
+
+.lineItem{
+    width: 100%;
+    height: 1px;
+    background-color: var(--color-light-gray);
+}
+
+.lines{
+    width: 100%;
+    height: 380px;
+    flex-direction: column;
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+   
+    left:0px;
+    z-index: -1;
+}
+
+.lines-top{
+ top: 174px;
+}
+
+.lines-bottom{
+    bottom: -1780px;
+    height: 420px;
 }

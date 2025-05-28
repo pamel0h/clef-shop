@@ -11,7 +11,7 @@ import {SubcategoriesList} from '../components/pages/Catalog/SubcategoriesList';
 import ProductsPage  from '../components/pages/Catalog/ProductsPage'; 
 import ProductDetailsPage from '../components/pages/Catalog/ProductDetailsPage'; 
 import SearchPage from '../components/pages/Catalog/SearchPage';
-
+import NewsItem from '../components/pages/News/NewsItem';
 
 export const routes = [
   {
@@ -19,6 +19,7 @@ export const routes = [
     children: [
       { path: '/', element: <HomePage/> },
       { path: '/news', element: <NewsPage/> },
+      { path: '/news/:newsId', element: <NewsItem/> }, 
       {
         path: '/catalog',
         element: <CatalogPage />,

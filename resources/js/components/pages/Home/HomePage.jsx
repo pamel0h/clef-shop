@@ -3,16 +3,26 @@ import Button from '../../UI/Button';
 import Banner from './Banner';
 import BrandCarousel from './BrandCarousel';
 import '../../../../css/components/HomePage.css'; 
+import { useTranslation } from 'react-i18next';
+
 
 const HomePage = () => {
+    const { t } = useTranslation();
+
     return (
         <div className='page page--home'>
-
+            <div className='lines lines-top'>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+            </div>
             <div className='content '>
                 <h1 className='mainTitle'>
-                    YOUR PERFECT
-                    SOUND STARTS
-                    HERE
+                    {t('home.mainTitle')}
                     </h1>
              </div>   
             <div className='notes '>
@@ -21,7 +31,7 @@ const HomePage = () => {
             </div>
             <div className='mainButton'>
                         <Link to="/catalog">
-                            <Button size = 'large'>перейти в каталог</Button>
+                            <Button size = 'large'>{t('home.mainButton')}</Button>
                         </Link>
                     
                 </div>
@@ -29,21 +39,30 @@ const HomePage = () => {
             <Banner variant='main' title='NAME'>desroptionfodofdofdododdofdofosfosfs</Banner>
             <Banner variant='mini' title='NAME1'>desroptionfodofdofdododdofdofosfosfs</Banner>
             <Banner variant='mini' title='NAME2'>desroptionfodofdofdododdofdofosfosfs</Banner>
-            <h1 className='titleBrands'>OUR BRANDS</h1>
+            <h1 className='titleBrands'>{t('home.brandsTitle')}</h1>
             <BrandCarousel></BrandCarousel>
-            <h1 className='titleWhy'>WHY CLEF?</h1>
+            <h1 className='titleWhy'>{t('home.whyTitle')}</h1>
             {/* сюда тоже добавить картинки бы */}
+            <div className='lines lines-bottom'>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+            </div>
             <div className='quality text-block'> 
-                <h3>Quality assurance</h3>
-                <p>Direct deliveries from the manufacturer and warranty service after purchase</p>
+                <h3>{t('home.qualityTitle')}</h3>
+                <p>{t('home.qualityText')}</p>
             </div>
             <div className='service text-block'>
-                <h3>Service</h3>
-                <p>Consultations with qualified personnel, delivery at a time convenient for you and the possibility of returning the goods if you are not satisfied with them</p>
+                <h3>{t('home.serviceTitle')}</h3>
+                <p>{t('home.serviceText')}</p>
             </div>
             <div className='delivery text-block'>
-                <h3>Delivery and payment</h3>
-                <p>You can choose a payment scheme that suits you and a convenient delivery method: courier or pick-up</p>
+                <h3>{t('home.deliveryTitle')}</h3>
+                <p>{t('home.deliveryText')}</p>
             </div>
    
         </div>

@@ -37,7 +37,7 @@
     align-items: end;
 }
 
-.vk, .telegram, .instagram{
+.vk, .telegram, .tiktok{
     width: 150px;
     display: flex;
     gap:15px;

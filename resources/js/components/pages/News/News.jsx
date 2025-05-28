@@ -1,9 +1,9 @@
-
+import { Link } from 'react-router-dom';
 import '../../../../css/components/News.css'; 
 
 const News = ({ 
-  children,
-  onClick,
+  title,
+  to,
   className,
   variant ='small',
   icon = null,//потом добавить добавление фона
@@ -13,12 +13,18 @@ const News = ({
   const variantClass = `news--${variant}`;
 
   return (
-    <div
-      onClick={onClick}
+    <Link
+      to={to} 
       className={`${baseClass} ${className} ${variantClass}`}
     >
-      <h3>{children}</h3>
-    </div>
+      {icon && (
+          <div className="news--icon">
+            {icon}
+          </div>
+        )}
+      <h3>{title}</h3>
+    </Link>
+    
   );
 };
 

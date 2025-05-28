@@ -1,4 +1,7 @@
 import '../../../css/components/Footer.css'; 
+import TelegramIcon from '../icons/TelegramIcon';
+import VkIcon from '../icons/VkIcon'
+import TikTokIcon from '../icons/TikTokIcon'
 
 
 function Footer() {
@@ -8,15 +11,15 @@ function Footer() {
                 <div className="qr-code"></div>
                 <div className="media">
                     <div className="vk">
-                        <div className="icon-temp"></div> 
+                        <VkIcon />
                         <p>@clef_mus</p>
                     </div>
                     <div className="telegram">
-                        <div className="icon-temp"></div> 
+                        <TelegramIcon /> 
                         <p>@clef_shop</p>
                     </div>
-                    <div className="instagram">
-                        <div className="icon-temp"></div> 
+                    <div className="tiktok">
+                        <TikTokIcon />
                         <p>@clef</p>
                     </div>
                 </div>
