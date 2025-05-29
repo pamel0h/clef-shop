@@ -1,8 +1,6 @@
 // pages/CatalogPage.jsx
 import { Outlet } from 'react-router-dom';
 import  Breadcrumbs  from './Breadcrumbs';
-
-import { Breadcrumbs } from './Breadcrumbs';
 import { useTranslation } from 'react-i18next';
 const CatalogPage = () => {
 

@@ -9,7 +9,6 @@ import ProfileIcon from '../icons/ProfileIcon'
 import LanguageIcon from '../icons/LanguageIcon'
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 
@@ -18,11 +17,10 @@ function Header() {
     const navigate = useNavigate();
 
     const handleSearch = (e) => {
-        console.log('handleSearch called', e.key, searchQuery); // Отладка
         if (e.key === 'Enter' && searchQuery.trim()) {
             console.log('Navigating to:', `/search?query=${encodeURIComponent(searchQuery)}`); // Отладка
             navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
-            setSearchQuery('');
+            setSearchQuery(''); //Очищаем поле после поиска
         }
     };
     const { t } = useTranslation();
@@ -35,7 +33,7 @@ function Header() {
                 </div>
                 <div className='block block--search'>
                 <Input 
-                        placeholder="Поиск..." 
+                        placeholder={t('header.search')}  
                         variant="search"
                         value={searchQuery}
                         onChange={(e) => {
@@ -44,7 +42,6 @@ function Header() {
                         }}
                         onKeyDown={handleSearch}
                     />
-                    <Input placeholder={t('header.search')} variant="search"/>
                     <Navbar/>
                 </div>
                 <div className='block'>

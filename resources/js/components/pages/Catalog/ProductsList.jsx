@@ -1,23 +1,24 @@
-//ProductList.jsx
-
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import useCatalogData from '../../../hooks/useCatalogData';
 import ProductCard from './ProductCard';
-import  {ProductFilter}  from './ProductFilter';
+import { ProductFilter } from './ProductFilter';
 import '../../../../css/components/Products.css';
 import '../../../../css/components/Loading.css';
 
-const ProductsList = () => {
+const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = false }) => {
   const { categorySlug, subcategorySlug } = useParams();
-  const { data: products, loading, error } = useCatalogData('products', {
+  const { data: catalogProducts, loading, error } = useCatalogData('products', {
     category: categorySlug,
     subcategory: subcategorySlug,
-  });
+  }, isSearchPage); // Изменили !isSearchPage на isSearchPage
 
   const [filteredProducts, setFilteredProducts] = useState([]);
 
+  const products = isSearchPage ? initialProducts : catalogProducts;
+
   useEffect(() => {
+    console.log('ProductsList: Received products', products);
     setFilteredProducts(products);
   }, [products]);
 
@@ -28,12 +29,14 @@ const ProductsList = () => {
       if (newFilters.brand !== 'all' && product.brand !== newFilters.brand) return false;
       return true;
     });
+    console.log('ProductsList: Filtered products', filtered);
     setFilteredProducts(filtered);
   };
 
-  if (loading) return <div className="loading">Загрузка...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-  if (!categorySlug || !subcategorySlug) {
+  if (loading && !isSearchPage) return <div className="loading">Загрузка...</div>;
+  if (error && !isSearchPage) return <div>Error: {error.message}</div>;
+
+  if (!isSearchPage && (!categorySlug || !subcategorySlug)) {
     return <div>Ошибка: категория или подкатегория не выбраны</div>;
   }
 
@@ -43,16 +46,16 @@ const ProductsList = () => {
       <div className="products">
         <div className="products-grid">
           {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
+            filteredProducts.map((product, index) => (
               <ProductCard
-                key={product.id}
+                key={product.id || product._id || index} // Добавили index как запасной ключ
                 product={product}
-                categorySlug={categorySlug}
-                subcategorySlug={subcategorySlug}
+                categorySlug={isSearchPage ? product.category : categorySlug}
+                subcategorySlug={isSearchPage ? product.subcategory : subcategorySlug}
               />
             ))
           ) : (
-            <p>Товаров нет</p>
+            <p>{emptyMessage || 'Товаров нет'}</p>
           )}
         </div>
       </div>
