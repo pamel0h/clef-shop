@@ -36,6 +36,7 @@ export const routes = [
           {
             path: ':categorySlug/:subcategorySlug/:productId',
             element: <ProductDetailsPage />,
+            state: { fromSearch: false } 
           },
         ],
       },
@@ -43,7 +44,16 @@ export const routes = [
       { path: '/contacts', element: <ContactPage/> },
       { path:'/profile', element: <ProfilePage />},
       { path: '/cart', element: <CartPage />},
-      { path: '/search', element: <SearchPage /> }
+      { path: '/search', element: <SearchPage />,
+        children: [
+          {
+            path: ':search/:productId',
+            element: <ProductDetailsPage />,
+            state: { fromSearch: true } 
+          },
+        ],
+
+       }
     ],
   },
 ];

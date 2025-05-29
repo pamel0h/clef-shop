@@ -78,7 +78,7 @@ function SearchPage() {
         <ProductsList
           products={products}
           emptyMessage={`Ничего не найдено по запросу "${query}"`}
-          isSearchPage
+          isSearchPage={true}
         />
       )}
     </div>

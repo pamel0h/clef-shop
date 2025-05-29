@@ -6,7 +6,7 @@ import { ProductFilter } from './ProductFilter';
 import '../../../../css/components/Products.css';
 import '../../../../css/components/Loading.css';
 
-const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = false }) => {
+const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = false, location }) => {
   const { categorySlug, subcategorySlug } = useParams();
   const { data: catalogProducts, loading, error } = useCatalogData('products', {
     category: categorySlug,
@@ -36,9 +36,9 @@ const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = 
   if (loading && !isSearchPage) return <div className="loading">Загрузка...</div>;
   if (error && !isSearchPage) return <div>Error: {error.message}</div>;
 
-  if (!isSearchPage && (!categorySlug || !subcategorySlug)) {
-    return <div>Ошибка: категория или подкатегория не выбраны</div>;
-  }
+  // if (!isSearchPage && (!categorySlug || !subcategorySlug)) {
+  //   return <div>Ошибка: категория или подкатегория не выбраны</div>;
+  // }
 
   return (
     <div className="products-list-container">
@@ -46,14 +46,15 @@ const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = 
       <div className="products">
         <div className="products-grid">
           {filteredProducts.length > 0 ? (
-            filteredProducts.map((product, index) => (
-              <ProductCard
-                key={product.id || product._id || index} // Добавили index как запасной ключ
-                product={product}
-                categorySlug={isSearchPage ? product.category : categorySlug}
-                subcategorySlug={isSearchPage ? product.subcategory : subcategorySlug}
-              />
-            ))
+filteredProducts.map((product, index) => (
+  <ProductCard
+    key={product.id || product._id || index}
+    product={product}
+    categorySlug={isSearchPage ? product.category : categorySlug}
+    subcategorySlug={isSearchPage ? product.subcategory : subcategorySlug}
+    isSearchPage={isSearchPage}
+  />
+))
           ) : (
             <p>{emptyMessage || 'Товаров нет'}</p>
           )}

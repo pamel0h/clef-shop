@@ -1,15 +1,19 @@
 
 import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import ProductImage from './ProductImage';
 import ProductPrice from './ProductPrice';
 import '../../../../css/components/Products.css';
 
-const ProductCard = ({ product, categorySlug, subcategorySlug }) => {
+const ProductCard = ({ product, isSearchPage }) => {
   return (
     <div className="product-card">
-      <Link 
-        // to={`/catalog/${categorySlug}/${subcategorySlug}/${product.id}`}
-        to={`/catalog/${encodeURIComponent(product.category)}/${encodeURIComponent(product.subcategory)}/${product.id}`}
+<Link 
+        to={{
+          pathname: `/catalog/${product.category}/${product.subcategory}/${product.id}`,
+          search: isSearchPage ? '?fromSearch=true' : '',
+          state: { fromSearch: isSearchPage }
+        }}
         className="product-link"
       >
         <div className="product-image-container">
