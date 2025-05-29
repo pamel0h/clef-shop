@@ -4,11 +4,12 @@ import Category from '../../UI/Category';
 import '../../../../css/components/Categories.css';
 import useCatalogData from '../../../hooks/useCatalogData';
 import { useParams } from 'react-router-dom'; 
-import { getReadableCategory, getReadableSubcategory } from '../../../config/categoryMapping';
 import '../../../../css/components/Loading.css';
+import { useTranslation } from 'react-i18next';
 //добавить иконки
 
 export const SubcategoriesList = () => {
+  const { t } = useTranslation();
   console.log('SubCategoriesList rendered'); 
   const { categorySlug } = useParams();
   console.log('SubcategoriesList params:', { categorySlug });
@@ -26,15 +27,15 @@ export const SubcategoriesList = () => {
 
   return (
      <div className="subcategories-page categories-list"> 
-      <h2>{getReadableCategory(categorySlug)}</h2>
+      <h2>{t(`category.${categorySlug}`)}</h2>
       <div className="categories-grid">
         {data?.length > 0 ? (
           data.map((subcategory) => {
             console.log('Rendering subcategory:', subcategory, 'Link:', `/catalog/${categorySlug}/${subcategory}`);
-            const subcategoryTitle = typeof getReadableSubcategory(categorySlug, subcategory) === 'object'
-              ? getReadableSubcategory(categorySlug, subcategory).name
-              : getReadableSubcategory(categorySlug, subcategory);
-
+            // const subcategoryTitle = typeof getReadableSubcategory(categorySlug, subcategory) === 'object'
+            //   ? getReadableSubcategory(categorySlug, subcategory).name
+            //   : getReadableSubcategory(categorySlug, subcategory);
+            const subcategoryTitle=t(`subcategory.${categorySlug}.${subcategory}`)
             return (
               <Category
                 key={subcategory}

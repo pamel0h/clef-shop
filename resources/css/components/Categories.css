@@ -8,7 +8,10 @@
     grid-column: span 3;    
     font-size: 6rem;
 }
-
+.search-page h2{
+    grid-column: span 3;
+    font-size: 3rem;
+}
 .catalog-page h2{
     font-size: 3rem;
     font-weight: 500;

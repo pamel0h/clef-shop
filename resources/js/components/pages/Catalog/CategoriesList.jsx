@@ -1,10 +1,13 @@
 import useCatalogData from '../../../hooks/useCatalogData';
 import Category from '../../UI/Category';
-import { getReadableCategory } from '../../../config/categoryMapping';
 import '../../../../css/components/Categories.css';
 import '../../../../css/components/Loading.css';
+import { useTranslation } from 'react-i18next';
+
 
 const CategoriesList = () => {
+  const { t } = useTranslation();
+
   console.log('CategoriesList RENDERED at:', new Date().toISOString());
   const { data, loading, error } = useCatalogData('categories');
 
@@ -19,7 +22,7 @@ const CategoriesList = () => {
           <Category
             key={category}
             to={`/catalog/${category}`}
-            title={getReadableCategory(category)}
+            title={t(`category.${category}`)}
           />
         ))}
       </div>

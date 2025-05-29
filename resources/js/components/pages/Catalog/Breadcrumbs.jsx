@@ -1,11 +1,12 @@
 // components/Breadcrumbs.jsx
 import { useLocation, Link } from 'react-router-dom';
-import { getReadableCategory, getReadableSubcategory } from '../../../config/categoryMapping';
 import '../../../../css/components/Breadcrumbs.css';
 import useCatalogData from '../../../hooks/useCatalogData';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const Breadcrumbs = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const pathnames = location.pathname.split('/').filter((x) => x && x !== 'catalog');
   const queryParams = new URLSearchParams(location.search);
@@ -50,10 +51,10 @@ const Breadcrumbs = () => {
     if (!slug) return null;
     if (index === -1) return 'Главная';
     if (index === 0 && pathArray.length === 0) return 'Каталог';
-    if (index === 0) return getReadableCategory(slug) || slug;
+    if (index === 0) return t(`category.${slug}`) || slug;
     if (index === 1) {
       const category = pathArray[0];
-      const name = getReadableSubcategory(category, slug) || slug;
+      const name = t(`subcategory.${category}.${slug}`) || slug;
       return typeof name === 'object' && name !== null && 'ru' in name ? name.ru : name;
     }
     if (index === 2 && productName) {

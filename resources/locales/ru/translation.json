@@ -58,5 +58,46 @@
     "message": "Сообщение",
     "send":"Отправить",
     "reset":"Сбросить"
+  },
+  "category":{
+    "accessories": "Аксессуары",
+    "audio_equipment": "Аудио оборудование",
+    "drums": "Ударные",
+    "guitars": "Гитары",
+    "keyboards": "Клавишные"
+  },
+  "subcategory": {
+    "accessories": {
+      "audio_accessories": "Аксессуары для аудио оборудования",
+      "drum_accessories": "Аксессуары для ударных",
+      "general_accessories": "Общие аксессуары",
+      "guitar_accessories": "Аксессуары для гитар",
+      "keyboard_accessories": "Аксессуары для клавишных"
+    },
+    "audio_equipment": {
+      "audio_interfaces": "Аудиоинтерфейсы",
+      "headphones": "Наушники",
+      "microphones": "Микрофоны",
+      "studio_monitors": "Студийные мониторы"
+    },
+    "drums": {
+      "acoustic_drums": "Акустические ударные",
+      "cymbals": "Тарелки",
+      "electronic_drums": "Электронные ударные",
+      "percussion": "Перкуссия"
+    },
+    "guitars": {
+      "acoustic": "Акустические гитары",
+      "bass": "Бас-гитары",
+      "classical": "Классические гитары",
+      "electric": "Электрогитары",
+      "ukulele": "Укулеле"
+    },
+    "keyboards": {
+      "acoustic_pianos": "Акустические пианино",
+      "digital_pianos": "Цифровые пианино",
+      "midi_controllers": "MIDI-контроллеры",
+      "synthesizers": "Синтезаторы"
+    }
   }
 }

@@ -27,6 +27,8 @@ const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = 
       const price = Number(product.price);
       if (newFilters.priceRange && price > newFilters.priceRange[1]) return false;
       if (newFilters.brand !== 'all' && product.brand !== newFilters.brand) return false;
+      if (isSearchPage && newFilters.category !== 'all' && product.category !== newFilters.category) return false;
+      if (isSearchPage && newFilters.subcategory !== 'all' && product.subcategory !== newFilters.subcategory) return false;
       return true;
     });
     console.log('ProductsList: Filtered products', filtered);
