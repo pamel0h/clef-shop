@@ -8,7 +8,8 @@ const ProductCard = ({ product, categorySlug, subcategorySlug }) => {
   return (
     <div className="product-card">
       <Link 
-        to={`/catalog/${categorySlug}/${subcategorySlug}/${product.id}`}
+        // to={`/catalog/${categorySlug}/${subcategorySlug}/${product.id}`}
+        to={`/catalog/${encodeURIComponent(product.category)}/${encodeURIComponent(product.subcategory)}/${product.id}`}
         className="product-link"
       >
         <div className="product-image-container">

@@ -35,16 +35,20 @@ function SearchPage() {
       .then(data => {
         console.log('SearchPage: API response data:', data);
         if (data.success) {
-          const formattedProducts = data.data.map(product => ({
-            id: product._id,
-            name: product.name,
-            price: product.price,
-            image: product.image_url || (product.images?.[0] ? `/storage/product_images/${product.images[0]}` : '/images/no-image.png'),
-            category: product.category,
-            subcategory: product.subcategory,
-            brand: product.brand,
-            discount: product.discount || 0,
-          }));
+            const formattedProducts = data.data.map(product => ({
+                id: product.id || product._id, // Убедитесь, что используется правильный ID
+                _id: product._id, // Добавляем _id для совместимости
+                name: product.name,
+                price: product.price,
+                image: product.image || (product.images?.[0] ? `/storage/product_images/${product.images[0]}` : '/images/no-image.png'),
+                images: product.images || [], // Добавляем массив images
+                category: product.category,
+                subcategory: product.subcategory,
+                brand: product.brand,
+                discount: product.discount || 0,
+                description: product.description || '', // Добавляем описание
+                specs: product.specs || {} // Добавляем характеристики
+              }));
           console.log('SearchPage: Formatted products:', formattedProducts);
           setProducts(formattedProducts);
         } else {
