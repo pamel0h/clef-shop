@@ -39,18 +39,20 @@ const Breadcrumbs = () => {
       );
     }
 
-    // Логи для отладки
-    console.log('Breadcrumbs: isFromSearch=', isFromSearch);
-    console.log('Breadcrumbs: searchQuery=', searchQuery);
-    console.log('Breadcrumbs: isProductPage=', isProductPage);
-    console.log('Breadcrumbs: productName=', productName);
-    console.log('Breadcrumbs: productData=', productData);
+    // // Логи для отладки
+    // console.log('Breadcrumbs: isFromSearch=', isFromSearch);
+    // console.log('Breadcrumbs: searchQuery=', searchQuery);
+    // console.log('Breadcrumbs: isProductPage=', isProductPage);
+    // console.log('Breadcrumbs: productName=', productName);
+    // console.log('Breadcrumbs: productData=', productData);
   }, [isFromSearch, searchQuery, isProductPage, productData]);
 
   const getDisplayName = (slug, index, pathArray) => {
     if (!slug) return null;
-    if (index === -1) return 'Главная';
-    if (index === 0 && pathArray.length === 0) return 'Каталог';
+    if (index === -1) {
+      console.log('pururu',t('nav.home'));
+      return t('nav.home')}
+    if (index === 0 && pathArray.length === 0) return t('nav.catalog');
     if (index === 0) return t(`category.${slug}`) || slug;
     if (index === 1) {
       const category = pathArray[0];
@@ -67,7 +69,7 @@ const Breadcrumbs = () => {
 
   // Главная
   breadcrumbItems.push({
-    name: 'Главная',
+    name: t('nav.home'),
     path: '/',
     isActive: false,
   });
@@ -75,7 +77,7 @@ const Breadcrumbs = () => {
   // Если это страница из поиска
   if (isFromSearch && isProductPage) {
     breadcrumbItems.push({
-      name: 'Поиск',
+      name: t('search.mainTitle'),
       path: {
         pathname: '/search',
         search: searchQuery ? `?query=${encodeURIComponent(searchQuery)}` : '',
@@ -91,7 +93,7 @@ const Breadcrumbs = () => {
   // Каталог и его подразделы
   else if (location.pathname.startsWith('/catalog')) {
     breadcrumbItems.push({
-      name: 'Каталог',
+      name: t('nav.catalog'),
       path: '/catalog',
       isActive: pathnames.length === 0,
     });
