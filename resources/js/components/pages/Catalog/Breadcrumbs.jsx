@@ -59,7 +59,8 @@ const Breadcrumbs = () => {
       const name = t(`subcategory.${category}.${slug}`) || slug;
       return typeof name === 'object' && name !== null && 'ru' in name ? name.ru : name;
     }
-    if (index === 2 && productName) {
+    if (index === 2) {
+      if (loading) return null;
       return productName; // Используем productName для страницы товара независимо от isFromSearch
     }
     return slug.replace(/-/g, ' ').replace(/_/g, ' ');
@@ -85,7 +86,7 @@ const Breadcrumbs = () => {
       isActive: false,
     });
     breadcrumbItems.push({
-      name: productName || 'Товар',
+      name: productName,
       path: location.pathname,
       isActive: true,
     });
