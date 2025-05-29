@@ -10,8 +10,8 @@ const Breadcrumbs = () => {
   const pathnames = location.pathname.split('/').filter((x) => x && x !== 'catalog');
   const queryParams = new URLSearchParams(location.search);
   const [productName, setProductName] = useState('');
-  const isFromSearch = queryParams.get('fromSearch') === 'true'; // Используем только query-параметр
-  const searchQuery = queryParams.get('query') || ''; // Получаем query из URL
+  const isFromSearch = queryParams.get('fromSearch') === 'true';
+  const searchQuery = queryParams.get('query') || '';
 
   // Проверяем, является ли это страницей товара
   const isProductPage = pathnames.length === 3;
@@ -30,7 +30,12 @@ const Breadcrumbs = () => {
 
   useEffect(() => {
     if (isProductPage && productData?.name) {
-      setProductName(productData.name);
+      // Проверяем, является ли name объектом {en, ru}
+      setProductName(
+        typeof productData.name === 'object' && productData.name !== null && 'ru' in productData.name
+          ? productData.name.ru
+          : productData.name
+      );
     }
 
     // Логи для отладки
@@ -49,10 +54,10 @@ const Breadcrumbs = () => {
     if (index === 1) {
       const category = pathArray[0];
       const name = getReadableSubcategory(category, slug) || slug;
-      return typeof name === 'object' ? name.name : name;
+      return typeof name === 'object' && name !== null && 'ru' in name ? name.ru : name;
     }
-    if (index === 2 && isFromSearch && productName) {
-      return productName;
+    if (index === 2 && productName) {
+      return productName; // Используем productName для страницы товара независимо от isFromSearch
     }
     return slug.replace(/-/g, ' ').replace(/_/g, ' ');
   };

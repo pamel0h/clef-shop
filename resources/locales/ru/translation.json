@@ -40,6 +40,9 @@
   "catalog":{
     "mainTitle":"Каталог"
   },
+  "search":{
+    "mainTitle":"Поиск"
+  },
   "contacts":{
     "mainTitle":"Контакты",
     "phones": "Наши номера телефонов",

@@ -1,9 +1,12 @@
 // components/pages/Catalog/SearchPage.jsx
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import  Breadcrumbs  from './Breadcrumbs';
 import ProductsList from './ProductsList';
+import { useTranslation } from 'react-i18next';
 
 function SearchPage() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -67,7 +70,8 @@ function SearchPage() {
 
   return (
     <div className="search-page page">
-      <h1>Поиск</h1>
+      <h1>{t('search.mainTitle')}</h1>
+      <Breadcrumbs /> 
       <h2>Результаты поиска по запросу: {query || 'Ничего не введено'}</h2>
       {loading ? (
         <div className="loading">Загрузка...</div>

@@ -40,6 +40,9 @@
   "catalog":{
     "mainTitle":"Catalog"
   },
+  "search":{
+    "mainTitle":"Search"
+  },
   "contacts":{
     "mainTitle":"Contacts",
     "phones": "Our phone numbers",

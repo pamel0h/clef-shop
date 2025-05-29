@@ -2,7 +2,9 @@
 
 /*categories.css*/
 
-.catalog-page h1{
+.catalog-page h1,
+.search-page h1
+{
     grid-column: span 3;    
     font-size: 6rem;
 }
