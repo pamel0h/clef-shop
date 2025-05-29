@@ -1,3 +1,4 @@
+// components/Breadcrumbs.jsx
 import { useLocation, Link } from 'react-router-dom';
 import { getReadableCategory, getReadableSubcategory } from '../../../config/categoryMapping';
 import '../../../../css/components/Breadcrumbs.css';
@@ -9,9 +10,8 @@ const Breadcrumbs = () => {
   const pathnames = location.pathname.split('/').filter((x) => x && x !== 'catalog');
   const queryParams = new URLSearchParams(location.search);
   const [productName, setProductName] = useState('');
-  const [isFromSearch, setIsFromSearch] = useState(
-    location.state?.fromSearch || queryParams.get('fromSearch') === 'true'
-  );
+  const isFromSearch = queryParams.get('fromSearch') === 'true'; // Используем только query-параметр
+  const searchQuery = queryParams.get('query') || ''; // Получаем query из URL
 
   // Проверяем, является ли это страницей товара
   const isProductPage = pathnames.length === 3;
@@ -24,31 +24,25 @@ const Breadcrumbs = () => {
     {
       id: productId,
       category,
-      subcategory
+      subcategory,
     }
   );
 
   useEffect(() => {
-    // Обновляем isFromSearch
-    const fromSearch = location.state?.fromSearch || queryParams.get('fromSearch') === 'true';
-    setIsFromSearch(fromSearch);
-
-    // Обновляем имя товара
     if (isProductPage && productData?.name) {
       setProductName(productData.name);
     }
 
     // Логи для отладки
-    console.log('Breadcrumbs: isFromSearch=', fromSearch);
-    console.log('Breadcrumbs: location.state=', location.state);
-    console.log('Breadcrumbs: location.search=', location.search);
+    console.log('Breadcrumbs: isFromSearch=', isFromSearch);
+    console.log('Breadcrumbs: searchQuery=', searchQuery);
     console.log('Breadcrumbs: isProductPage=', isProductPage);
     console.log('Breadcrumbs: productName=', productName);
     console.log('Breadcrumbs: productData=', productData);
-  }, [location.state, location.search, isProductPage, productData]);
+  }, [isFromSearch, searchQuery, isProductPage, productData]);
 
   const getDisplayName = (slug, index, pathArray) => {
-    if (slug === '' || slug == null) return null;
+    if (!slug) return null;
     if (index === -1) return 'Главная';
     if (index === 0 && pathArray.length === 0) return 'Каталог';
     if (index === 0) return getReadableCategory(slug) || slug;
@@ -74,49 +68,47 @@ const Breadcrumbs = () => {
 
   // Если это страница из поиска
   if (isFromSearch && isProductPage) {
-    breadcrumbItems.push(
-      {
-        name: 'Поиск',
-        path: '/search',
-        isActive: false
+    breadcrumbItems.push({
+      name: 'Поиск',
+      path: {
+        pathname: '/search',
+        search: searchQuery ? `?query=${encodeURIComponent(searchQuery)}` : '',
       },
-      {
-        name: productName || 'Товар',
-        path: location.pathname,
-        isActive: true
-      }
-    );
-  } 
+      isActive: false,
+    });
+    breadcrumbItems.push({
+      name: productName || 'Товар',
+      path: location.pathname,
+      isActive: true,
+    });
+  }
   // Каталог и его подразделы
   else if (location.pathname.startsWith('/catalog')) {
     breadcrumbItems.push({
       name: 'Каталог',
       path: '/catalog',
-      isActive: pathnames.length === 0
+      isActive: pathnames.length === 0,
     });
 
     if (pathnames.length > 0) {
-      // Категория
       breadcrumbItems.push({
         name: getDisplayName(pathnames[0], 0, pathnames),
         path: `/catalog/${pathnames[0]}`,
-        isActive: pathnames.length === 1
+        isActive: pathnames.length === 1,
       });
 
       if (pathnames.length > 1) {
-        // Подкатегория
         breadcrumbItems.push({
           name: getDisplayName(pathnames[1], 1, pathnames),
           path: `/catalog/${pathnames[0]}/${pathnames[1]}`,
-          isActive: pathnames.length === 2
+          isActive: pathnames.length === 2,
         });
-        
+
         if (pathnames.length > 2) {
-          // Товар (третий уровень)
           breadcrumbItems.push({
             name: getDisplayName(pathnames[2], 2, pathnames),
             path: `/catalog/${pathnames[0]}/${pathnames[1]}/${pathnames[2]}`,
-            isActive: pathnames.length === 3
+            isActive: pathnames.length === 3,
           });
         }
       }
@@ -126,26 +118,25 @@ const Breadcrumbs = () => {
   else if (location.pathname.startsWith('/search')) {
     breadcrumbItems.push({
       name: 'Поиск',
-      path: '/search',
-      isActive: true
+      path: `/search${searchQuery ? `?query=${encodeURIComponent(searchQuery)}` : ''}`,
+      isActive: true,
     });
   }
 
-  // Логируем итоговые breadcrumbItems
   console.log('Breadcrumbs: breadcrumbItems=', breadcrumbItems);
 
   return (
     <div className="breadcrumbs-container">
       {breadcrumbItems.map((item, index) => (
         <span key={index} className="breadcrumb-item">
-          {index > 0 && <span className="breadcrumb-separator"> {'>'} </span>}
+          {index > 0 && <span className="breadcrumb-separator"> > </span>}
           {item.isActive ? (
             <span className="breadcrumb-active">{item.name}</span>
           ) : (
-            <Link 
+            <Link
               to={{
-                pathname: item.path,
-                state: index === 1 && isFromSearch ? { fromSearch: true } : undefined
+                pathname: typeof item.path === 'string' ? item.path : item.path.pathname,
+                search: typeof item.path === 'object' ? item.path.search : undefined,
               }}
               className={`breadcrumb-link ${item.className || ''}`}
             >

@@ -6,12 +6,12 @@ import { ProductFilter } from './ProductFilter';
 import '../../../../css/components/Products.css';
 import '../../../../css/components/Loading.css';
 
-const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = false, location }) => {
+const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = false, query }) => {
   const { categorySlug, subcategorySlug } = useParams();
   const { data: catalogProducts, loading, error } = useCatalogData('products', {
     category: categorySlug,
     subcategory: subcategorySlug,
-  }, isSearchPage); // Изменили !isSearchPage на isSearchPage
+  }, isSearchPage);
 
   const [filteredProducts, setFilteredProducts] = useState([]);
 
@@ -36,25 +36,22 @@ const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = 
   if (loading && !isSearchPage) return <div className="loading">Загрузка...</div>;
   if (error && !isSearchPage) return <div>Error: {error.message}</div>;
 
-  // if (!isSearchPage && (!categorySlug || !subcategorySlug)) {
-  //   return <div>Ошибка: категория или подкатегория не выбраны</div>;
-  // }
-
   return (
     <div className="products-list-container">
       <ProductFilter products={products} onFilterChange={handleFilterChange} />
       <div className="products">
         <div className="products-grid">
           {filteredProducts.length > 0 ? (
-filteredProducts.map((product, index) => (
-  <ProductCard
-    key={product.id || product._id || index}
-    product={product}
-    categorySlug={isSearchPage ? product.category : categorySlug}
-    subcategorySlug={isSearchPage ? product.subcategory : subcategorySlug}
-    isSearchPage={isSearchPage}
-  />
-))
+            filteredProducts.map((product, index) => (
+              <ProductCard
+                key={product.id || product._id || index}
+                product={product}
+                categorySlug={isSearchPage ? product.category : categorySlug}
+                subcategorySlug={isSearchPage ? product.subcategory : subcategorySlug}
+                isSearchPage={isSearchPage}
+                query={query} // Передаем query в ProductCard
+              />
+            ))
           ) : (
             <p>{emptyMessage || 'Товаров нет'}</p>
           )}

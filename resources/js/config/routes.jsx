@@ -17,9 +17,9 @@ export const routes = [
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <HomePage/> },
-      { path: '/news', element: <NewsPage/> },
-      { path: '/news/:newsId', element: <NewsItem/> }, 
+      { path: '/', element: <HomePage /> },
+      { path: '/news', element: <NewsPage /> },
+      { path: '/news/:newsId', element: <NewsItem /> },
       {
         path: '/catalog',
         element: <CatalogPage />,
@@ -36,24 +36,14 @@ export const routes = [
           {
             path: ':categorySlug/:subcategorySlug/:productId',
             element: <ProductDetailsPage />,
-            state: { fromSearch: false } 
           },
         ],
       },
-      { path: '/about', element: <AboutPage/> },
-      { path: '/contacts', element: <ContactPage/> },
-      { path:'/profile', element: <ProfilePage />},
-      { path: '/cart', element: <CartPage />},
-      { path: '/search', element: <SearchPage />,
-        children: [
-          {
-            path: ':search/:productId',
-            element: <ProductDetailsPage />,
-            state: { fromSearch: true } 
-          },
-        ],
-
-       }
+      { path: '/about', element: <AboutPage /> },
+      { path: '/contacts', element: <ContactPage /> },
+      { path: '/profile', element: <ProfilePage /> },
+      { path: '/cart', element: <CartPage /> },
+      { path: '/search', element: <SearchPage /> },
     ],
   },
 ];

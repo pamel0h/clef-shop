@@ -1,18 +1,17 @@
-
+// components/ProductCard.jsx
 import { Link } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
 import ProductImage from './ProductImage';
 import ProductPrice from './ProductPrice';
 import '../../../../css/components/Products.css';
 
-const ProductCard = ({ product, isSearchPage }) => {
+const ProductCard = ({ product, isSearchPage, query }) => {
   return (
     <div className="product-card">
-<Link 
+      <Link
         to={{
           pathname: `/catalog/${product.category}/${product.subcategory}/${product.id}`,
-          search: isSearchPage ? '?fromSearch=true' : '',
-          state: { fromSearch: isSearchPage }
+          search: isSearchPage ? `?fromSearch=true&query=${encodeURIComponent(query || '')}` : '',
+          state: { fromSearch: isSearchPage, searchQuery: isSearchPage ? query : undefined },
         }}
         className="product-link"
       >

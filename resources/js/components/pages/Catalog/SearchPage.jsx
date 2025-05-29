@@ -1,8 +1,7 @@
+// components/pages/Catalog/SearchPage.jsx
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProductsList from './ProductsList';
-// import '../css/components/Products.css';
-// import '../css/components/Loading.css';
 
 function SearchPage() {
   const [products, setProducts] = useState([]);
@@ -22,33 +21,33 @@ function SearchPage() {
     }
 
     setLoading(true);
-    const url = `/search?query=${encodeURIComponent(query)}`; // Изменено с /api/search на /search
+    const url = `/search?query=${encodeURIComponent(query)}`;
     console.log('SearchPage: Fetching URL:', url);
     fetch(url)
-      .then(res => {
+      .then((res) => {
         console.log('SearchPage: API response status:', res.status, res.statusText);
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`);
         }
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         console.log('SearchPage: API response data:', data);
         if (data.success) {
-            const formattedProducts = data.data.map(product => ({
-                id: product.id || product._id, // Убедитесь, что используется правильный ID
-                _id: product._id, // Добавляем _id для совместимости
-                name: product.name,
-                price: product.price,
-                image: product.image || (product.images?.[0] ? `/storage/product_images/${product.images[0]}` : '/images/no-image.png'),
-                images: product.images || [], // Добавляем массив images
-                category: product.category,
-                subcategory: product.subcategory,
-                brand: product.brand,
-                discount: product.discount || 0,
-                description: product.description || '', // Добавляем описание
-                specs: product.specs || {} // Добавляем характеристики
-              }));
+          const formattedProducts = data.data.map((product) => ({
+            id: product.id || product._id,
+            _id: product._id,
+            name: product.name,
+            price: product.price,
+            image: product.image || (product.images?.[0] ? `/storage/product_images/${product.images[0]}` : '/images/no-image.png'),
+            images: product.images || [],
+            category: product.category,
+            subcategory: product.subcategory,
+            brand: product.brand,
+            discount: product.discount || 0,
+            description: product.description || '',
+            specs: product.specs || {},
+          }));
           console.log('SearchPage: Formatted products:', formattedProducts);
           setProducts(formattedProducts);
         } else {
@@ -56,7 +55,7 @@ function SearchPage() {
           console.log('SearchPage: API error:', data.error);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         setError('Ошибка сети: ' + err.message);
         console.error('SearchPage: Fetch error:', err);
       })
@@ -79,6 +78,7 @@ function SearchPage() {
           products={products}
           emptyMessage={`Ничего не найдено по запросу "${query}"`}
           isSearchPage={true}
+          query={query}
         />
       )}
     </div>
