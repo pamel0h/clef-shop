@@ -77,9 +77,9 @@ export const ProductFilter = ({ products, onFilterChange }) => {
 
   return (
     <div className="filters">
-      <h3>Фильтры</h3>
+      <h3>{t('filters.mainTitle')}</h3>
       <div className="filter-group">
-        <label>Цена:</label>
+        <label>{t('filters.price')}:</label>
         <div className="price-inputs">
           <input
             type="number"
@@ -87,7 +87,7 @@ export const ProductFilter = ({ products, onFilterChange }) => {
             value={filters.priceRange[0]}
             onChange={(e) => handlePriceChange('min', e.target.value)}
             onBlur={(e) => handleBlur('min', e.target.value)}
-            placeholder="От"
+            placeholder="{t('filters.from')}"
             className="price-input"
           />
           <span>—</span>
@@ -97,14 +97,14 @@ export const ProductFilter = ({ products, onFilterChange }) => {
             value={filters.priceRange[1]}
             onChange={(e) => handlePriceChange('max', e.target.value)}
             onBlur={(e) => handleBlur('max', e.target.value)}
-            placeholder="До"
+            placeholder="{t('filters.to')}"
             className="price-input"
           />
         </div>
-        <span>от {filters.priceRange[0]} до {filters.priceRange[1]} ₽</span>
+        <span>{t('filters.from')} {filters.priceRange[0]} {t('filters.to')} {filters.priceRange[1]} ₽</span>
       </div>
       <div className="filter-group">
-        <label>Бренд:</label>
+        <label>{t('filters.brand')}:</label>
         <select
           onChange={(e) => {
             const newFilters = { ...filters, brand: e.target.value };
@@ -113,7 +113,7 @@ export const ProductFilter = ({ products, onFilterChange }) => {
           }}
           value={filters.brand}
         >
-          <option value="all">Все</option>
+          <option value="all">{t('filters.all')}</option>
           {filters.brands.map((brand) => (
             <option key={brand} value={brand}>
               {brand}
@@ -124,12 +124,12 @@ export const ProductFilter = ({ products, onFilterChange }) => {
       {isSearchPage && (
         <>
           <div className="filter-group">
-            <label>Категория:</label>
+            <label>{t('filters.category')}:</label>
             <select
               onChange={(e) => handleCategoryChange(e.target.value)}
               value={filters.category}
             >
-              <option value="all">Все</option>
+              <option value="all">{t('filters.all')}</option>
               {filters.categories.map((category) => (
                 <option key={category} value={category}>
                   {t(`category.${category}`)}
@@ -138,13 +138,13 @@ export const ProductFilter = ({ products, onFilterChange }) => {
             </select>
           </div>
           <div className="filter-group">
-            <label>Подкатегория:</label>
+            <label>{t('filters.subcategory')}:</label>
             <select
               onChange={(e) => handleSubcategoryChange(e.target.value)}
               value={filters.subcategory}
               disabled={filters.category === 'all' || availableSubcategories.length === 0}
             >
-              <option value="all">Все</option>
+              <option value="all">{t('filters.all')}</option>
               {availableSubcategories.map((subcategory) => (
                 <option key={subcategory} value={subcategory}>
                   {t(`subcategory.${filters.category}.${subcategory}`)}
@@ -156,7 +156,7 @@ export const ProductFilter = ({ products, onFilterChange }) => {
       )}
       <div className="filter-group">
         <button className="reset-button" onClick={handleResetFilters}>
-          Сбросить фильтры
+        {t('filters.reset')}
         </button>
       </div>
     </div>

@@ -38,10 +38,23 @@
     "page":"Страница"
   },
   "catalog":{
-    "mainTitle":"Каталог"
+    "mainTitle":"Каталог",
+    "categories":"Все категории"
   },
   "search":{
-    "mainTitle":"Поиск"
+    "mainTitle":"Поиск",
+    "result":"Результаты поиска по запросу"
+  },
+  "filters":{
+    "mainTitle":"Фильтры",
+    "price":"Цена",
+    "all":"Все",
+    "brand":"Бренд",
+    "category":"Категория",
+    "subcategory":"Подкатегория",
+    "from":"от",
+    "to":"до",
+    "reset":"Сбросить фильтры"
   },
   "contacts":{
     "mainTitle":"Контакты",

@@ -12,7 +12,7 @@ function SearchPage() {
       <h1>{t('search.mainTitle')}</h1>
       <Breadcrumbs />
       {location.pathname === '/search' && (
-        <h2>Результаты поиска по запросу: {query || 'Ничего не введено'}</h2>
+        <h2>{t('search.result')}: {query || 'Ничего не введено'}</h2>
       )}
       <Outlet context={{ query }} />
     </div>

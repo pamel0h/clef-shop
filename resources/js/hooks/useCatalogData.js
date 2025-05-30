@@ -10,8 +10,6 @@ export default function useCatalogData(type, options = {}, skip = false) {
       if (skip) {
         console.log('useCatalogData: Skipped fetch', { type, options });
         setData(type === 'product_details' ? {} : []);
-        setLoading(false);
-        setError(null);
         return;
       }
 
@@ -22,6 +20,11 @@ export default function useCatalogData(type, options = {}, skip = false) {
           url = `/api/search?query=${encodeURIComponent(options.query)}`;
         } else if (type === 'product_details' && options.query) {
           url = `/api/search?id=${encodeURIComponent(options.id)}&query=${encodeURIComponent(options.query)}`;
+        } else if (type === 'products') {
+          const params = new URLSearchParams({ type });
+          if (options.category) params.append('category', options.category);
+          if (options.subcategory) params.append('subcategory', options.subcategory); // Убедитесь, что subcategory добавляется
+          url = `/api/catalog/data?${params}`;
         } else {
           const params = new URLSearchParams({ type });
           if (options.category) params.append('category', options.category);

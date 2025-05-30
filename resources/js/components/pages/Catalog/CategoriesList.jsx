@@ -16,7 +16,7 @@ const CategoriesList = () => {
 
   return (
     <div className="categories-list">
-      <h2>All Categories</h2>
+      <h2>{t('catalog.categories')}</h2>
       <div className="categories-grid">
         {data.map((category) => (
           <Category

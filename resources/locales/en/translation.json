@@ -38,10 +38,23 @@
     "page":"Page"
   },
   "catalog":{
-    "mainTitle":"Catalog"
+    "mainTitle":"Catalog",
+    "categories":"All categories"
   },
   "search":{
-    "mainTitle":"Search"
+    "mainTitle":"Search",
+    "result":"Search results for your query"
+  },
+  "filters":{
+    "mainTitle":"Filters",
+    "price":"Price",
+    "all":"All",
+    "brand":"Brands",
+    "category":"Category",
+    "subcategory":"Subcategory",
+    "from":"from",
+    "to":"to",
+    "reset":"Reset filters"
   },
   "contacts":{
     "mainTitle":"Contacts",

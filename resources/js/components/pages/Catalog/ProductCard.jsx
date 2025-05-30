@@ -39,15 +39,6 @@ const ProductCard = ({ product, isSearchPage, query }) => {
     ? `/search/${productId}${query ? `?query=${encodeURIComponent(query)}` : ''}`
     : `/catalog/${product.category}/${product.subcategory}/${productId}${query ? `?fromSearch=true&query=${encodeURIComponent(query)}` : ''}`;
 
-  console.log('ProductCard: Forming linkTo', {
-    linkTo,
-    isSearchPage,
-    query,
-    productId,
-    productCategory: product.category,
-    productSubcategory: product.subcategory,
-  });
-
   return (
     <div className="product-card">
       <Link

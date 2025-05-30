@@ -14,10 +14,10 @@ const Breadcrumbs = () => {
   const searchQuery = queryParams.get('query') || '';
 
   const isSearchProductPage = pathnames[0] === 'search' && pathnames.length === 2;
-  const isCatalogProductPage = pathnames[0] === 'catalog' && pathnames.length === 3;
-  const productId = isSearchProductPage ? pathnames[1] : isCatalogProductPage ? pathnames[2] : null;
-  const category = isCatalogProductPage ? pathnames[0] : null;
-  const subcategory = isCatalogProductPage ? pathnames[1] : null;
+  const isCatalogProductPage = pathnames[0] === 'catalog' && pathnames.length === 4;
+  const productId = isSearchProductPage ? pathnames[1] : isCatalogProductPage ? pathnames[3] : null;
+  const category = isCatalogProductPage ? pathnames[1] : null;
+  const subcategory = isCatalogProductPage ? pathnames[2] : null;
 
   const { data: productData, loading } = useCatalogData(
     isSearchProductPage || isCatalogProductPage ? 'product_details' : null,
@@ -37,18 +37,28 @@ const Breadcrumbs = () => {
   }, [isSearchProductPage, isCatalogProductPage, productData]);
 
   const getDisplayName = (slug, index, pathArray) => {
+    console.log('getDisplayName: Args', { slug, index, pathArray });
     if (!slug) return null;
     if (index === -1) return t('nav.home');
     if (index === 0 && pathArray[0] === 'catalog' && pathArray.length === 1) return t('nav.catalog');
     if (index === 0 && slug === 'search') return t('search.mainTitle');
-    if (index === 0 && pathArray[0] === 'catalog') return t(`category.${slug}`) || slug;
-    if (index === 1 && pathArray[0] === 'catalog') {
-      const category = pathArray[0];
-      const name = t(`subcategory.${category}.${slug}`) || slug;
-      return typeof name === 'object' && name !== null && 'ru' in name ? name.ru : name;
+    if (index === 0 && pathArray[0] === 'catalog') {
+      const categoryName = t(`category.${slug}`) || slug;
+      console.log('getDisplayName: Category', { slug, categoryName });
+      return categoryName;
     }
-    if ((index === 1 && pathArray[0] === 'search') || (index === 2 && pathArray[0] === 'catalog')) {
+    if (index === 1 && pathArray[0] === 'catalog') {
+      const category = pathArray[1];
+      const subcategoryKey = `subcategory.${category}.${slug}`;
+      const subcategoryName = t(subcategoryKey) || slug;
+      console.log('getDisplayName: Subcategory', { slug, category, subcategoryKey, subcategoryName });
+      return typeof subcategoryName === 'object' && subcategoryName !== null && 'ru' in subcategoryName
+        ? subcategoryName.ru
+        : subcategoryName;
+    }
+    if ((index === 1 && pathArray[0] === 'search') || (index === 3 && pathArray[0] === 'catalog')) {
       if (loading) return null;
+      console.log('getDisplayName: Product', { productName });
       return productName;
     }
     return slug.replace(/-/g, ' ').replace(/_/g, ' ');
@@ -102,6 +112,14 @@ const Breadcrumbs = () => {
           path: `/catalog/${pathnames[1]}/${pathnames[2]}`,
           isActive: pathnames.length === 3,
         });
+
+        if (pathnames.length > 3) {
+          breadcrumbItems.push({
+            name: getDisplayName(pathnames[3], 3, pathnames),
+            path: `/catalog/${pathnames[1]}/${pathnames[2]}/${pathnames[3]}`,
+            isActive: true,
+          });
+        }
 
         if (isCatalogProductPage && isFromSearch) {
           breadcrumbItems.splice(1, 0, {
