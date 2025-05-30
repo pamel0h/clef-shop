@@ -56,6 +56,15 @@
     "to":"to",
     "reset":"Reset filters"
   },
+  "sort":{
+    "mainTitle":"Sorting",
+    "sortBy":"Field",
+    "byName":"By Name",
+    "byPrice":"By Price",
+    "direction":"Direction",
+    "asc":"Ascending",
+    "desc":"Descending"
+  },
   "contacts":{
     "mainTitle":"Contacts",
     "phones": "Our phone numbers",

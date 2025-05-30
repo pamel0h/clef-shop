@@ -6,11 +6,27 @@ import '../../../../css/components/Filter.css';
 import { useTranslation } from 'react-i18next';
 
 
-export const ProductFilter = ({ products, onFilterChange }) => {
+export const ProductFilter = ({ 
+  products, 
+  onFilterChange, 
+  onSortChange, 
+  sortOption = { field: 'name', direction: 'asc' } // Добавляем значение по умолчанию
+}) => {
   const { t } = useTranslation();
   const { filters, setFilters } = useProductFilter(products);
   const location = useLocation();
   const isSearchPage = location.pathname.startsWith('/search');
+
+    // Добавляем обработчик сортировки
+    const handleSortFieldChange = (e) => {
+      const field = e.target.value;
+      onSortChange(field, sortOption.direction);
+    };
+  
+    const handleSortDirectionChange = (e) => {
+      const direction = e.target.value;
+      onSortChange(sortOption.field, direction);
+    };
 
   const handlePriceChange = (type, value) => {
     const parsedValue = value === '' ? 0 : parseInt(value);
@@ -77,6 +93,30 @@ export const ProductFilter = ({ products, onFilterChange }) => {
 
   return (
     <div className="filters">
+      <h3>{t('sort.mainTitle')}</h3>
+      {/* Добавляем блок сортировки */}
+      <div className="filter-group">
+        <label>{t('sort.sortBy')}:</label>
+          <select 
+            value={sortOption.field} 
+            onChange={handleSortFieldChange}
+            className="sort-select"
+          >
+            <option value="name">{t('sort.byName')}</option>
+            <option value="price">{t('sort.byPrice')}</option>
+          </select>
+        </div>
+          <div className="filter-group">
+          <label>{t('sort.direction')}:</label>
+          <select 
+            value={sortOption.direction} 
+            onChange={handleSortDirectionChange}
+            className="sort-select"
+          >
+            <option value="asc">{t('sort.asc')}</option>
+            <option value="desc">{t('sort.desc')}</option>
+          </select>
+      </div>
       <h3>{t('filters.mainTitle')}</h3>
       <div className="filter-group">
         <label>{t('filters.price')}:</label>
