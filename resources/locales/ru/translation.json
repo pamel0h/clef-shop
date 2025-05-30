@@ -54,7 +54,8 @@
     "subcategory":"Подкатегория",
     "from":"от",
     "to":"до",
-    "reset":"Сбросить фильтры"
+    "reset":"Сбросить фильтры",
+    "specifications": "Характеристики"
   },
   "sort":{
     "mainTitle":"Сортировка",
@@ -64,6 +65,15 @@
     "direction":"Направление",
     "asc":"По возрастанию",
     "desc":"По убыванию"
+  },
+  "specs": {
+    "amplifier_power": "Мощность усилителя",
+    "color": "Цвет",
+    "configuration": "Конфигурация",
+    "tweeter_size": "Размер твитера",
+    "tweeter_type": "Тип твитера",
+    "type": "Тип",
+    "woofer_size": "Размер вуфера"
   },
   "contacts":{
     "mainTitle":"Контакты",

@@ -54,7 +54,8 @@
     "subcategory":"Subcategory",
     "from":"from",
     "to":"to",
-    "reset":"Reset filters"
+    "reset":"Reset filters",
+    "specifications": "Specifications"
   },
   "sort":{
     "mainTitle":"Sorting",
@@ -64,6 +65,15 @@
     "direction":"Direction",
     "asc":"Ascending",
     "desc":"Descending"
+  },
+  "specs": {
+    "amplifier_power": "Amplifier power",
+    "color": "Color",
+    "configuration": "Configuration",
+    "tweeter_size": "Tweeter size",
+    "tweeter_type": "Tweeter type",
+    "type": "Type",
+    "woofer_size": "Woofer size"
   },
   "contacts":{
     "mainTitle":"Contacts",

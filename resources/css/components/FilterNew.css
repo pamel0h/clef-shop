@@ -1,0 +1,39 @@
+.specs-title {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 20px;
+  }
+  
+  .specs-title::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid currentColor;
+    transition: transform 0.2s;
+  }
+  
+  .specs-title[aria-expanded="false"]::after {
+    transform: translateY(-50%) rotate(-90deg);
+  }
+
+  .spec-options {
+    display: block; /* Убираем grid/flex */
+    margin-left: 10px;
+  }
+  
+  /* Или если хотите сохранить отступы между строками */
+  .spec-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px; /* Расстояние между чекбоксами */
+    margin-left: 10px;
+  }
+
+  

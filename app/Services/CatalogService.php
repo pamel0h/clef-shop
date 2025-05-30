@@ -25,11 +25,10 @@ class CatalogService
     public function getProducts(string $category, ?string $subcategory = null)
     {
         return Item::getItemsByCategory($category, $subcategory)
-        ->map(function ($item) {
-            return $this->productFormatter->formatProduct($item);
-        })
-        ->toArray();
+            ->map(fn($item) => $this->productFormatter->formatProduct($item))
+            ->toArray();
     }
+
     public function getProductDetails(string $id, string $category, string $subcategory): array
     {
         $product = Item::where('_id', $id)

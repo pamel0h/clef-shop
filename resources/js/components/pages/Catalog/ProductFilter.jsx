@@ -3,19 +3,37 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import useProductFilter from '../../../hooks/useProductFilter';
 import '../../../../css/components/Filter.css';
+import '../../../../css/components/FilterNew.css';
 import { useTranslation } from 'react-i18next';
 
 
 export const ProductFilter = ({ 
   products, 
+  initialProducts,
   onFilterChange, 
   onSortChange, 
-  sortOption = { field: 'name', direction: 'asc' } // Добавляем значение по умолчанию
+  sortOption = { field: 'name', direction: 'asc' } ,// Добавляем значение по умолчанию
 }) => {
   const { t } = useTranslation();
   const { filters, setFilters } = useProductFilter(products);
   const location = useLocation();
   const isSearchPage = location.pathname.startsWith('/search');
+  const [showSpecs, setShowSpecs] = useState(true); // Состояние для показа/скрытия
+
+  const handleSpecChange = (specKey, specValue, checked) => {
+    const newFilters = {
+      ...filters,
+      specs: {
+        ...filters.specs,
+        [specKey]: {
+          ...(filters.specs[specKey] || {}),
+          [specValue]: checked
+        }
+      }
+    };
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
 
     // Добавляем обработчик сортировки
     const handleSortFieldChange = (e) => {
@@ -66,21 +84,40 @@ export const ProductFilter = ({
     setFilters(newFilters);
     onFilterChange(newFilters);
   };
-
   const handleResetFilters = () => {
-    const maxPrice = products?.length > 0 ? Math.ceil(Math.max(...products.map((p) => p.price)) / 1000) * 1000 : 100000;
+    if (!initialProducts) {
+      console.error('initialProducts is not defined');
+      return;
+    }
+
+    const maxPrice = initialProducts?.length > 0 
+      ? Math.ceil(Math.max(...initialProducts.map(p => p.price)) / 1000) * 1000 
+      : 100000;
+
+    // Собираем все возможные характеристики
+    const allSpecs = {};
+    initialProducts.forEach(product => {
+      if (product.specs) {
+        Object.entries(product.specs).forEach(([key, value]) => {
+          if (!allSpecs[key]) allSpecs[key] = {};
+          allSpecs[key][String(value)] = true;
+        });
+      }
+    });
+
     const newFilters = {
+      ...filters,
       priceRange: [0, maxPrice],
       brand: 'all',
       category: 'all',
       subcategory: 'all',
-      brands: filters.brands,
-      categories: filters.categories,
-      subcategories: filters.subcategories,
+      specs: allSpecs
     };
+
     setFilters(newFilters);
     onFilterChange(newFilters);
   };
+
 
   // Фильтруем подкатегории в зависимости от выбранной категории
   const availableSubcategories = filters.category === 'all'
@@ -194,6 +231,38 @@ export const ProductFilter = ({
           </div>
         </>
       )}
+{/* Блок характеристик */}
+<div className="specs-filter-section">
+  <h3 
+    className="specs-title" 
+    onClick={() => setShowSpecs(!showSpecs)}
+    style={{cursor: 'pointer'}}
+  >
+    {t('filters.specifications')}
+  </h3>
+  
+  {showSpecs && (
+    <>
+      {Object.entries(filters.specs || {}).map(([specKey, specValues]) => (
+        <div key={specKey} className="spec-group">
+          <h4>{t(`specs.${specKey}`)}</h4>
+          <div className="spec-options">
+            {Object.entries(specValues).map(([value, isChecked]) => (
+              <label key={value} className="spec-option">
+                <input
+                  type="checkbox"
+                  checked={isChecked !== false}
+                  onChange={(e) => handleSpecChange(specKey, value, e.target.checked)}
+                />
+                <span>{value}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+    </>
+  )}
+</div>
       <div className="filter-group">
         <button className="reset-button" onClick={handleResetFilters}>
         {t('filters.reset')}

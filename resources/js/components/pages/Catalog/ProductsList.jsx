@@ -39,16 +39,41 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
     setFilteredProducts(sortedProducts);
   }, [initialProducts, sortOption]);
 
+  const [selectedSpecs, setSelectedSpecs] = useState({});
+
   const handleFilterChange = (newFilters) => {
+    console.log('Applying filters:', newFilters);
     const filtered = initialProducts.filter((product) => {
+      console.log(`Checking product ${product.id} (${product.name})`);
       const price = Number(product.price);
       const discountPrice = product.discount ? price * (1 - product.discount / 100) : price;
       if (newFilters.priceRange && discountPrice > newFilters.priceRange[1]) return false;
       if (newFilters.brand !== 'all' && product.brand !== newFilters.brand) return false;
       if (isSearchPage && newFilters.category !== 'all' && product.category !== newFilters.category) return false;
       if (isSearchPage && newFilters.subcategory !== 'all' && product.subcategory !== newFilters.subcategory) return false;
-      return true;
-    });
+      
+     // Фильтрация по характеристикам
+     if (product.specs) {
+      for (const [specKey, specFilter] of Object.entries(newFilters.specs)) {
+        // Если характеристика есть в фильтрах
+        if (Object.values(specFilter).some(v => v === false)) {
+          const productValue = product.specs[specKey];
+          
+          // Если у товара нет этой характеристики - пропускаем проверку
+          if (productValue === undefined) continue;
+          
+          // Если есть хотя бы один выбранный вариант и текущее значение не выбрано - исключаем
+          const strValue = String(productValue);
+          if (specFilter[strValue] === false) {
+            return false;
+          }
+        }
+      }
+    }
+    
+    return true;
+  });
+
     const sortedFilteredProducts = sortProducts(filtered);
     console.log('ProductsList: Filtered products', sortedFilteredProducts);
     setFilteredProducts(sortedFilteredProducts);
@@ -57,7 +82,10 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
   const handleSortChange = (field, direction) => {
     setSortOption({ field, direction });
   };
-
+  const handleSpecsChange = (newSelectedSpecs) => {
+    setSelectedSpecs(newSelectedSpecs);
+    // Можно вызвать handleFilterChange с текущими фильтрами
+  }
   return (
     <div className="products-list-container">
       <ProductFilter 
@@ -65,7 +93,9 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
         onFilterChange={handleFilterChange} 
         onSortChange={handleSortChange}
         sortOption={sortOption}
+        initialProducts={initialProducts} 
       />
+
       <div className="products">
         <div className="products-grid">
           {filteredProducts.length > 0 ? (
