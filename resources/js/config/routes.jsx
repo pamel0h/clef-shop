@@ -29,6 +29,7 @@ export const routes = [
             path: ':categorySlug',
             element: <SubcategoriesList />,
           },
+          
           {
             path: ':categorySlug/:subcategorySlug',
             element: <ProductsPage />,
@@ -43,7 +44,16 @@ export const routes = [
       { path: '/contacts', element: <ContactPage /> },
       { path: '/profile', element: <ProfilePage /> },
       { path: '/cart', element: <CartPage /> },
-      { path: '/search', element: <SearchPage /> },
+      { path: ':search', 
+        element: <SearchPage />,
+        children: [
+          { index: true, element: <ProductsPage /> },
+          {
+            path: ':productId',
+            element: <ProductDetailsPage />,
+          },
+        ],
+      },
     ],
   },
 ];

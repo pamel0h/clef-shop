@@ -1,29 +1,21 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import useCatalogData from '../../../hooks/useCatalogData';
 import ProductCard from './ProductCard';
 import { ProductFilter } from './ProductFilter';
 import '../../../../css/components/Products.css';
 import '../../../../css/components/Loading.css';
 
-const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = false, query }) => {
+const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPage = false, query }) => {
   const { categorySlug, subcategorySlug } = useParams();
-  const { data: catalogProducts, loading, error } = useCatalogData('products', {
-    category: categorySlug,
-    subcategory: subcategorySlug,
-  }, isSearchPage);
-
   const [filteredProducts, setFilteredProducts] = useState([]);
 
-  const products = isSearchPage ? initialProducts : catalogProducts;
-
   useEffect(() => {
-    console.log('ProductsList: Received products', products);
-    setFilteredProducts(products);
-  }, [products]);
+    console.log('ProductsList: Received products', initialProducts, 'isSearchPage:', isSearchPage, 'query:', query);
+    setFilteredProducts(initialProducts);
+  }, [initialProducts]);
 
   const handleFilterChange = (newFilters) => {
-    const filtered = products.filter((product) => {
+    const filtered = initialProducts.filter((product) => {
       const price = Number(product.price);
       if (newFilters.priceRange && price > newFilters.priceRange[1]) return false;
       if (newFilters.brand !== 'all' && product.brand !== newFilters.brand) return false;
@@ -35,12 +27,9 @@ const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = 
     setFilteredProducts(filtered);
   };
 
-  if (loading && !isSearchPage) return <div className="loading">Загрузка...</div>;
-  if (error && !isSearchPage) return <div>Error: {error.message}</div>;
-
   return (
     <div className="products-list-container">
-      <ProductFilter products={products} onFilterChange={handleFilterChange} />
+      <ProductFilter products={initialProducts} onFilterChange={handleFilterChange} />
       <div className="products">
         <div className="products-grid">
           {filteredProducts.length > 0 ? (
@@ -48,10 +37,8 @@ const ProductsList = ({ products: initialProducts, emptyMessage, isSearchPage = 
               <ProductCard
                 key={product.id || product._id || index}
                 product={product}
-                categorySlug={isSearchPage ? product.category : categorySlug}
-                subcategorySlug={isSearchPage ? product.subcategory : subcategorySlug}
                 isSearchPage={isSearchPage}
-                query={query} // Передаем query в ProductCard
+                query={query}
               />
             ))
           ) : (
