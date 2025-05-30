@@ -138,7 +138,7 @@ const Breadcrumbs = () => {
     <div className="breadcrumbs-container">
       {breadcrumbItems.map((item, index) => (
         <span key={index} className="breadcrumb-item">
-          {index > 0 && <span className="breadcrumb-separator"> > </span>}
+          {index > 0 && <span className="breadcrumb-separator"> {'>'} </span>}
           {item.isActive ? (
             <span className="breadcrumb-active">{item.name}</span>
           ) : (
