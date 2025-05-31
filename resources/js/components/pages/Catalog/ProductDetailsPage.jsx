@@ -2,7 +2,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import useCatalogData from '../../../hooks/useCatalogData';
 import '../../../../css/components/ProductDetails.css';
 import '../../../../css/components/Loading.css';
-import ProductGallery from './ProductGallery';
+import ProductImage from '../../UI/ProductImage';
 import ProductInfo from './ProductInfo';
 import ProductSpecs from './ProductSpecs';
 import { useOutletContext } from 'react-router-dom';
@@ -40,7 +40,7 @@ const ProductDetailsPage = () => {
   return (
     <div className="product-details-container">
       <div className="product-details-grid">
-        <ProductGallery image={product.image} alt={product.name} />
+      <ProductImage src={product.image} alt={product.name} variant="main" />
         <ProductInfo
           name={product.name}
           price={product.price}
