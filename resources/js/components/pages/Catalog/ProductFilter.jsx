@@ -16,7 +16,7 @@ export const ProductFilter = ({
   initialFilters,
 }) => {
   const { t } = useTranslation();
-  const { filters, setFilters, savedSortOption } = useProductFilter(initialProducts, filteredByMainFilters, initialFilters);
+  const { filters, setFilters, setSortOption } = useProductFilter(initialProducts, filteredByMainFilters, initialFilters);
   const location = useLocation();
   const isSearchPage = location.pathname.startsWith('/search');
   const [showSpecs, setShowSpecs] = useState(false);
@@ -25,31 +25,20 @@ export const ProductFilter = ({
 
   // Синхронизируем локальный диапазон цен с фильтрами
   useEffect(() => {
-    console.log('ProductFilter: Syncing localPriceRange with filters', filters.priceRange);
-    if (filters.priceRange && Array.isArray(filters.priceRange)) {
+    if (filters?.priceRange && Array.isArray(filters.priceRange)) {
+      console.log('ProductFilter: Syncing localPriceRange with filters', filters.priceRange);
       setLocalPriceRange(filters.priceRange);
     }
-  }, [filters.priceRange]);
-
-  // Восстанавливаем сортировку при необходимости
-  useEffect(() => {
-    if (
-      savedSortOption &&
-      (savedSortOption.field !== sortOption.field || savedSortOption.direction !== sortOption.direction)
-    ) {
-      console.log('ProductFilter: Restoring sort option', savedSortOption);
-      onSortChange(savedSortOption.field, savedSortOption.direction);
-    }
-  }, [savedSortOption, onSortChange, sortOption]);
+  }, [filters?.priceRange]);
 
   useEffect(() => {
     // Когда фильтры инициализируются с сохраненными значениями,
     // сразу сообщаем об этом родительскому компоненту
-    if (filters.initialized && initialFilters && Object.keys(initialFilters).length > 0) {
+    if (filters?.initialized && initialFilters && Object.keys(initialFilters).length > 0) {
       console.log('ProductFilter: Filters initialized with saved values, triggering change', filters);
       onFilterChange(filters);
     }
-  }, [filters.initialized]);
+  }, [filters?.initialized]);
   
   const VALUES_LIMIT = 5;
 
@@ -69,14 +58,16 @@ export const ProductFilter = ({
     const newPriceRange = [newMin, newMax];
     setLocalPriceRange(newPriceRange);
 
-    setFilters((prev) => {
-      const newFilters = {
-        ...prev,
-        priceRange: newPriceRange,
-      };
-      onFilterChange(newFilters);
-      return newFilters;
-    });
+    if (filters && setFilters) {
+      setFilters((prev) => {
+        const newFilters = {
+          ...prev,
+          priceRange: newPriceRange,
+        };
+        onFilterChange(newFilters);
+        return newFilters;
+      });
+    }
   };
 
   const handleBlur = (type, value) => {
@@ -88,6 +79,12 @@ export const ProductFilter = ({
 
   const handleSpecChange = (specKey, specValue, checked) => {
     console.log('ProductFilter: handleSpecChange', { specKey, specValue, checked });
+    
+    if (!filters || !setFilters) {
+      console.warn('ProductFilter: Filters not ready');
+      return;
+    }
+
     const newSelectedSpecs = {
       ...filters.selectedSpecs,
       [specKey]: {
@@ -106,17 +103,34 @@ export const ProductFilter = ({
   };
 
   const handleSortFieldChange = (e) => {
-    console.log('ProductFilter: handleSortFieldChange', e.target.value);
-    onSortChange(e.target.value, sortOption.direction);
+    const field = e.target.value;
+    console.log('ProductFilter: Changing sort field', { field, currentSortOption: sortOption });
+    const newSortOption = { 
+      field: field || 'name',
+      direction: sortOption.direction || 'asc'
+    };
+    onSortChange(newSortOption.field, newSortOption.direction);
   };
 
   const handleSortDirectionChange = (e) => {
-    console.log('ProductFilter: handleSortDirectionChange', e.target.value);
-    onSortChange(sortOption.field, e.target.value);
+    const direction = e.target.value;
+    console.log('ProductFilter: Changing sort direction', { direction, currentSortOption: sortOption });
+    const newSortOption = { 
+      field: sortOption.field || 'name',
+      direction: direction || 'asc'
+    };
+    onSortChange(newSortOption.field, newSortOption.direction);
   };
+
 
   const handleCategoryChange = (value) => {
     console.log('ProductFilter: handleCategoryChange', value);
+    
+    if (!filters || !setFilters) {
+      console.warn('ProductFilter: Filters not ready');
+      return;
+    }
+
     const newFilters = {
       ...filters,
       category: value,
@@ -128,6 +142,12 @@ export const ProductFilter = ({
 
   const handleSubcategoryChange = (value) => {
     console.log('ProductFilter: handleSubcategoryChange', value);
+    
+    if (!filters || !setFilters) {
+      console.warn('Filters not initialized yet, skipping subcategory change');
+      return;
+    }
+    
     const newFilters = { ...filters, subcategory: value };
     setFilters(newFilters);
     onFilterChange(newFilters);
@@ -135,6 +155,12 @@ export const ProductFilter = ({
 
   const handleBrandChange = (value) => {
     console.log('ProductFilter: handleBrandChange', value);
+    
+    if (!filters || !setFilters) {
+      console.warn('ProductFilter: Filters not ready');
+      return;
+    }
+
     const newFilters = { ...filters, brand: value };
     setFilters(newFilters);
     onFilterChange(newFilters);
@@ -142,8 +168,9 @@ export const ProductFilter = ({
 
   const handleResetFilters = () => {
     console.log('ProductFilter: handleResetFilters');
-    if (!initialProducts.length) {
-      console.error('initialProducts is empty');
+    
+    if (!initialProducts.length || !filters || !setFilters) {
+      console.error('initialProducts is empty or filters not ready');
       return;
     }
 
@@ -174,7 +201,13 @@ export const ProductFilter = ({
       subcategories: filters.subcategories,
       specs: allSpecs,
       selectedSpecs: {},
+      initialized: true,
     };
+
+    // Сброс сортировки к значениям по умолчанию
+    const defaultSortOption = { field: 'name', direction: 'asc' };
+    setSortOption(defaultSortOption);
+    onSortChange(defaultSortOption.field, defaultSortOption.direction);
 
     setLocalPriceRange([0, maxPrice]);
     setFilters(newFilters);
@@ -189,6 +222,11 @@ export const ProductFilter = ({
       [specKey]: !prev[specKey],
     }));
   };
+
+  // Защита от неинициализированных фильтров
+  if (!filters || !filters.initialized) {
+    return <div className="loading">Загрузка фильтров...</div>;
+  }
 
   const availableSubcategories =
     filters.category === 'all'
@@ -205,14 +243,14 @@ export const ProductFilter = ({
         <h3>{t('sort.mainTitle')}</h3>
         <div className="filter-group">
           <label>{t('sort.sortBy')}:</label>
-          <select value={sortOption.field} onChange={handleSortFieldChange} className="sort-select">
+          <select value={sortOption.field || 'name'} onChange={handleSortFieldChange} className="sort-select">
             <option value="name">{t('sort.byName')}</option>
             <option value="price">{t('sort.byPrice')}</option>
           </select>
         </div>
         <div className="filter-group">
           <label>{t('sort.direction')}:</label>
-          <select value={sortOption.direction} onChange={handleSortDirectionChange} className="sort-select">
+          <select value={sortOption.direction || 'asc'} onChange={handleSortDirectionChange} className="sort-select">
             <option value="asc">{t('sort.asc')}</option>
             <option value="desc">{t('sort.desc')}</option>
           </select>
@@ -254,7 +292,7 @@ export const ProductFilter = ({
             value={filters.brand}
           >
             <option value="all">{t('filters.all')}</option>
-            {filters.brands.length > 0 ? (
+            {filters.brands?.length > 0 ? (
               filters.brands.map((brand) => (
                 <option key={brand} value={brand}>
                   {brand}
@@ -271,7 +309,7 @@ export const ProductFilter = ({
               <label>{t('filters.category')}:</label>
               <select onChange={(e) => handleCategoryChange(e.target.value)} value={filters.category}>
                 <option value="all">{t('filters.all')}</option>
-                {filters.categories.length > 0 ? (
+                {filters.categories?.length > 0 ? (
                   filters.categories.map((category) => (
                     <option key={category} value={category}>
                       {t(`category.${category}`)}
@@ -290,7 +328,7 @@ export const ProductFilter = ({
                 disabled={filters.category === 'all' || availableSubcategories.length === 0}
               >
                 <option value="all">{t('filters.all')}</option>
-                {availableSubcategories.length > 0 ? (
+                {availableSubcategories?.length > 0 ? (
                   availableSubcategories.map((subcategory) => (
                     <option key={subcategory} value={subcategory}>
                       {t(`subcategory.${filters.category}.${subcategory}`)}

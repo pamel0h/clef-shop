@@ -17,8 +17,8 @@ const ProductCard = ({ product, isSearchPage, query, filters, sortOption }) => {
         to={linkTo}
         className="product-link"
         state={{ 
-          filters, 
-          sortOption, 
+          filters: filters || {}, 
+          sortOption: sortOption || { field: 'name', direction: 'asc' },
           fromSearch: isSearchPage, 
           searchQuery: isSearchPage ? query : undefined 
         }}

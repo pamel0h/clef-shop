@@ -1,166 +1,132 @@
+// useProductFilter.js
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const useProductFilter = (initialProducts, filteredByMainFilters, initialFilters) => {
   const location = useLocation();
-  const savedSortOption = location.state?.sortOption || { field: 'name', direction: 'asc' };
   const [lastRoute, setLastRoute] = useState(location.pathname);
+  const [filters, setFilters] = useState(null);
 
-  // Инициализация фильтров
-  const [filters, setFilters] = useState({
-    priceRange: [0, 100000],
-    brand: 'all',
-    category: 'all',
-    subcategory: 'all',
-    brands: [],
-    categories: [],
-    subcategories: [],
-    specs: {},
-    selectedSpecs: {},
-    initialized: false,
+  const [sortOption, setSortOption] = useState(() => {
+    const defaultSort = { field: 'name', direction: 'asc' };
+    const initialSort = initialFilters?.sortOption || location.state?.sortOption || defaultSort;
+
+    if (!initialSort || Object.keys(initialSort).length === 0) {
+      console.log('useProductFilter: initialSort is empty or invalid, using default', defaultSort);
+      return defaultSort;
+    }
+
+    return {
+      field: initialSort.field && ['name', 'price'].includes(initialSort.field) ? initialSort.field : defaultSort.field,
+      direction: initialSort.direction && ['asc', 'desc'].includes(initialSort.direction) ? initialSort.direction : defaultSort.direction
+    };
   });
 
   useEffect(() => {
     console.log('useProductFilter: Initializing', {
-      initialProducts,
-      filteredByMainFilters,
+      initialProducts: initialProducts?.length,
       initialFilters,
-      lastRoute,
-      currentRoute: location.pathname,
+      location: location.pathname,
+      sortOption,
     });
 
-    // Определяем, нужно ли сбросить фильтры
+    if (!initialProducts || initialProducts.length === 0) {
+      console.log('useProductFilter: No initial products, skipping initialization');
+      setFilters({ initialized: false });
+      return;
+    }
+
     const isSearchToCatalog = lastRoute.startsWith('/search') && location.pathname.startsWith('/catalog');
     const isCatalogToSearch = lastRoute.startsWith('/catalog') && location.pathname.startsWith('/search');
-    const isDifferentCategory =
-      lastRoute.includes('/catalog/') &&
-      location.pathname.includes('/catalog/') &&
-      lastRoute !== location.pathname;
-
-    // ВАЖНО: проверяем, пришли ли мы из детальной страницы товара
-    const isFromProductDetails = 
-      (lastRoute.split('/').length === 5 && lastRoute.startsWith('/catalog/')) ||  // /catalog/cat/subcat/product
-      (lastRoute.split('/').length === 3 && lastRoute.startsWith('/search/'));     // /search/product
+    const lastRouteSegments = lastRoute.split('/').filter((x) => x).length;
+    const isFromProductDetails = lastRouteSegments > location.pathname.split('/').filter((x) => x).length;
+    const isDifferentCategory = lastRoute.split('/')[2] !== location.pathname.split('/')[2];
 
     console.log('useProductFilter: Route analysis', {
       isSearchToCatalog,
       isCatalogToSearch,
       isDifferentCategory,
       isFromProductDetails,
-      lastRouteSegments: lastRoute.split('/').length,
-      currentRouteSegments: location.pathname.split('/').length
+      lastRouteSegments,
+      currentRouteSegments: location.pathname.split('/').filter((x) => x).length,
     });
 
-    const shouldResetFilters = (isSearchToCatalog || isCatalogToSearch || isDifferentCategory) && !isFromProductDetails;
+    // let newFilters = {
+    //   priceRange: [0, 100000],
+    //   brand: 'all',
+    //   category: 'all',
+    //   subcategory: 'all',
+    //   brands: [],
+    //   initialized: true,
+    // };
 
-    // Вычисляем доступные бренды, категории, подкатегории и максимальную цену
-    const brands = initialProducts?.length > 0
-      ? [...new Set(initialProducts.map((p) => p.brand).filter((val) => val && typeof val === 'string'))].sort()
-      : [];
-    const categories = initialProducts?.length > 0
-      ? [...new Set(initialProducts.map((p) => p.category).filter((val) => val && typeof val === 'string'))].sort()
-      : [];
-    const subcategories = initialProducts?.length > 0
-      ? [...new Set(initialProducts.map((p) => p.subcategory).filter((val) => val && typeof val === 'string'))].sort()
-      : [];
-    const maxPrice = initialProducts?.length > 0
-      ? Math.ceil(Math.max(...initialProducts.map((p) => Number(p.price) || 0)) / 1000) * 1000
-      : 100000;
+    // Создаем базовые данные из товаров
+const brands = [...new Set(initialProducts.map(p => p.brand).filter(Boolean))].sort();
+const categories = [...new Set(initialProducts.map(p => p.category).filter(Boolean))].sort();
+const subcategories = [...new Set(initialProducts.map(p => p.subcategory).filter(Boolean))].sort();
 
-    // Формируем характеристики
-    const allSpecs = {};
-    if (filteredByMainFilters?.length > 0) {
-      filteredByMainFilters.forEach((product) => {
-        if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
-          Object.entries(product.specs).forEach(([key, value]) => {
-            if (key && value) {
-              if (!allSpecs[key]) allSpecs[key] = {};
-              allSpecs[key][String(value)] = { count: 0, selected: true };
-            }
-          });
+const maxPrice = initialProducts.length > 0 
+  ? Math.ceil(Math.max(...initialProducts.map(p => Number(p.price) || 0)) / 1000) * 1000 
+  : 100000;
+
+// Собираем все характеристики
+const allSpecs = {};
+initialProducts.forEach(product => {
+  if (product.specs && typeof product.specs === 'object') {
+    Object.entries(product.specs).forEach(([key, value]) => {
+      if (key && value) {
+        if (!allSpecs[key]) allSpecs[key] = {};
+        const strValue = String(value);
+        if (!allSpecs[key][strValue]) {
+          allSpecs[key][strValue] = { count: 0, selected: true };
         }
-      });
+        allSpecs[key][strValue].count++;
+      }
+    });
+  }
+});
 
-      filteredByMainFilters.forEach((product) => {
-        if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
-          Object.entries(product.specs).forEach(([key, value]) => {
-            if (allSpecs[key] && allSpecs[key][String(value)]) {
-              allSpecs[key][String(value)].count += 1;
-            }
-          });
-        }
-      });
-    }
+let newFilters = {
+  priceRange: [0, maxPrice],
+  brand: 'all',
+  category: 'all', 
+  subcategory: 'all',
+  brands,
+  categories,
+  subcategories,
+  specs: allSpecs,
+  selectedSpecs: {},
+  initialized: true,
+};
 
-    // Определяем базовые фильтры
-    const baseFilters = {
-      priceRange: [0, maxPrice],
-      brand: 'all',
-      category: 'all',
-      subcategory: 'all',
-      brands,
-      categories,
-      subcategories,
-      specs: allSpecs,
-      selectedSpecs: {},
-      initialized: true,
-    };
-
-    let newFilters;
-
-    if (shouldResetFilters) {
-      // Сбрасываем фильтры полностью
-      console.log('useProductFilter: Resetting filters due to route change');
-      newFilters = baseFilters;
-    } else if (initialFilters && Object.keys(initialFilters).length > 0 && (!filters.initialized || isFromProductDetails)) {
-      // Используем сохраненные фильтры (возврат с детальной страницы)
-      console.log('useProductFilter: Restoring saved filters', initialFilters);
-      
-      // ВАЖНО: Проверяем, что сохраненный диапазон цен корректен
-      const savedPriceRange = initialFilters.priceRange || [0, maxPrice];
-      const validPriceRange = [
-        Math.max(0, Math.min(savedPriceRange[0], maxPrice)),
-        Math.min(maxPrice, Math.max(savedPriceRange[1], savedPriceRange[0]))
-      ];
-
+    if (initialFilters && Object.keys(initialFilters).length > 0) {
       newFilters = {
-        ...baseFilters,
-        priceRange: validPriceRange,
+        ...newFilters,
+        ...initialFilters,
+        priceRange: initialFilters.priceRange || [0, 100000],
         brand: initialFilters.brand || 'all',
         category: initialFilters.category || 'all',
         subcategory: initialFilters.subcategory || 'all',
         selectedSpecs: initialFilters.selectedSpecs || {},
-        initialized: true,
       };
-
-      console.log('useProductFilter: Applied saved filters', {
-        savedPriceRange,
-        validPriceRange,
-        newFilters
-      });
-    } else if (!filters.initialized) {
-      // Первая инициализация без сохраненных фильтров
-      console.log('useProductFilter: First initialization with default filters');
-      newFilters = baseFilters;
-    } else {
-      // Обновляем только структурные данные (brands, categories, specs)
-      console.log('useProductFilter: Updating structural data only');
+    } else if (location.state?.filters) {
       newFilters = {
-        ...filters,
-        brands,
-        categories,
-        subcategories,
-        specs: allSpecs,
-        initialized: true,
+        ...newFilters,
+        ...location.state.filters,
+        priceRange: location.state.filters.priceRange || [0, 100000],
+        brand: location.state.filters.brand || 'all',
+        category: location.state.filters.category || 'all',
+        subcategory: location.state.filters.subcategory || 'all',
+        selectedSpecs: location.state.filters.selectedSpecs || {},
       };
     }
 
     console.log('useProductFilter: Setting filters', newFilters);
     setFilters(newFilters);
     setLastRoute(location.pathname);
-  }, [initialProducts, filteredByMainFilters, initialFilters, location.pathname]);
+  }, [initialProducts, initialFilters, location.pathname, location.state]);
 
-  return { filters, setFilters, savedSortOption };
+  return { filters, setFilters, sortOption, setSortOption };
 };
 
 export default useProductFilter;

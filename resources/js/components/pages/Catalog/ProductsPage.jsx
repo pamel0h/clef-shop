@@ -14,7 +14,7 @@ const ProductsPage = () => {
   const context = useOutletContext();
   const query = context?.query || searchQuery;
   const filters = context?.filters || location.state?.filters || {};
-  const sortOption = context?.sortOption || location.state?.sortOption || {};
+  const sortOption = context?.sortOption || location.state?.sortOption || { field: 'name', direction: 'asc' }; // Значение по умолчанию
   const isSearchPage = location.pathname.startsWith('/search');
 
   const { data: products, loading, error } = useCatalogData(
@@ -53,7 +53,7 @@ const ProductsPage = () => {
       isSearchPage={isSearchPage}
       query={query}
       initialFilters={filters} // Передаем фильтры
-      initialSortOption={sortOption} // Передаем сортировку
+      // initialSortOption={sortOption} // Передаем сортировку
     />
     </>
   );

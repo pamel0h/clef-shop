@@ -4,40 +4,57 @@ import ProductCard from './ProductCard';
 import { ProductFilter } from './ProductFilter';
 import '../../../../css/components/Products.css';
 import '../../../../css/components/Loading.css';
+import useProductFilter from '../../../hooks/useProductFilter';
 
-const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPage = false, query, initialFilters, initialSortOption }) => {
+const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPage = false, query, initialFilters }) => {
   const { categorySlug, subcategorySlug } = useParams();
   const location = useLocation();
   const [filteredByMainFilters, setFilteredByMainFilters] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [sortOption, setSortOption] = useState(initialSortOption || { field: 'name', direction: 'asc' });
-  const [filters, setFilters] = useState(null);
+  const { filters, setFilters, sortOption, setSortOption } = useProductFilter(initialProducts, filteredByMainFilters, initialFilters);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [shouldApplyInitialFilters, setShouldApplyInitialFilters] = useState(false);
 
   const sortProducts = (products) => {
+    if (!products || products.length === 0) return [];
+    
+    const field = sortOption.field && ['name', 'price'].includes(sortOption.field) ? sortOption.field : 'name';
+    const direction = sortOption.direction && ['asc', 'desc'].includes(sortOption.direction) ? sortOption.direction : 'asc';
+    
+    console.log('ProductsList: Sorting products', { field, direction });
     return [...products].sort((a, b) => {
       let valueA, valueB;
-      if (sortOption.field === 'price') {
-        valueA = a.discount ? a.price * (1 - a.discount / 100) : a.price;
-        valueB = b.discount ? b.price * (1 - b.discount / 100) : b.price;
+      if (field === 'price') {
+        valueA = Number(a.price) || 0;
+        valueB = Number(b.price) || 0;
+        if (a.discount) valueA = valueA * (1 - a.discount / 100);
+        if (b.discount) valueB = valueB * (1 - b.discount / 100);
       } else {
-        valueA = a.name.toLowerCase();
-        valueB = b.name.toLowerCase();
+        valueA = String(a.name || '').toLowerCase();
+        valueB = String(b.name || '').toLowerCase();
       }
-      if (valueA < valueB) return sortOption.direction === 'asc' ? -1 : 1;
-      if (valueA > valueB) return sortOption.direction === 'asc' ? 1 : -1;
-      return 0;
+      
+      if (direction === 'asc') {
+        return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+      } else {
+        return valueA > valueB ? -1 : valueA < valueB ? 1 : 0;
+      }
     });
   };
 
   useEffect(() => {
     console.log('ProductsList: Initializing', {
-      initialProducts,
+      initialProducts: initialProducts?.length,
       initialFilters,
-      location: location.pathname,
+      location: location.pathname + location.search,
       isSearchPage,
     });
+
+    if (!initialProducts || initialProducts.length === 0) {
+      console.log('ProductsList: No initial products');
+      setFilteredByMainFilters([]);
+      setFilteredProducts([]);
+      return;
+    }
 
     // Определяем, нужно ли сбросить состояние
     const currentRoute = location.pathname;
@@ -46,68 +63,83 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
 
     if (shouldReset) {
       console.log('ProductsList: Resetting state');
-      setFilters(null);
       setIsInitialized(true);
     }
 
-    // Инициализируем продукты с сортировкой
-    const sortedProducts = sortProducts(initialProducts);
-    setFilteredByMainFilters(sortedProducts);
+    // Проверяем, есть ли валидные начальные фильтры
+    const hasValidFilters = initialFilters && Object.keys(initialFilters).length > 0 && (
+      initialFilters.priceRange || initialFilters.brand !== 'all' || 
+      (isSearchPage && (initialFilters.category !== 'all' || initialFilters.subcategory !== 'all'))
+    );
+
+    let filteredByMain = initialProducts;
+
+    if (hasValidFilters) {
+      console.log('ProductsList: Applying initial filters', initialFilters);
+      filteredByMain = initialProducts.filter((product) => {
+        const price = Number(product.price);
+        const discountPrice = product.discount ? price * (1 - product.discount / 100) : price;
+        
+        if (initialFilters.priceRange && (discountPrice < initialFilters.priceRange[0] || discountPrice > initialFilters.priceRange[1])) {
+          return false;
+        }
+        
+        if (initialFilters.brand !== 'all' && product.brand !== initialFilters.brand) {
+          return false;
+        }
+        
+        if (isSearchPage && initialFilters.category !== 'all' && product.category !== initialFilters.category) {
+          return false;
+        }
+        
+        if (isSearchPage && initialFilters.subcategory !== 'all' && product.subcategory !== initialFilters.subcategory) {
+          return false;
+        }
+        
+        return true;
+      });
+    }
+
+    console.log(`ProductsList: After initial main filters: ${filteredByMain.length} products`);
+    setFilteredByMainFilters(filteredByMain);
+    const sortedProducts = sortProducts(filteredByMain);
     setFilteredProducts(sortedProducts);
+  }, [initialProducts, initialFilters, location.pathname, location.search, isSearchPage, isInitialized]);
 
-    // ВАЖНО: Если есть сохраненные фильтры, запланируем их применение
-    if (initialFilters && Object.keys(initialFilters).length > 0) {
-      console.log('ProductsList: Planning to apply initial filters', initialFilters);
-      setShouldApplyInitialFilters(true);
-    }
-
-  }, [initialProducts, location.pathname, isSearchPage]);
-
-  // Отдельный эффект для применения фильтров при изменении сортировки
+  // Эффект для применения сортировки
   useEffect(() => {
-    if (filters) {
-      handleFilterChange(filters);
+    if (filteredByMainFilters.length > 0) {
+      console.log('ProductsList: Applying sort due to sortOption or filteredByMainFilters change', sortOption);
+      const sortedProducts = sortProducts(filteredByMainFilters);
+      setFilteredProducts(sortedProducts);
     }
-  }, [sortOption]);
-
-  // Эффект для применения начальных фильтров после инициализации
-  useEffect(() => {
-    if (shouldApplyInitialFilters && filters && filters.initialized) {
-      console.log('ProductsList: Applying initial filters after filter initialization', filters);
-      handleFilterChange(filters);
-      setShouldApplyInitialFilters(false);
-    }
-  }, [filters, shouldApplyInitialFilters]);
+  }, [sortOption, filteredByMainFilters]);
 
   const handleFilterChange = (newFilters) => {
     console.log('ProductsList: Applying filters', newFilters);
-    setFilters(newFilters);
+    
+    if (!newFilters || !initialProducts) {
+      console.warn('ProductsList: Invalid filters or products');
+      return;
+    }
 
     const filteredByMain = initialProducts.filter((product) => {
       const price = Number(product.price);
       const discountPrice = product.discount ? price * (1 - product.discount / 100) : price;
       
-      // Проверка цены
       if (newFilters.priceRange && (discountPrice < newFilters.priceRange[0] || discountPrice > newFilters.priceRange[1])) {
-        console.log(`ProductsList: Product ${product.name} filtered out by price: ${discountPrice} not in [${newFilters.priceRange[0]}, ${newFilters.priceRange[1]}]`);
         return false;
       }
       
-      // Проверка бренда
       if (newFilters.brand !== 'all' && product.brand !== newFilters.brand) {
-        console.log(`ProductsList: Product ${product.name} filtered out by brand: ${product.brand} !== ${newFilters.brand}`);
         return false;
       }
       
-      // Проверка категории (только для поиска)
       if (isSearchPage && newFilters.category !== 'all' && product.category !== newFilters.category) {
-        console.log(`ProductsList: Product ${product.name} filtered out by category: ${product.category} !== ${newFilters.category}`);
         return false;
       }
       
-      // Проверка подкатегории (только для поиска)
       if (isSearchPage && newFilters.subcategory !== 'all' && product.subcategory !== newFilters.subcategory) {
-        console.log(`ProductsList: Product ${product.name} filtered out by subcategory: ${product.subcategory} !== ${newFilters.subcategory}`);
         return false;
       }
       
@@ -121,12 +153,11 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
     // Применяем фильтры по характеристикам
     const filteredBySpecs = sortedFilteredByMain.filter((product) => {
       if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
-        for (const [specKey, specFilter] of Object.entries(newFilters.selectedSpecs)) {
+        for (const [specKey, specFilter] of Object.entries(newFilters.selectedSpecs || {})) {
           const productValue = product.specs[specKey];
           if (productValue !== undefined) {
             const strValue = String(productValue);
             if (specFilter[strValue] === false) {
-              console.log(`ProductsList: Product ${product.name} filtered out by spec: ${specKey}=${strValue}`);
               return false;
             }
           }
@@ -145,6 +176,11 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
     setSortOption({ field, direction });
   };
 
+  // Защита от неинициализированных фильтров
+  if (!filters || !filters.initialized) {
+    return <div className="loading">Инициализация фильтров...</div>;
+  }
+
   return (
     <div className="products-list-container">
       <ProductFilter
@@ -156,7 +192,6 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
         sortOption={sortOption}
         initialFilters={initialFilters}
       />
-
       <div className="products">
         <div className="products-grid">
           {filteredProducts.length > 0 ? (
@@ -167,7 +202,7 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
                 isSearchPage={isSearchPage}
                 query={query}
                 filters={filters}
-                sortOption={sortOption}
+                sortOption={sortOption || { field: 'name', direction: 'asc' }}
               />
             ))
           ) : (

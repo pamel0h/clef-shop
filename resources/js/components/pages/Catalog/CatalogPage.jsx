@@ -12,7 +12,7 @@ const CatalogPage = () => {
 
   // Сбрасываем фильтры, если пришли из поиска
   const contextFilters = isFromSearch ? null : location.state?.filters || null;
-  const contextSortOption = isFromSearch ? null : location.state?.sortOption || null;
+  const contextSortOption = isFromSearch ? null : location.state?.sortOption || { field: 'name', direction: 'asc' }; // Значение по умолчанию
 
   console.log('CatalogPage: State', {
     query,
@@ -21,7 +21,10 @@ const CatalogPage = () => {
     sortOption: contextSortOption,
     isFromSearch,
   });
-
+  console.log('CatalogPage: Passing to Outlet', {
+    filters: contextFilters,
+    sortOption: contextSortOption
+  });
   return (
     <div className="catalog">
       <div className="catalog-page page">
