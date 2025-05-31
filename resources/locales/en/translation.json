@@ -55,7 +55,10 @@
     "from":"from",
     "to":"to",
     "reset":"Reset filters",
-    "specifications": "Specifications"
+    "specifications": "Specifications",
+    "showMore":"Show more",
+    "showLess":"Show less",
+    "noSpecs":"No specifications"
   },
   "sort":{
     "mainTitle":"Sorting",
@@ -67,6 +70,7 @@
     "desc":"Descending"
   },
   "specs": {
+    "mainTitle":"Product specifications",
     "inputs": "Inputs",
     "outputs": "Outputs",
     "connectivity": "Connectivity",

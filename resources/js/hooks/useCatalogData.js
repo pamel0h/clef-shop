@@ -23,7 +23,7 @@ export default function useCatalogData(type, options = {}, skip = false) {
         } else if (type === 'products') {
           const params = new URLSearchParams({ type });
           if (options.category) params.append('category', options.category);
-          if (options.subcategory) params.append('subcategory', options.subcategory); // Убедитесь, что subcategory добавляется
+          if (options.subcategory) params.append('subcategory', options.subcategory); 
           url = `/api/catalog/data?${params}`;
         } else {
           const params = new URLSearchParams({ type });

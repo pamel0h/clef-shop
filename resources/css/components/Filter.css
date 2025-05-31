@@ -6,6 +6,9 @@
   .filter-group {
     margin-bottom: 20px;
   }
+  .filter-block {
+    margin-bottom: 40px;
+  }
   
   .filter-group label {
     display: block;
