@@ -69,6 +69,21 @@
     "asc":"Ascending",
     "desc":"Descending"
   },
+  "admin": {
+    "catalog": {
+      "title": "Catalog (Admin)",
+      "noProducts": "No products",
+      "number": "№",
+      "name": "Name",
+      "price": "Price",
+      "discount": "Discount",
+      "category": "Category",
+      "subcategory": "SubCategory",
+      "brand": "Brand",
+      "actions": "Actions",
+      "delete": "Delete"
+    }
+  },
   "specs": {
     "mainTitle":"Product specifications",
     "inputs": "Inputs",

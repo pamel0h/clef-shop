@@ -12,7 +12,7 @@ import ProductsPage  from '../components/pages/Catalog/ProductsPage';
 import ProductDetailsPage from '../components/pages/Catalog/ProductDetailsPage'; 
 import SearchPage from '../components/pages/Catalog/SearchPage';
 import NewsItem from '../components/pages/News/NewsItem';
-
+import AdminCatalogPage from '../components/pages/Admin/AdminCatalogPage';
 export const routes = [
   {
     element: <Layout />,
@@ -54,6 +54,10 @@ export const routes = [
           },
         ],
       },
+      {
+        path: '/admin/catalog',
+        element: <AdminCatalogPage />
+      }
     ],
   },
 ];
