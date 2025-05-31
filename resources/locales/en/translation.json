@@ -48,6 +48,22 @@
     "howText": "We are located at the address .... You need to go...",
     "questionsTitle": "Still have questions?",
     "questionsText": "Fill out the feedback form!"
+  },
+  
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "password_confirmation": "Confirm Password",
+    "name_placeholder": "Enter your name",
+    "email_placeholder": "Enter your email",
+    "password_placeholder": "Enter your password",
+    "password_confirmation_placeholder": "Confirm your password",
+    "login_success": "Login successful!",
+    "register_success": "Registration successful!",
+    "error": "An error occurred. Please try again."
   }
 }
   

@@ -48,5 +48,37 @@
     "howText": "Мы находимся по адресу .... Вам нужно пройти...",
     "questionsTitle": "Остались вопросы?",
     "questionsText": "Заполните форму обратной связи!"
+  },
+   "auth": {
+    "login": "Войти",
+    "register": "Регистрация",
+    "name": "Имя",
+    "email": "Email",
+    "password": "Пароль",
+    "password_confirmation": "Подтверждение пароля",
+    "name_placeholder": "Введите ваше имя",
+    "email_placeholder": "Введите ваш email",
+    "password_placeholder": "Введите пароль",
+    "password_confirmation_placeholder": "Подтвердите пароль",
+    "loading": "Загрузка...",
+    "password_mismatch": "Пароли не совпадают",
+    "error_occurred": "Произошла ошибка"
+  },
+  "profile": {
+    "title": "Профиль",
+    "my_data": "Мои данные",
+    "orders": "Заказы",
+    "purchases": "Покупки",
+    "my_orders": "Мои заказы",
+    "my_purchases": "Мои покупки",
+    "logout": "Выйти",
+    "phone": "Телефон",
+    "address": "Адрес",
+    "phone_placeholder": "Введите номер телефона",
+    "address_placeholder": "Введите адрес",
+    "update": "Обновить",
+    "updating": "Обновление...",
+    "update_success": "Профиль успешно обновлен",
+    "update_error": "Ошибка при обновлении профиля"
   }
 }

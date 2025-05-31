@@ -6,26 +6,32 @@ import LanguageSelector from '../UI/LanguageSelector';
 import LogoIcon from '../icons/LogoIcon';
 import CartIcon from '../icons/CartIcon'
 import ProfileIcon from '../icons/ProfileIcon'
-import LanguageIcon from '../icons/LanguageIcon'
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
+import { useAuth } from '../../../context/AuthContext';
+import AuthModal from '../UI/AuthModal';
 
 function Header() {
-     const { t } = useTranslation();
-    const [searchQuery, setSearchQuery] = useState('');
+    const { t } = useTranslation();
+    const { isAuthenticated, logout } = useAuth();
     const navigate = useNavigate();
+    
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-    const handleSearch = (e) => {
-        console.log('handleSearch called', e.key, searchQuery); // Отладка
-        if (e.key === 'Enter' && searchQuery.trim()) {
-            console.log('Navigating to:', `/search?query=${encodeURIComponent(searchQuery)}`); // Отладка
-            navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
-            setSearchQuery('');
+    const handleProfileClick = () => {
+        if (isAuthenticated) {
+            navigate('/profile');
+        } else {
+            setIsAuthModalOpen(true);
         }
     };
-    const { t } = useTranslation();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/');
+    };
 
     return(
         <div className='container'>
@@ -34,17 +40,12 @@ function Header() {
                     <LogoIcon />
                 </div>
                 <div className='block block--search'>
-                <Input 
+                    <Input 
                         placeholder={t('header.search')} 
                         variant="search"
                         value={searchQuery}
-                        onChange={(e) => {
-                            console.log('Input changed:', e.target.value); // Отладка
-                            setSearchQuery(e.target.value);
-                        }}
-                        onKeyDown={handleSearch}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                    <Input placeholder={t('header.search')} variant="search"/>
                     <Navbar/>
                 </div>
                 <div className='block'>
@@ -54,14 +55,22 @@ function Header() {
                     </div>
                     <div className='icons'>
                         <LanguageSelector />
-                        {/* <Button variant = 'icon' icon={<LanguageIcon />} ></Button> */}
-                        <Link to="/profile"><Button variant = 'icon' icon={<ProfileIcon />} ></Button></Link>
-                        <Link to="/cart"><Button variant = 'icon' icon={<CartIcon />} ></Button></Link>
+                        <Button
+                            variant="icon"
+                            icon={<ProfileIcon />}
+                            onClick={handleProfileClick}
+                        />
+                        <Link to="/cart">
+                            <Button variant='icon' icon={<CartIcon />} />
+                        </Link>
                     </div>
                 </div>
             </div>
+            <AuthModal 
+                isOpen={isAuthModalOpen} 
+                onClose={() => setIsAuthModalOpen(false)} 
+            />
         </div>
-        
     );
 }
 

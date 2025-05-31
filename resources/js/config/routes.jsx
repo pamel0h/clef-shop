@@ -12,7 +12,7 @@ import ProductsPage  from '../components/pages/Catalog/ProductsPage';
 import ProductDetailsPage from '../components/pages/Catalog/ProductDetailsPage'; 
 import NewsItem from '../components/pages/News/NewsItem'
 import SearchPage from '../components/pages/Catalog/SearchPage';
-
+import ProtectedRoute from './ProtectedRoute';
 
 export const routes = [
   {
@@ -42,7 +42,14 @@ export const routes = [
       },
       { path: '/about', element: <AboutPage/> },
       { path: '/contacts', element: <ContactPage/> },
-      { path:'/profile', element: <ProfilePage />},
+      {
+        path: '/profile',
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        )
+      },
       { path: '/cart', element: <CartPage />},
       { path: '/search', element: <SearchPage /> }
     ],

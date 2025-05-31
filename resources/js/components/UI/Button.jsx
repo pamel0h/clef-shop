@@ -5,6 +5,7 @@ import '../../../css/components/Button.css';
 const Button = ({
   children,
   onClick,
+  type = 'button',
   variant = 'primary', // 'primary' | 'secondary' | 'icon' 
   size = 'medium',     // 'small' | 'medium' | 'large'
   disabled = false,
@@ -20,6 +21,7 @@ const Button = ({
 
   return (
     <button
+      type= {type}
       onClick={onClick}
       disabled={disabled}
       className={`${baseClass} ${variantClass} ${sizeClass} ${disabledClass} ${className}`}
