@@ -1,22 +1,34 @@
-import { useLocation, Outlet } from 'react-router-dom';
-import Breadcrumbs from './Breadcrumbs';
+// SearchPage.jsx
+import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import Breadcrumbs from './Breadcrumbs';
 
-function SearchPage() {
+const SearchPage = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  const query = new URLSearchParams(location.search).get('query') || '';
+  const queryParams = new URLSearchParams(location.search);
+  const query = queryParams.get('query') || '';
+  const isFromCatalog = queryParams.get('fromSearch') === 'true';
+
+  // Сбрасываем фильтры, если пришли из каталога
+  const contextFilters = isFromCatalog ? null : location.state?.filters || null;
+  const contextSortOption = isFromCatalog ? null : location.state?.sortOption || null;
+
+  console.log('SearchPage: State', {
+    query,
+    location: location.pathname + location.search,
+    filters: contextFilters,
+    sortOption: contextSortOption,
+    isFromCatalog,
+  });
 
   return (
     <div className="search-page page">
       <h1>{t('search.mainTitle')}</h1>
       <Breadcrumbs />
-      {location.pathname === '/search' && (
-        <h2>{t('search.result')}: {query || 'Ничего не введено'}</h2>
-      )}
-      <Outlet context={{ query }} />
+      <Outlet context={{ query, filters: contextFilters, sortOption: contextSortOption }} />
     </div>
   );
-}
+};
 
 export default SearchPage;

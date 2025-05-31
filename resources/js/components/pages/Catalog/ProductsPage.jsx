@@ -13,8 +13,9 @@ const ProductsPage = () => {
   const searchQuery = queryParams.get('query') || '';
   const context = useOutletContext();
   const query = context?.query || searchQuery;
+  const filters = context?.filters || location.state?.filters || {};
+  const sortOption = context?.sortOption || location.state?.sortOption || {};
   const isSearchPage = location.pathname.startsWith('/search');
-  const { filters, sortOption } = location.state || {};
 
   const { data: products, loading, error } = useCatalogData(
     isSearchPage ? 'search' : 'products',
@@ -44,6 +45,8 @@ const ProductsPage = () => {
   console.log('ProductsPage: Extracted from location.state', { filters, sortOption });
 
   return (
+    <>
+    {isSearchPage && <h2>{t('search.result')}: {query}</h2>}
     <ProductsList
       products={products}
       emptyMessage={t('No products found')}
@@ -52,6 +55,7 @@ const ProductsPage = () => {
       initialFilters={filters} // Передаем фильтры
       initialSortOption={sortOption} // Передаем сортировку
     />
+    </>
   );
 };
 

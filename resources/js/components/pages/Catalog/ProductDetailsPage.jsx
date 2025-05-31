@@ -16,7 +16,8 @@ const ProductDetailsPage = () => {
   const searchQuery = queryParams.get('query') || '';
   const context = useOutletContext();
   const query = context?.query || searchQuery;
-  const { filters, sortOption } = location.state || {};
+  const filters = context?.filters || location.state?.filters || {};
+  const sortOption = context?.sortOption || location.state?.sortOption || {};
 
   const { data: product, loading, error } = useCatalogData('product_details', {
     id: productId,
@@ -43,7 +44,6 @@ const ProductDetailsPage = () => {
 
   return (
     <div className="product-details-container">
-      <Breadcrumbs /> {/* Используем Breadcrumbs */}
       <div className="product-details-grid">
         <ProductImage src={product.image} alt={product.name} variant="main" />
         <ProductInfo
