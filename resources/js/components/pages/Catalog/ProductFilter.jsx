@@ -22,8 +22,9 @@ export const ProductFilter = ({
   const [showSpecs, setShowSpecs] = useState(false);
   const [expandedSpecs, setExpandedSpecs] = useState({});
   const [localPriceRange, setLocalPriceRange] = useState([0, 100000]);
+  const [pendingFilters, setPendingFilters] = useState(null); // Для отложенного вызова onFilterChange
 
-  // Синхронизируем локальный диапазон цен с фильтрами
+  // Синхронизация localPriceRange с filters
   useEffect(() => {
     if (filters?.priceRange && Array.isArray(filters.priceRange)) {
       console.log('ProductFilter: Syncing localPriceRange with filters', filters.priceRange);
@@ -31,15 +32,15 @@ export const ProductFilter = ({
     }
   }, [filters?.priceRange]);
 
+  // Отложенное применение фильтров для избежания ошибки рендеринга
   useEffect(() => {
-    // Когда фильтры инициализируются с сохраненными значениями,
-    // сразу сообщаем об этом родительскому компоненту
-    if (filters?.initialized && initialFilters && Object.keys(initialFilters).length > 0) {
-      console.log('ProductFilter: Filters initialized with saved values, triggering change', filters);
-      onFilterChange(filters);
+    if (pendingFilters) {
+      console.log('ProductFilter: Applying pending filters', pendingFilters);
+      onFilterChange(pendingFilters);
+      setPendingFilters(null); // Сбрасываем после применения
     }
-  }, [filters?.initialized]);
-  
+  }, [pendingFilters, onFilterChange]);
+
   const VALUES_LIMIT = 5;
 
   const handlePriceChange = (type, value) => {
@@ -59,14 +60,12 @@ export const ProductFilter = ({
     setLocalPriceRange(newPriceRange);
 
     if (filters && setFilters) {
-      setFilters((prev) => {
-        const newFilters = {
-          ...prev,
-          priceRange: newPriceRange,
-        };
-        onFilterChange(newFilters);
-        return newFilters;
-      });
+      const newFilters = {
+        ...filters,
+        priceRange: newPriceRange,
+      };
+      setFilters(newFilters);
+      setPendingFilters(newFilters); // Откладываем вызов onFilterChange
     }
   };
 
@@ -99,7 +98,7 @@ export const ProductFilter = ({
     };
 
     setFilters(newFilters);
-    onFilterChange(newFilters);
+    setPendingFilters(newFilters); // Откладываем вызов onFilterChange
   };
 
   const handleSortFieldChange = (e) => {
@@ -109,6 +108,7 @@ export const ProductFilter = ({
       field: field || 'name',
       direction: sortOption.direction || 'asc'
     };
+    setSortOption(newSortOption);
     onSortChange(newSortOption.field, newSortOption.direction);
   };
 
@@ -119,9 +119,9 @@ export const ProductFilter = ({
       field: sortOption.field || 'name',
       direction: direction || 'asc'
     };
+    setSortOption(newSortOption);
     onSortChange(newSortOption.field, newSortOption.direction);
   };
-
 
   const handleCategoryChange = (value) => {
     console.log('ProductFilter: handleCategoryChange', value);
@@ -137,7 +137,7 @@ export const ProductFilter = ({
       subcategory: 'all',
     };
     setFilters(newFilters);
-    onFilterChange(newFilters);
+    setPendingFilters(newFilters); // Откладываем вызов onFilterChange
   };
 
   const handleSubcategoryChange = (value) => {
@@ -150,7 +150,7 @@ export const ProductFilter = ({
     
     const newFilters = { ...filters, subcategory: value };
     setFilters(newFilters);
-    onFilterChange(newFilters);
+    setPendingFilters(newFilters); // Откладываем вызов onFilterChange
   };
 
   const handleBrandChange = (value) => {
@@ -163,7 +163,7 @@ export const ProductFilter = ({
 
     const newFilters = { ...filters, brand: value };
     setFilters(newFilters);
-    onFilterChange(newFilters);
+    setPendingFilters(newFilters); // Откладываем вызов onFilterChange
   };
 
   const handleResetFilters = () => {
@@ -204,14 +204,13 @@ export const ProductFilter = ({
       initialized: true,
     };
 
-    // Сброс сортировки к значениям по умолчанию
     const defaultSortOption = { field: 'name', direction: 'asc' };
     setSortOption(defaultSortOption);
     onSortChange(defaultSortOption.field, defaultSortOption.direction);
 
     setLocalPriceRange([0, maxPrice]);
     setFilters(newFilters);
-    onFilterChange(newFilters);
+    setPendingFilters(newFilters); // Откладываем вызов onFilterChange
     setExpandedSpecs({});
   };
 
@@ -223,7 +222,6 @@ export const ProductFilter = ({
     }));
   };
 
-  // Защита от неинициализированных фильтров
   if (!filters || !filters.initialized) {
     return <div className="loading">Загрузка фильтров...</div>;
   }

@@ -5,7 +5,7 @@ const ProductImage = ({ src, alt, variant = 'thumbnail', className = '' }) => {
   const baseClass = 'product-image';
   const variantClass = variant === 'main' ? 'main-image' : '';
   const galleryClass = variant === 'main' ? 'product-gallery' : '';
-console.log(src);
+// console.log(src);
   return (
     <div className={galleryClass}>
       <img

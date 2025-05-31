@@ -18,7 +18,8 @@ const ProductDetailsPage = () => {
   const query = context?.query || searchQuery;
   const filters = context?.filters || location.state?.filters || {};
   const sortOption = context?.sortOption || location.state?.sortOption || {};
-
+  const fromSearch = location.state?.fromSearch || isFromSearch;
+  
   const { data: product, loading, error } = useCatalogData('product_details', {
     id: productId,
     category: isFromSearch ? undefined : categorySlug,

@@ -1,4 +1,3 @@
-// CatalogPage.jsx
 import { Outlet, useLocation } from 'react-router-dom';
 import Breadcrumbs from './Breadcrumbs';
 import { useTranslation } from 'react-i18next';
@@ -10,9 +9,9 @@ const CatalogPage = () => {
   const query = queryParams.get('query') || '';
   const isFromSearch = queryParams.get('fromSearch') === 'true';
 
-  // Сбрасываем фильтры, если пришли из поиска
-  const contextFilters = isFromSearch ? null : location.state?.filters || null;
-  const contextSortOption = isFromSearch ? null : location.state?.sortOption || { field: 'name', direction: 'asc' }; // Значение по умолчанию
+  // Preserve filters unless coming from search
+  const contextFilters = isFromSearch ? {} : location.state?.filters || {};
+  const contextSortOption = isFromSearch ? { field: 'name', direction: 'asc' } : location.state?.sortOption || { field: 'name', direction: 'asc' };
 
   console.log('CatalogPage: State', {
     query,
@@ -21,16 +20,13 @@ const CatalogPage = () => {
     sortOption: contextSortOption,
     isFromSearch,
   });
-  console.log('CatalogPage: Passing to Outlet', {
-    filters: contextFilters,
-    sortOption: contextSortOption
-  });
+
   return (
     <div className="catalog">
       <div className="catalog-page page">
         <h1>{t('catalog.mainTitle')}</h1>
         <Breadcrumbs />
-        <Outlet context={{ filters: contextFilters, sortOption: contextSortOption }} />
+        <Outlet context={{ query, filters: contextFilters, sortOption: contextSortOption }} />
       </div>
     </div>
   );

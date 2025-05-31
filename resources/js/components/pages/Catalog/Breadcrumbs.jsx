@@ -149,7 +149,7 @@ const Breadcrumbs = () => {
           breadcrumbItems.push({
             name: productName,
             path: {
-              pathname: `/catalog/${pathnames[1]}/${pathnames[2]}/${pathnames[3]}`,
+             pathname: `/catalog/${pathnames[1]}/${pathnames[2]}/${pathnames[3]}`,
               search: searchQuery ? `fromSearch=true&query=${encodeURIComponent(searchQuery)}` : '',
               state: { filters, sortOption },
             },

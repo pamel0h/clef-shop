@@ -9,7 +9,7 @@ const ProductCard = ({ product, isSearchPage, query, filters, sortOption }) => {
     ? `/search/${productId}${query ? `?query=${encodeURIComponent(query)}` : ''}`
     : `/catalog/${product.category}/${product.subcategory}/${productId}${query ? `?fromSearch=true&query=${encodeURIComponent(query)}` : ''}`;
 
-  console.log('ProductCard: Link state', { filters, sortOption, linkTo }); // Отладка
+  console.log('ProductCard: Link state', { filters, sortOption, linkTo });
 
   return (
     <div className="product-card">

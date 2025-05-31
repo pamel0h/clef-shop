@@ -1,7 +1,6 @@
 import { useParams, useLocation } from 'react-router-dom';
 import useCatalogData from '../../../hooks/useCatalogData';
 import ProductsList from './ProductsList';
-// import '../../../../css/components.css';
 import { useTranslation } from 'react-i18next';
 import { useOutletContext } from 'react-router-dom';
 
@@ -14,7 +13,7 @@ const ProductsPage = () => {
   const context = useOutletContext();
   const query = context?.query || searchQuery;
   const filters = context?.filters || location.state?.filters || {};
-  const sortOption = context?.sortOption || location.state?.sortOption || { field: 'name', direction: 'asc' }; // Значение по умолчанию
+  const sortOption = context?.sortOption || location.state?.sortOption || { field: 'name', direction: 'asc' };
   const isSearchPage = location.pathname.startsWith('/search');
 
   const { data: products, loading, error } = useCatalogData(
@@ -42,19 +41,17 @@ const ProductsPage = () => {
 
   if (loading) return <div className="loading">{t('Loading')}...</div>;
   if (error) return <div>{t('Error')}: {error.message}</div>;
-  console.log('ProductsPage: Extracted from location.state', { filters, sortOption });
 
   return (
     <>
-    {isSearchPage && <h2>{t('search.result')}: {query}</h2>}
-    <ProductsList
-      products={products}
-      emptyMessage={t('No products found')}
-      isSearchPage={isSearchPage}
-      query={query}
-      initialFilters={filters} // Передаем фильтры
-      // initialSortOption={sortOption} // Передаем сортировку
-    />
+      {isSearchPage && <h2>{t('search.result')}: {query}</h2>}
+      <ProductsList
+        products={products}
+        emptyMessage={t('No products found')}
+        isSearchPage={isSearchPage}
+        query={query}
+        initialFilters={filters}
+      />
     </>
   );
 };

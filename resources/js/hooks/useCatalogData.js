@@ -8,7 +8,7 @@ export default function useCatalogData(type, options = {}, skip = false) {
   useEffect(() => {
     const fetchData = async () => {
       if (skip) {
-        console.log('useCatalogData: Skipped fetch', { type, options });
+        // console.log('useCatalogData: Skipped fetch', { type, options });
         setData(type === 'product_details' ? {} : []);
         return;
       }
@@ -33,11 +33,11 @@ export default function useCatalogData(type, options = {}, skip = false) {
           url = `/api/catalog/data?${params}`;
         }
 
-        console.log('useCatalogData: Fetching URL', url, 'options:', options);
+        // console.log('useCatalogData: Fetching URL', url, 'options:', options);
         const response = await fetch(url);
-        console.log('useCatalogData: Response status', response.status, response.statusText);
+        // console.log('useCatalogData: Response status', response.status, response.statusText);
         const result = await response.json();
-        console.log('useCatalogData: Response data', result);
+        // console.log('useCatalogData: Response data', result);
         if (!response.ok || !result?.success) {
           throw new Error(result.error || 'Server error');
         }

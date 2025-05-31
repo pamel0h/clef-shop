@@ -56,57 +56,63 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
       return;
     }
 
-    // Определяем, нужно ли сбросить состояние
+    // Сбрасываем состояние, если изменился контекст (поиск или каталог)
     const currentRoute = location.pathname;
-    const shouldReset = !isInitialized || 
-      (currentRoute.startsWith('/search') !== isSearchPage);
+    const shouldReset = !isInitialized || (currentRoute.startsWith('/search') !== isSearchPage);
 
     if (shouldReset) {
       console.log('ProductsList: Resetting state');
       setIsInitialized(true);
     }
 
-    // Проверяем, есть ли валидные начальные фильтры
-    const hasValidFilters = initialFilters && Object.keys(initialFilters).length > 0 && (
-      initialFilters.priceRange || initialFilters.brand !== 'all' || 
-      (isSearchPage && (initialFilters.category !== 'all' || initialFilters.subcategory !== 'all'))
-    );
-
-    let filteredByMain = initialProducts;
-
-    if (hasValidFilters) {
-      console.log('ProductsList: Applying initial filters', initialFilters);
-      filteredByMain = initialProducts.filter((product) => {
+    // Применяем фильтры из useProductFilter
+    if (filters && filters.initialized) {
+      console.log('ProductsList: Applying filters from useProductFilter', filters);
+      let filteredByMain = initialProducts.filter((product) => {
         const price = Number(product.price);
         const discountPrice = product.discount ? price * (1 - product.discount / 100) : price;
         
-        if (initialFilters.priceRange && (discountPrice < initialFilters.priceRange[0] || discountPrice > initialFilters.priceRange[1])) {
+        if (filters.priceRange && (discountPrice < filters.priceRange[0] || discountPrice > filters.priceRange[1])) {
           return false;
         }
         
-        if (initialFilters.brand !== 'all' && product.brand !== initialFilters.brand) {
+        if (filters.brand !== 'all' && product.brand !== filters.brand) {
           return false;
         }
         
-        if (isSearchPage && initialFilters.category !== 'all' && product.category !== initialFilters.category) {
+        if (isSearchPage && filters.category !== 'all' && product.category !== filters.category) {
           return false;
         }
         
-        if (isSearchPage && initialFilters.subcategory !== 'all' && product.subcategory !== initialFilters.subcategory) {
+        if (isSearchPage && filters.subcategory !== 'all' && product.subcategory !== filters.subcategory) {
           return false;
         }
         
         return true;
       });
+
+// Применяем фильтры по характеристикам
+const filteredBySpecs = filteredByMain.filter((product) => {
+  if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
+    for (const [specKey, specFilter] of Object.entries(filters.selectedSpecs || {})) {
+      const productValue = product.specs[specKey];
+      if (productValue !== undefined) {
+        const strValue = String(productValue);
+        if (specFilter[strValue] === false) {
+          return false;
+        }
+      }
     }
+  }
+  return true;
+});
 
-    console.log(`ProductsList: After initial main filters: ${filteredByMain.length} products`);
-    setFilteredByMainFilters(filteredByMain);
-    const sortedProducts = sortProducts(filteredByMain);
-    setFilteredProducts(sortedProducts);
-  }, [initialProducts, initialFilters, location.pathname, location.search, isSearchPage, isInitialized]);
+const sortedProducts = sortProducts(filteredBySpecs);
+      setFilteredProducts(sortedProducts);
+    }
+  }, [initialProducts, filters, location.pathname, location.search, isSearchPage, isInitialized]);
 
-  // Эффект для применения сортировки
+  // Применяем сортировку при изменении sortOption или filteredByMainFilters
   useEffect(() => {
     if (filteredByMainFilters.length > 0) {
       console.log('ProductsList: Applying sort due to sortOption or filteredByMainFilters change', sortOption);
@@ -117,6 +123,8 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
 
   const handleFilterChange = (newFilters) => {
     console.log('ProductsList: Applying filters', newFilters);
+    console.log('ProductsList: handleFilterChange received:', newFilters);
+    console.log('ProductsList: Current filters state:', filters);
     
     if (!newFilters || !initialProducts) {
       console.warn('ProductsList: Invalid filters or products');
@@ -176,7 +184,6 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
     setSortOption({ field, direction });
   };
 
-  // Защита от неинициализированных фильтров
   if (!filters || !filters.initialized) {
     return <div className="loading">Инициализация фильтров...</div>;
   }
@@ -190,7 +197,7 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
         onFilterChange={handleFilterChange}
         onSortChange={handleSortChange}
         sortOption={sortOption}
-        initialFilters={initialFilters}
+        initialFilters={initialFilters} // Передаем initialFilters, а не filters
       />
       <div className="products">
         <div className="products-grid">

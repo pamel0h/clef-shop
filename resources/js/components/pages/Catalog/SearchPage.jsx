@@ -1,4 +1,3 @@
-// SearchPage.jsx
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Breadcrumbs from './Breadcrumbs';
@@ -10,9 +9,8 @@ const SearchPage = () => {
   const query = queryParams.get('query') || '';
   const isFromCatalog = queryParams.get('fromSearch') === 'true';
 
-  // Сбрасываем фильтры, если пришли из каталога
-  const contextFilters = isFromCatalog ? null : location.state?.filters || null;
-  const contextSortOption = isFromCatalog ? null : location.state?.sortOption || null;
+  const contextFilters = isFromCatalog ? {} : location.state?.filters || {};
+  const contextSortOption = isFromCatalog ? { field: 'name', direction: 'asc' } : location.state?.sortOption || { field: 'name', direction: 'asc' };
 
   console.log('SearchPage: State', {
     query,
