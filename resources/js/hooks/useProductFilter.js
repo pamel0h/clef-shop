@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 
-const useProductFilter = (initialProducts, filteredByMainFilters) => {
+const useProductFilter = (initialProducts = [], filteredByMainFilters = []) => {
   const [filters, setFilters] = useState({
     priceRange: [0, 100000],
     brand: 'all',
@@ -10,84 +9,91 @@ const useProductFilter = (initialProducts, filteredByMainFilters) => {
     brands: [],
     categories: [],
     subcategories: [],
-    specs: {}, // Все возможные характеристики
-    selectedSpecs: {}, // Выбранные характеристики
-    initialized: false,
+    specs: {},
+    selectedSpecs: {},
   });
 
   useEffect(() => {
-    console.log('useProductFilter: initialProducts', JSON.stringify(initialProducts, null, 2));
-    console.log('useProductFilter: filteredByMainFilters', JSON.stringify(filteredByMainFilters, null, 2));
+    if (!initialProducts.length) return;
 
-    // Формируем бренды, категории и подкатегории из initialProducts
-    const brands = initialProducts?.length > 0 
-      ? [...new Set(initialProducts.map(p => p.brand).filter(val => val && typeof val === 'string'))].sort()
-      : [];
-    const categories = initialProducts?.length > 0 
-      ? [...new Set(initialProducts.map(p => p.category).filter(val => val && typeof val === 'string'))].sort()
-      : [];
-    const subcategories = initialProducts?.length > 0 
-      ? [...new Set(initialProducts.map(p => p.subcategory).filter(val => val && typeof val === 'string'))].sort()
-      : [];
-    const maxPrice = initialProducts?.length > 0 
-      ? Math.max(...initialProducts.map(p => Number(p.price) || 0)) || 100000
+    // Извлечение брендов, категорий, подкатегорий из initialProducts
+    const brands = [...new Set(initialProducts.map((p) => p.brand).filter(Boolean))].sort();
+    const categories = [...new Set(initialProducts.map((p) => p.category).filter(Boolean))].sort();
+    const subcategories = [...new Set(initialProducts.map((p) => p.subcategory).filter(Boolean))].sort();
+
+    // Установка максимальной цены из initialProducts
+    const maxPrice = initialProducts.length > 0
+      ? Math.ceil(Math.max(...initialProducts.map((p) => Number(p.price) || 0)) / 1000) * 1000
       : 100000;
 
-    // Формируем характеристики только из товаров, прошедших фильтрацию по основным фильтрам
-    const allSpecs = {};
-    if (filteredByMainFilters?.length > 0) {
-      filteredByMainFilters.forEach(product => {
-        if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
-          Object.entries(product.specs).forEach(([key, value]) => {
-            if (key && value) {
-              if (!allSpecs[key]) allSpecs[key] = {};
-              allSpecs[key][String(value)] = { 
-                count: 0, 
-                selected: filters.selectedSpecs[key]?.[String(value)] ?? true 
-              };
-            }
-          });
-        }
-      });
-
-      // Подсчитываем количество товаров для каждого значения характеристики
-      filteredByMainFilters.forEach(product => {
-        if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
-          Object.entries(product.specs).forEach(([key, value]) => {
-            if (allSpecs[key] && allSpecs[key][String(value)]) {
-              allSpecs[key][String(value)].count += 1;
-            }
-          });
-        }
-      });
-    }
-
-    console.log('useProductFilter: Computed filters', {
+    setFilters((prev) => ({
+      ...prev,
       brands,
       categories,
       subcategories,
-      maxPrice,
-      specs: allSpecs
-    });
+      priceRange: [0, maxPrice],
+    }));
+  }, [initialProducts]);
 
-    setFilters((prev) => {
-// Обновляем priceRange только если фильтры еще не инициализированы
-    const newPriceRange = prev.initialized
-    ? prev.priceRange
-    : [0, Math.ceil(maxPrice / 1000) * 1000];
-
-    return {
-    ...prev,
-    brands,
-    categories,
-    subcategories,
-    priceRange: newPriceRange,
-    specs: allSpecs,
-    selectedSpecs: prev.selectedSpecs,
-    initialized: true, // Устанавливаем флаг после первой инициализации
-    };
+  useEffect(() => {
+    // Формируем specs из товаров, отфильтрованных основными фильтрами (без характеристик)
+    const allSpecs = {};
+    const mainFilteredProducts = initialProducts.filter((product) => {
+      const price = Number(product.price);
+      const discountPrice = product.discount ? price * (1 - product.discount / 100) : price;
+      
+      // Фильтр по цене
+      if (filters.priceRange && (discountPrice < filters.priceRange[0] || discountPrice > filters.priceRange[1])) {
+        return false;
+      }
+      
+      // Фильтр по бренду
+      if (filters.brand !== 'all' && product.brand !== filters.brand) {
+        return false;
+      }
+      
+      // Фильтр по категории (только для поисковой страницы)
+      if (filters.category !== 'all' && product.category !== filters.category) {
+        return false;
+      }
+      
+      // Фильтр по подкатегории (только для поисковой страницы)
+      if (filters.subcategory !== 'all' && product.subcategory !== filters.subcategory) {
+        return false;
+      }
+      
+      return true;
     });
-    }, [initialProducts, filteredByMainFilters]);
+  
+    mainFilteredProducts.forEach((product) => {
+      if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
+        Object.entries(product.specs).forEach(([key, value]) => {
+          if (key && value) {
+            if (!allSpecs[key]) allSpecs[key] = {};
+            const strValue = String(value);
+            allSpecs[key][strValue] = {
+              count: (allSpecs[key][strValue]?.count || 0) + 1,
+              selected: filters.selectedSpecs[key]?.[strValue] ?? true,
+            };
+          }
+        });
+      }
+    });
+  
+    const newSelectedSpecs = Object.keys(allSpecs).reduce((acc, key) => {
+      acc[key] = Object.keys(allSpecs[key]).reduce((valAcc, val) => {
+        valAcc[val] = filters.selectedSpecs[key]?.[val] ?? true;
+        return valAcc;
+      }, {});
+      return acc;
+    }, {});
+  
+    setFilters((prev) => ({
+      ...prev,
+      specs: allSpecs,
+      selectedSpecs: newSelectedSpecs,
+    }));
+  }, [initialProducts, filters.priceRange, filters.brand, filters.category, filters.subcategory]); // Зависимости от основных фильтров
 
   return { filters, setFilters };
 };

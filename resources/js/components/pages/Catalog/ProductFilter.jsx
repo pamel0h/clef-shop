@@ -6,37 +6,39 @@ import '../../../../css/components/FilterNew.css';
 import Button from '../../UI/Button';
 import { useTranslation } from 'react-i18next';
 
-export const ProductFilter = ({ 
+export const ProductFilter = ({
   initialProducts = [],
   filteredByMainFilters = [],
   filteredProducts = [],
-  onFilterChange, 
-  onSortChange, 
-  sortOption = { field: 'name', direction: 'asc' }
+  onFilterChange,
+  onSortChange,
+  sortOption = { field: 'name', direction: 'asc' },
+  isSearchPage = false,
 }) => {
   const { t } = useTranslation();
   const { filters, setFilters } = useProductFilter(initialProducts, filteredByMainFilters);
   const location = useLocation();
-  const isSearchPage = location.pathname.startsWith('/search');
-  const [showSpecs, setShowSpecs] = useState(false); // Изначально свернуто
-  const [expandedSpecs, setExpandedSpecs] = useState({}); // Состояние для раскрытия значений
-
-  const VALUES_LIMIT = 5; // Ограничение на количество отображаемых значений
+  const [showSpecs, setShowSpecs] = useState(false);
+  const [expandedSpecs, setExpandedSpecs] = useState({});
+  const [showMoreSpecs, setShowMoreSpecs] = useState(false); // Для ограничения характеристик
+  const SPECS_LIMIT = 5;
+  const VALUES_LIMIT = 5;
 
   const handleSpecChange = (specKey, specValue, checked) => {
     const newSelectedSpecs = {
       ...filters.selectedSpecs,
       [specKey]: {
         ...(filters.selectedSpecs[specKey] || {}),
-        [specValue]: checked
-      }
+        [specValue]: checked,
+      },
     };
 
     const newFilters = {
       ...filters,
-      selectedSpecs: newSelectedSpecs
+      selectedSpecs: newSelectedSpecs,
     };
 
+    console.log('ProductFilter: New Selected Specs', newSelectedSpecs);
     setFilters(newFilters);
     onFilterChange(newFilters);
   };
@@ -96,21 +98,9 @@ export const ProductFilter = ({
       return;
     }
 
-    const maxPrice = initialProducts.length > 0 
-      ? Math.ceil(Math.max(...initialProducts.map(p => Number(p.price) || 0)) / 1000) * 1000 
+    const maxPrice = initialProducts.length > 0
+      ? Math.ceil(Math.max(...initialProducts.map((p) => Number(p.price) || 0)) / 1000) * 1000
       : 100000;
-
-    const allSpecs = {};
-    initialProducts.forEach(product => {
-      if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
-        Object.entries(product.specs).forEach(([key, value]) => {
-          if (key && value) {
-            if (!allSpecs[key]) allSpecs[key] = {};
-            allSpecs[key][String(value)] = { count: 0, selected: true };
-          }
-        });
-      }
-    });
 
     const newFilters = {
       priceRange: [0, maxPrice],
@@ -120,20 +110,32 @@ export const ProductFilter = ({
       brands: filters.brands,
       categories: filters.categories,
       subcategories: filters.subcategories,
-      specs: allSpecs,
-      selectedSpecs: {}
+      specs: filters.specs, // Сохраняем текущие specs
+      selectedSpecs: Object.keys(filters.specs).reduce((acc, key) => {
+        acc[key] = Object.keys(filters.specs[key]).reduce((valAcc, val) => {
+          valAcc[val] = true;
+          return valAcc;
+        }, {});
+        return acc;
+      }, {}),
     };
 
     setFilters(newFilters);
     onFilterChange(newFilters);
     setExpandedSpecs({});
+    setShowSpecs(false); //  характеристики после сброса
+    setShowMoreSpecs(false); // Сбрасываем раскрытие характеристик
   };
 
   const toggleExpandSpecs = (specKey) => {
-    setExpandedSpecs(prev => ({
+    setExpandedSpecs((prev) => ({
       ...prev,
-      [specKey]: !prev[specKey]
+      [specKey]: !prev[specKey],
     }));
+  };
+
+  const toggleShowMoreSpecs = () => {
+    setShowMoreSpecs((prev) => !prev);
   };
 
   const availableSubcategories = filters.category === 'all'
@@ -144,28 +146,26 @@ export const ProductFilter = ({
         .filter((value, index, self) => value && self.indexOf(value) === index)
         .sort();
 
+  console.log('ProductFilter: Specs', filters.specs);
+
+  const specKeys = Object.keys(filters.specs);
+  const displayedSpecKeys = showMoreSpecs ? specKeys : specKeys.slice(0, SPECS_LIMIT);
+  const hasMoreSpecs = specKeys.length > SPECS_LIMIT;
+
   return (
     <div className="filters">
       <div className="filter-block">
         <h3>{t('sort.mainTitle')}</h3>
         <div className="filter-group">
           <label>{t('sort.sortBy')}:</label>
-          <select 
-            value={sortOption.field} 
-            onChange={handleSortFieldChange}
-            className="sort-select"
-          >
+          <select value={sortOption.field} onChange={handleSortFieldChange} className="sort-select">
             <option value="name">{t('sort.byName')}</option>
             <option value="price">{t('sort.byPrice')}</option>
           </select>
         </div>
         <div className="filter-group">
           <label>{t('sort.direction')}:</label>
-          <select 
-            value={sortOption.direction} 
-            onChange={handleSortDirectionChange}
-            className="sort-select"
-          >
+          <select value={sortOption.direction} onChange={handleSortDirectionChange} className="sort-select">
             <option value="asc">{t('sort.asc')}</option>
             <option value="desc">{t('sort.desc')}</option>
           </select>
@@ -196,7 +196,9 @@ export const ProductFilter = ({
               className="price-input"
             />
           </div>
-          <span>{t('filters.from')} {filters.priceRange[0]} {t('filters.to')} {filters.priceRange[1]} ₽</span>
+          <span>
+            {t('filters.from')} {filters.priceRange[0]} {t('filters.to')} {filters.priceRange[1]} ₽
+          </span>
         </div>
         <div className="filter-group">
           <label>{t('filters.brand')}:</label>
@@ -224,10 +226,7 @@ export const ProductFilter = ({
           <>
             <div className="filter-group">
               <label>{t('filters.category')}:</label>
-              <select
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                value={filters.category}
-              >
+              <select onChange={(e) => handleCategoryChange(e.target.value)} value={filters.category}>
                 <option value="all">{t('filters.all')}</option>
                 {filters.categories.length > 0 ? (
                   filters.categories.map((category) => (
@@ -264,20 +263,20 @@ export const ProductFilter = ({
       </div>
       <div className="filter-block">
         <div className="specs-filter-section">
-          <h3 
-            className="specs-title" 
+          <h3
+            className="specs-title"
             onClick={() => setShowSpecs(!showSpecs)}
             style={{ cursor: 'pointer' }}
           >
             {t('filters.specifications')}
           </h3>
-          
           {showSpecs && (
             <>
-              {Object.keys(filters.specs).length > 0 ? (
-                Object.entries(filters.specs).map(([specKey, specValues]) => {
+              {displayedSpecKeys.length > 0 ? (
+                displayedSpecKeys.map((specKey) => {
+                  const specValues = filters.specs[specKey];
                   const valuesArray = Object.entries(specValues).filter(([_, { count }]) => count > 0);
-                  if (valuesArray.length === 0) return null; // Пропускаем характеристику, если нет товаров
+                  if (valuesArray.length === 0) return null;
 
                   const isExpanded = expandedSpecs[specKey];
                   const displayedValues = isExpanded ? valuesArray : valuesArray.slice(0, VALUES_LIMIT);
@@ -287,17 +286,16 @@ export const ProductFilter = ({
                     <div key={specKey} className="spec-group">
                       <h4>{t(`specs.${specKey}`) || specKey}</h4>
                       <div className="spec-options">
-                        {displayedValues.map(([value, { count, selected }]) => (
-                          <label 
-                            key={value} 
-                            className="spec-option"
-                          >
+                        {displayedValues.map(([value, { count }]) => (
+                          <label key={value} className="spec-option">
                             <input
                               type="checkbox"
-                              checked={selected}
+                              checked={filters.selectedSpecs[specKey]?.[value] || false}
                               onChange={(e) => handleSpecChange(specKey, value, e.target.checked)}
                             />
-                            <span>{value} ({count})</span>
+                            <span>
+                              {value} ({count})
+                            </span>
                           </label>
                         ))}
                       </div>
@@ -306,14 +304,19 @@ export const ProductFilter = ({
                           className="show-more-button"
                           onClick={() => toggleExpandSpecs(specKey)}
                         >
-                          {isExpanded ? t('filters.showLess') || 'Показать меньше' : t('filters.showMore') || 'Показать больше'}
+                          {isExpanded ? t('filters.showLess') : t('filters.showMore')}
                         </button>
                       )}
                     </div>
                   );
                 })
               ) : (
-                <p>{t('filters.noSpecs') || 'Характеристики не найдены'}</p>
+                <p>{t('filters.noSpecs')}</p>
+              )}
+              {hasMoreSpecs && (
+                <button className="show-more-button" onClick={toggleShowMoreSpecs}>
+                  {showMoreSpecs ? t('filters.showLess') : t('filters.showMore')}
+                </button>
               )}
             </>
           )}

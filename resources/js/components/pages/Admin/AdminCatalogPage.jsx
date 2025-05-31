@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import useCatalogData from '../../../hooks/useCatalogData';
 import Button from '../../UI/Button';
+import { ProductFilter } from '../Catalog/ProductFilter';
 // import '../../../../css/components/AdminCatalog.css'; // Убедись, что этот файл существует
 
 const AdminCatalogPage = () => {
@@ -19,6 +20,16 @@ const AdminCatalogPage = () => {
   if (!products || products.length === 0) return <div>{t('admin.catalog.noProducts')}</div>;
 
   return (
+    <>
+    <ProductFilter 
+    initialProducts={initialProducts} 
+    filteredByMainFilters={filteredByMainFilters}
+    filteredProducts={filteredProducts}
+    onFilterChange={handleFilterChange} 
+    onSortChange={handleSortChange}
+    sortOption={sortOption}
+  />
+
     <div className="admin-catalog-page">
       <h1>{t('admin.catalog.title')}</h1>
       
@@ -58,7 +69,9 @@ const AdminCatalogPage = () => {
         </tbody>
       </table>
     </div>
+    </>
   );
+  
 };
 
 export default AdminCatalogPage;
