@@ -17,7 +17,7 @@ const CatalogPage = () => {
     <div className="catalog">
       <div className="catalog-page page">
         <h1>{t('catalog.mainTitle')}</h1>
-        <Breadcrumbs />
+        {/* <Breadcrumbs /> */}
         <Outlet context={{ query }} />
       </div>
     </div>

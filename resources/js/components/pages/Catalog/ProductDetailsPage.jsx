@@ -6,6 +6,7 @@ import ProductImage from '../../UI/ProductImage';
 import ProductInfo from './ProductInfo';
 import ProductSpecs from './ProductSpecs';
 import { useOutletContext } from 'react-router-dom';
+import Breadcrumbs from './Breadcrumbs'; // Импортируем Breadcrumbs
 
 const ProductDetailsPage = () => {
   const { productId, categorySlug, subcategorySlug } = useParams();
@@ -15,6 +16,7 @@ const ProductDetailsPage = () => {
   const searchQuery = queryParams.get('query') || '';
   const context = useOutletContext();
   const query = context?.query || searchQuery;
+  const { filters, sortOption } = location.state || {};
 
   const { data: product, loading, error } = useCatalogData('product_details', {
     id: productId,
@@ -31,6 +33,8 @@ const ProductDetailsPage = () => {
     error,
     product,
     location: location.pathname + location.search,
+    filters,
+    sortOption,
   });
 
   if (loading) return <div className="loading">Загрузка...</div>;
@@ -39,8 +43,9 @@ const ProductDetailsPage = () => {
 
   return (
     <div className="product-details-container">
+      <Breadcrumbs /> {/* Используем Breadcrumbs */}
       <div className="product-details-grid">
-      <ProductImage src={product.image} alt={product.name} variant="main" />
+        <ProductImage src={product.image} alt={product.name} variant="main" />
         <ProductInfo
           name={product.name}
           price={product.price}

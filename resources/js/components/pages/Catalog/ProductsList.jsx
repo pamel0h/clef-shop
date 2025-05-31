@@ -1,24 +1,24 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import ProductCard from './ProductCard';
 import { ProductFilter } from './ProductFilter';
 import '../../../../css/components/Products.css';
 import '../../../../css/components/Loading.css';
 
-const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPage = false, query }) => {
+const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPage = false, query, initialFilters, initialSortOption }) => {
   const { categorySlug, subcategorySlug } = useParams();
+  const location = useLocation();
   const [filteredByMainFilters, setFilteredByMainFilters] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [sortOption, setSortOption] = useState({
+  const [sortOption, setSortOption] = useState(initialSortOption || {
     field: 'name',
     direction: 'asc'
   });
+  const [filters, setFilters] = useState(initialFilters);
 
-  // Функция для сортировки продуктов
   const sortProducts = (products) => {
     return [...products].sort((a, b) => {
       let valueA, valueB;
-      
       if (sortOption.field === 'price') {
         valueA = a.discount ? a.price * (1 - a.discount / 100) : a.price;
         valueB = b.discount ? b.price * (1 - b.discount / 100) : b.price;
@@ -26,7 +26,6 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
         valueA = a.name.toLowerCase();
         valueB = b.name.toLowerCase();
       }
-      
       if (valueA < valueB) return sortOption.direction === 'asc' ? -1 : 1;
       if (valueA > valueB) return sortOption.direction === 'asc' ? 1 : -1;
       return 0;
@@ -35,15 +34,21 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
 
   useEffect(() => {
     console.log('ProductsList: Received initialProducts', JSON.stringify(initialProducts, null, 2));
+    console.log('ProductsList: Initial filters', initialFilters);
     const sortedProducts = sortProducts(initialProducts);
     setFilteredByMainFilters(sortedProducts);
     setFilteredProducts(sortedProducts);
-  }, [initialProducts, sortOption]);
+
+    // Применяем initialFilters, если они есть
+    if (initialFilters) {
+      handleFilterChange(initialFilters);
+    }
+  }, [initialProducts, sortOption, initialFilters]);
 
   const handleFilterChange = (newFilters) => {
     console.log('ProductsList: Applying filters', JSON.stringify(newFilters, null, 2));
+    setFilters(newFilters);
 
-    // Первый этап: фильтрация по основным фильтрам
     const filteredByMain = initialProducts.filter((product) => {
       console.log(`ProductsList: Checking product ${product.id} (${product.name})`, JSON.stringify(product, null, 2));
       const price = Number(product.price);
@@ -67,11 +72,9 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
       return true;
     });
 
-    // Сохраняем товары, отфильтрованные по основным фильтрам
     const sortedFilteredByMain = sortProducts(filteredByMain);
     setFilteredByMainFilters(sortedFilteredByMain);
 
-    // Второй этап: фильтрация по характеристикам
     const filteredBySpecs = sortedFilteredByMain.filter(product => {
       if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
         for (const [specKey, specFilter] of Object.entries(newFilters.selectedSpecs)) {
@@ -94,6 +97,7 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
   };
 
   const handleSortChange = (field, direction) => {
+    console.log('ProductsList: Changing sort option', { field, direction });
     setSortOption({ field, direction });
   };
 
@@ -106,6 +110,7 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
         onFilterChange={handleFilterChange} 
         onSortChange={handleSortChange}
         sortOption={sortOption}
+        initialFilters={initialFilters}
       />
 
       <div className="products">
@@ -117,6 +122,8 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
                 product={product}
                 isSearchPage={isSearchPage}
                 query={query}
+                filters={filters || initialFilters}
+                sortOption={sortOption}
               />
             ))
           ) : (

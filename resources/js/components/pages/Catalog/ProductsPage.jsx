@@ -14,6 +14,7 @@ const ProductsPage = () => {
   const context = useOutletContext();
   const query = context?.query || searchQuery;
   const isSearchPage = location.pathname.startsWith('/search');
+  const { filters, sortOption } = location.state || {};
 
   const { data: products, loading, error } = useCatalogData(
     isSearchPage ? 'search' : 'products',
@@ -34,10 +35,13 @@ const ProductsPage = () => {
     error,
     products,
     location: location.pathname + location.search,
+    filters,
+    sortOption,
   });
 
   if (loading) return <div className="loading">{t('Loading')}...</div>;
   if (error) return <div>{t('Error')}: {error.message}</div>;
+  console.log('ProductsPage: Extracted from location.state', { filters, sortOption });
 
   return (
     <ProductsList
@@ -45,6 +49,8 @@ const ProductsPage = () => {
       emptyMessage={t('No products found')}
       isSearchPage={isSearchPage}
       query={query}
+      initialFilters={filters} // Передаем фильтры
+      initialSortOption={sortOption} // Передаем сортировку
     />
   );
 };

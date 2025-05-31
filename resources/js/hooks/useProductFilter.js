@@ -1,18 +1,23 @@
-
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
-const useProductFilter = (initialProducts, filteredByMainFilters) => {
+const useProductFilter = (initialProducts, filteredByMainFilters, initialFilters) => {
+  const location = useLocation();
+  // Извлекаем сохраненные фильтры и сортировку из location.state или используем initialFilters
+  const savedFilters = initialFilters || location.state?.filters || null;
+  const savedSortOption = location.state?.sortOption || { field: 'name', direction: 'asc' };
+
   const [filters, setFilters] = useState({
-    priceRange: [0, 100000],
-    brand: 'all',
-    category: 'all',
-    subcategory: 'all',
+    priceRange: savedFilters?.priceRange || [0, 100000],
+    brand: savedFilters?.brand || 'all',
+    category: savedFilters?.category || 'all',
+    subcategory: savedFilters?.subcategory || 'all',
     brands: [],
     categories: [],
     subcategories: [],
-    specs: {}, // Все возможные характеристики
-    selectedSpecs: {}, // Выбранные характеристики
-    initialized: false,
+    specs: {},
+    selectedSpecs: savedFilters?.selectedSpecs || {},
+    initialized: !!savedFilters, // Устанавливаем initialized, если есть сохраненные фильтры
   });
 
   useEffect(() => {
@@ -50,7 +55,6 @@ const useProductFilter = (initialProducts, filteredByMainFilters) => {
         }
       });
 
-      // Подсчитываем количество товаров для каждого значения характеристики
       filteredByMainFilters.forEach(product => {
         if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
           Object.entries(product.specs).forEach(([key, value]) => {
@@ -71,25 +75,25 @@ const useProductFilter = (initialProducts, filteredByMainFilters) => {
     });
 
     setFilters((prev) => {
-// Обновляем priceRange только если фильтры еще не инициализированы
-    const newPriceRange = prev.initialized
-    ? prev.priceRange
-    : [0, Math.ceil(maxPrice / 1000) * 1000];
+      // Обновляем priceRange только если фильтры еще не инициализированы
+      const newPriceRange = prev.initialized
+        ? prev.priceRange
+        : [0, Math.ceil(maxPrice / 1000) * 1000];
 
-    return {
-    ...prev,
-    brands,
-    categories,
-    subcategories,
-    priceRange: newPriceRange,
-    specs: allSpecs,
-    selectedSpecs: prev.selectedSpecs,
-    initialized: true, // Устанавливаем флаг после первой инициализации
-    };
+      return {
+        ...prev,
+        brands,
+        categories,
+        subcategories,
+        priceRange: newPriceRange,
+        specs: allSpecs,
+        selectedSpecs: prev.initialized ? prev.selectedSpecs : (savedFilters?.selectedSpecs || prev.selectedSpecs),
+        initialized: true, // Устанавливаем флаг после первой инициализации
+      };
     });
-    }, [initialProducts, filteredByMainFilters]);
+  }, [initialProducts, filteredByMainFilters]);
 
-  return { filters, setFilters };
+  return { filters, setFilters, savedSortOption };
 };
 
 export default useProductFilter;

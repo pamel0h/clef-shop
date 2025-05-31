@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import useProductFilter from '../../../hooks/useProductFilter';
 import '../../../../css/components/Filter.css';
@@ -12,14 +12,22 @@ export const ProductFilter = ({
   filteredProducts = [],
   onFilterChange, 
   onSortChange, 
-  sortOption = { field: 'name', direction: 'asc' }
+  sortOption = { field: 'name', direction: 'asc' },
+  initialFilters
 }) => {
   const { t } = useTranslation();
-  const { filters, setFilters } = useProductFilter(initialProducts, filteredByMainFilters);
+  const { filters, setFilters, savedSortOption } = useProductFilter(initialProducts, filteredByMainFilters);
   const location = useLocation();
   const isSearchPage = location.pathname.startsWith('/search');
   const [showSpecs, setShowSpecs] = useState(false); // Изначально свернуто
   const [expandedSpecs, setExpandedSpecs] = useState({}); // Состояние для раскрытия значений
+
+  // Устанавливаем сохраненные параметры сортировки при первом рендере
+useEffect(() => {
+  if (savedSortOption && (savedSortOption.field !== sortOption.field || savedSortOption.direction !== sortOption.direction)) {
+    onSortChange(savedSortOption.field, savedSortOption.direction);
+  }
+}, [savedSortOption, onSortChange]);
 
   const VALUES_LIMIT = 5; // Ограничение на количество отображаемых значений
 
