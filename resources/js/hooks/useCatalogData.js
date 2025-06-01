@@ -1,8 +1,8 @@
-
 import { useState, useEffect, useCallback } from 'react';
 
+// useCatalogData.js
 export default function useCatalogData(type, options = {}, skip = false) {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState(type === 'product_details' ? {} : []); // Инициализируем объект для product_details
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -15,7 +15,9 @@ export default function useCatalogData(type, options = {}, skip = false) {
 
     try {
       setLoading(true);
-      setError(null); // Сбрасываем предыдущие ошибки
+      setError(null);
+      // Сбрасываем данные в начале загрузки
+      setData(type === 'product_details' ? {} : []);
       
       let url;
       if (type === 'search') {
@@ -28,7 +30,7 @@ export default function useCatalogData(type, options = {}, skip = false) {
         if (options.subcategory) params.append('subcategory', options.subcategory);
         url = `/api/catalog/data?${params}`;
       } else if (type === 'admin_catalog') {
-        url = `/api/admin/catalog/data`; // Новый эндпоинт для админки
+        url = `/api/admin/catalog/data`;
       } else {
         const params = new URLSearchParams({ type });
         if (options.category) params.append('category', options.category);
@@ -55,6 +57,12 @@ export default function useCatalogData(type, options = {}, skip = false) {
       setLoading(false);
     }
   }, [type, options.category, options.subcategory, options.id, options.query, skip]);
+
+  // Сбрасываем данные при изменении ключевых параметров
+  useEffect(() => {
+    setData(type === 'product_details' ? {} : []);
+    setError(null);
+  }, [type, options.id, options.query, options.category, options.subcategory]);
 
   useEffect(() => {
     fetchData();

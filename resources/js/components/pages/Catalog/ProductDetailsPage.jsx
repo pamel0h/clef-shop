@@ -1,3 +1,4 @@
+// ProductDetailsPage.jsx
 import { useParams, useLocation } from 'react-router-dom';
 import useCatalogData from '../../../hooks/useCatalogData';
 import '../../../../css/components/ProductDetails.css';
@@ -6,7 +7,7 @@ import ProductImage from '../../UI/ProductImage';
 import ProductInfo from './ProductInfo';
 import ProductSpecs from './ProductSpecs';
 import { useOutletContext } from 'react-router-dom';
-import Breadcrumbs from './Breadcrumbs'; // Импортируем Breadcrumbs
+import Breadcrumbs from './Breadcrumbs';
 
 const ProductDetailsPage = () => {
   const { productId, categorySlug, subcategorySlug } = useParams();
@@ -39,14 +40,18 @@ const ProductDetailsPage = () => {
     sortOption,
   });
 
-  if (loading) return <div className="loading"></div>;
+  // Показываем лоадер, если данные ещё загружаются или product пустой
+  if (loading || !product || Object.keys(product).length === 0) {
+    return <div className="loading"></div>;
+  }
   if (error) return <div className="error">{error.message}</div>;
-  if (!product) return <div>Товар не найден</div>;
+  if (!product.name) return <div>Товар не найден</div>;
 
   return (
     <div className="product-details-container">
+      {/* <Breadcrumbs /> */}
       <div className="product-details-grid">
-        <ProductImage src={product.image} alt={product.name} variant="main" />
+        <ProductImage src={product.image} alt={product.name || 'Товар'} variant="main" />
         <ProductInfo
           name={product.name}
           price={product.price}
