@@ -32,9 +32,10 @@ const Breadcrumbs = () => {
   useEffect(() => {
     if ((isSearchProductPage || isCatalogProductPage) && productData?.name) {
       setProductName(
-        typeof productData.name === 'object' && productData.name !== null && 'ru' in productData.name
-          ? productData.name.ru
-          : productData.name
+        // typeof productData.name === 'object' && productData.name !== null && 'ru' in productData.name
+        //   ? productData.name.ru
+          // : 
+          productData.name
       );
     }
   }, [isSearchProductPage, isCatalogProductPage, productData]);

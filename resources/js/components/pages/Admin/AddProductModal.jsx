@@ -14,7 +14,8 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     subcategory: '',
     brand: '',
     discount: '',
-    images: []
+    images: [],
+    specs: [{ key: '', value: '' }], // Инициализация specs
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,14 +24,38 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleFileChange = (e) => {
     setFormData(prev => ({
       ...prev,
-      images: Array.from(e.target.files)
+      images: Array.from(e.target.files),
+    }));
+  };
+
+  const handleSpecChange = (index, field, value) => {
+    setFormData(prev => {
+      const newSpecs = [...prev.specs];
+      newSpecs[index] = { ...newSpecs[index], [field]: value };
+      return { ...prev, specs: newSpecs };
+    });
+  };
+
+  const addSpecField = (e) => {
+    e.preventDefault(); // Предотвращаем отправку формы
+    setFormData(prev => ({
+      ...prev,
+      specs: [...prev.specs, { key: '', value: '' }],
+    }));
+  };
+
+  const removeSpecField = (index, e) => {
+    e.preventDefault(); // Предотвращаем отправку формы
+    setFormData(prev => ({
+      ...prev,
+      specs: prev.specs.filter((_, i) => i !== index),
     }));
   };
 
@@ -41,13 +66,30 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
     try {
       const formDataToSend = new FormData();
-      
-      // Добавляем все текстовые поля
+
+      // Добавляем текстовые поля
       Object.keys(formData).forEach(key => {
-        if (key !== 'images' && formData[key]) {
+        if (key !== 'images' && key !== 'specs' && formData[key]) {
           formDataToSend.append(key, formData[key]);
         }
       });
+
+      // Преобразуем specs в объект, исключая пустые пары
+      const specsObject = formData.specs.reduce((obj, spec) => {
+        if (spec.key.trim() && spec.value.trim()) {
+          obj[spec.key.trim()] = spec.value.trim();
+        }
+        return obj;
+      }, {});
+
+      // Проверяем, есть ли характеристики для отправки
+      if (Object.keys(specsObject).length > 0) {
+        // Отправляем как specs_data вместо specs, чтобы избежать конфликтов
+        formDataToSend.append('specs_data', JSON.stringify(specsObject));
+        console.log('Specs to send:', JSON.stringify(specsObject));
+      } else {
+        console.log('No specs to send - all fields are empty');
+      }
 
       // Добавляем изображения
       if (formData.images.length > 0) {
@@ -56,16 +98,22 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
         });
       }
 
+      // Отладка: выводим содержимое FormData
+      console.log('FormData contents:');
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`${key}: ${value instanceof File ? `File: ${value.name}` : value}`);
+      }
+
       const response = await fetch('/api/admin/catalog', {
         method: 'POST',
         body: formDataToSend,
         headers: {
           'X-Requested-With': 'XMLHttpRequest',
-          // НЕ добавляем Content-Type для FormData
-        }
+        },
       });
 
       const result = await response.json();
+      console.log('Response from server:', result);
 
       if (result.success) {
         // Сбрасываем форму
@@ -78,19 +126,20 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
           subcategory: '',
           brand: '',
           discount: '',
-          images: []
+          images: [],
+          specs: [{ key: '', value: '' }],
         });
-        
-        // Вызываем callback для обновления списка товаров
+
         if (onProductAdded) {
           onProductAdded(result.data);
         }
-        
+
         onClose();
       } else {
         setError(result.error || 'Ошибка при добавлении товара');
       }
     } catch (err) {
+      console.error('Network error:', err);
       setError('Ошибка сети: ' + err.message);
     } finally {
       setLoading(false);
@@ -106,10 +155,10 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
           <h2>{t('admin.catalog.addProduct')}</h2>
           <button className="modal-close" onClick={onClose}>&times;</button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="add-product-form">
           {error && <div className="error-message">{error}</div>}
-          
+
           <div className="form-group">
             <label>Название товара *</label>
             <input
@@ -209,6 +258,41 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
               multiple
               accept="image/*"
             />
+          </div>
+
+          <div className="form-group">
+            <label>Характеристики</label>
+            {formData.specs.map((spec, index) => (
+              <div className="spec-row" key={index}>
+                <input
+                  type="text"
+                  placeholder="Название характеристики (например, material)"
+                  value={spec.key}
+                  onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Значение (например, Nylon)"
+                  value={spec.value}
+                  onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={(e) => removeSpecField(index, e)}
+                  className="remove-spec-button"
+                  disabled={formData.specs.length === 1}
+                >
+                  −
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addSpecField}
+              className="add-spec-button"
+            >
+              + Добавить характеристику
+            </button>
           </div>
 
           <div className="modal-actions">

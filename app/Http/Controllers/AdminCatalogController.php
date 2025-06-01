@@ -35,144 +35,95 @@ class AdminCatalogController extends Controller
         }
     }
 
-    // Создание нового товара
-    public function store(Request $request)
-    {
-        try {
-            Log::info('AdminCatalogController: Starting product creation', ['request_data' => $request->all()]);
-
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'description_en' => 'nullable|string',
-                'description_ru' => 'nullable|string',
-                'price' => 'required|numeric|min:0',
-                'category' => 'required|string',
-                'subcategory' => 'required|string',
-                'brand' => 'nullable|string',
-                'discount' => 'nullable|numeric|min:0|max:100',
-                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                // 'specs' => 'nullable|array',
-                // 'specs.*.key' => 'required|string',
-                // 'specs.*.value' => 'required|string',
-            ]);
-            Log::info('AdminCatalogController: Validation passed', ['validated' => $validated]);
-
-            // Обработка изображений
-            $imagesPaths = [];
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $path = $image->store('product_images', 'public');
-                    $imagesPaths[] = basename($path);
-                }
-            }
-            Log::info('AdminCatalogController: Images processed', ['images' => $imagesPaths]);
-
-            // Формируем specs как объект
-            // $specs = new \stdClass();
-            // if ($request->has('specs')) {
-            //     foreach ($request->specs as $spec) {
-            //         if (!empty($spec['key']) && !empty($spec['value'])) {
-            //             $specs->{$spec['key']} = $spec['value'];
-            //         }
-            //     }
-            // }
-
-            // $item = Item::create([
-            //     'name' => $validated['name'],
-            //     'description' => [
-            //         'en' => $validated['description_en'] ?? '',
-            //         'ru' => $validated['description_ru'] ?? ''
-            //     ],
-            //     'price' => (float)$validated['price'],
-            //     'category' => $validated['category'],
-            //     'subcategory' => $validated['subcategory'],
-            //     'brand' => $validated['brand'],
-            //     'discount' => (float)($validated['discount'] ?? 0),
-            //     'images' => $imagesPaths,
-            //     'specs' => new \stdClass() 
-            //     // 'specs' => $specs
-            // ]);
-// Проверяем подключение к MongoDB
-        // Подготовка данных для сохранения
-        $itemData = [
-            'name' => $validated['name'],
-            'description' => [
-                'en' => $validated['description_en'] ?? '',
-                'ru' => $validated['description_ru'] ?? ''
-            ],
-            'price' => (float)$validated['price'],
-            'category' => $validated['category'],
-            'subcategory' => $validated['subcategory'],
-            'brand' => $validated['brand'],
-            'discount' => (float)($validated['discount'] ?? 0),
-            'images' => $imagesPaths,
-            'specs' => new \stdClass() 
-        ];
-
-        Log::info('AdminCatalogController: Data prepared for creation', ['item_data' => $itemData]);
-
-try {
-    $connection = \DB::connection('mongodb');
-    Log::info('AdminCatalogController: MongoDB connection status', [
-        'connection' => get_class($connection),
-        'database_name' => $connection->getMongoDB()->getDatabaseName()
-    ]);
-} catch (\Exception $e) {
-    Log::error('AdminCatalogController: MongoDB connection error', ['error' => $e->getMessage()]);
-    throw new \Exception('Database connection failed: ' . $e->getMessage());
-}
-
-// Создаем товар
-$item = Item::create($itemData);
-
-Log::info('AdminCatalogController: Item created', [
-    'item_id' => $item->id ?? 'NO_ID',
-    'item_data' => $item->toArray()
-]);
-
-// Проверяем, действительно ли товар сохранился
-$savedItem = Item::find($item->id);
-if (!$savedItem) {
-    Log::error('AdminCatalogController: Item not found after creation', ['item_id' => $item->id]);
-    throw new \Exception('Failed to save item to database');
-}
-
-Log::info('AdminCatalogController: Item verified in database', [
-    'saved_item' => $savedItem->toArray()
-]);
-
-// Также проверим общее количество товаров в БД
-$totalItems = Item::count();
-Log::info('AdminCatalogController: Total items in database', ['count' => $totalItems]);
-
-return response()->json([
-    'success' => true,
-    'data' => $this->productFormatter->formatProduct($item),
-    'message' => 'Product created successfully',
-    'debug' => [
-        'item_id' => $item->id,
-        'total_items' => $totalItems
-    ]
-]);
-            // return response()->json([
-            //     'success' => true,
-            //     'data' => $this->productFormatter->formatProduct($item),
-            //     'message' => 'Product created successfully'
-            // ]);
-
-        } catch (\Exception $e) {
-            Log::error('AdminCatalogController: Error creating product', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ]);
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+     // Создание нового товара
+     public function store(Request $request)
+     {
+         try {
+             Log::info('AdminCatalogController: Starting product creation', ['request_data' => $request->all()]);
+ 
+             $validated = $request->validate([
+                 'name' => 'required|string|max:255',
+                 'description_en' => 'nullable|string',
+                 'description_ru' => 'nullable|string',
+                 'price' => 'required|numeric|min:0',
+                 'category' => 'required|string',
+                 'subcategory' => 'required|string',
+                 'brand' => 'nullable|string',
+                 'discount' => 'nullable|numeric|min:0|max:100',
+                 'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+             ]);
+             
+             // Обрабатываем specs отдельно, чтобы избежать конфликта валидации
+             $specsString = $request->input('specs_data'); // Изменили на specs_data
+             Log::info('AdminCatalogController: Raw specs string', ['specs_string' => $specsString]);
+             Log::info('AdminCatalogController: Validation passed', ['validated' => $validated]);
+ 
+             // Обработка изображений
+             $imagesPaths = [];
+             if ($request->hasFile('images')) {
+                 foreach ($request->file('images') as $image) {
+                     $path = $image->store('product_images', 'public');
+                     $imagesPaths[] = basename($path);
+                 }
+             }
+             Log::info('AdminCatalogController: Images processed', ['images' => $imagesPaths]);
+ 
+             // Обработка характеристик
+             $specs = new \stdClass();
+             if (!empty($specsString)) {
+                 try {
+                     $specsArray = json_decode($specsString, true);
+                     Log::info('AdminCatalogController: Decoded specs', ['specs' => $specsArray]);
+                     
+                     if (is_array($specsArray)) {
+                         foreach ($specsArray as $key => $value) {
+                             if (!empty($key) && !empty($value)) {
+                                 $specs->{$key} = $value;
+                             }
+                         }
+                     }
+                 } catch (\Exception $e) {
+                     Log::error('AdminCatalogController: Error parsing specs JSON', ['error' => $e->getMessage()]);
+                 }
+             }
+             Log::info('AdminCatalogController: Final specs object', ['specs' => $specs]);
+ 
+             $item = Item::create([
+                 'name' => $validated['name'],
+                 'description' => [
+                     'en' => $validated['description_en'] ?? '',
+                     'ru' => $validated['description_ru'] ?? ''
+                 ],
+                 'price' => (float)$validated['price'],
+                 'category' => $validated['category'],
+                 'subcategory' => $validated['subcategory'],
+                 'brand' => $validated['brand'],
+                 'discount' => (float)($validated['discount'] ?? 0),
+                 'images' => $imagesPaths,
+                 'specs' => $specs
+             ]);
+ 
+             Log::info('AdminCatalogController: Product created successfully', ['item_id' => $item->id]);
+ 
+             return response()->json([
+                 'success' => true,
+                 'data' => $this->productFormatter->formatProduct($item),
+                 'message' => 'Product created successfully'
+             ]);
+ 
+         } catch (\Exception $e) {
+             Log::error('AdminCatalogController: Error creating product', [
+                 'error' => $e->getMessage(),
+                 'trace' => $e->getTraceAsString(),
+                 'file' => $e->getFile(),
+                 'line' => $e->getLine()
+             ]);
+             return response()->json([
+                 'success' => false,
+                 'error' => $e->getMessage()
+             ], 500);
+         }
+     }
 
     // Обновление товара
     public function update(Request $request, $id)

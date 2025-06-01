@@ -53,7 +53,7 @@ const AdminCatalogPage = () => {
     refetch(); // Обновляем список товаров
   };
 
-  if (loading) return <div className="loading">{t('Loading')}...</div>;
+  if (loading) return <div className="loading"></div>;
   if (error) return <div>{t('Error')}: {error.message}</div>;
 
   return (
