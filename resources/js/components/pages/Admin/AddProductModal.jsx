@@ -14,9 +14,10 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     subcategory: '',
     brand: '',
     discount: '',
-    images: [],
-    specs: [{ key: '', value: '' }], // Инициализация specs
+    image: null, // Изменено на одно изображение
+    specs: [{ key: '', value: '' }],
   });
+  const [imagePreview, setImagePreview] = useState(''); // Для превью изображения
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -29,10 +30,26 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   };
 
   const handleFileChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      images: Array.from(e.target.files),
-    }));
+    const file = e.target.files[0]; // Берем только первый файл
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        image: file,
+      }));
+      
+      // Создаем превью изображения
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        image: null,
+      }));
+      setImagePreview('');
+    }
   };
 
   const handleSpecChange = (index, field, value) => {
@@ -44,7 +61,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   };
 
   const addSpecField = (e) => {
-    e.preventDefault(); // Предотвращаем отправку формы
+    e.preventDefault();
     setFormData(prev => ({
       ...prev,
       specs: [...prev.specs, { key: '', value: '' }],
@@ -52,7 +69,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   };
 
   const removeSpecField = (index, e) => {
-    e.preventDefault(); // Предотвращаем отправку формы
+    e.preventDefault();
     setFormData(prev => ({
       ...prev,
       specs: prev.specs.filter((_, i) => i !== index),
@@ -69,7 +86,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
       // Добавляем текстовые поля
       Object.keys(formData).forEach(key => {
-        if (key !== 'images' && key !== 'specs' && formData[key]) {
+        if (key !== 'image' && key !== 'specs' && formData[key]) {
           formDataToSend.append(key, formData[key]);
         }
       });
@@ -84,18 +101,15 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
       // Проверяем, есть ли характеристики для отправки
       if (Object.keys(specsObject).length > 0) {
-        // Отправляем как specs_data вместо specs, чтобы избежать конфликтов
         formDataToSend.append('specs_data', JSON.stringify(specsObject));
         console.log('Specs to send:', JSON.stringify(specsObject));
       } else {
         console.log('No specs to send - all fields are empty');
       }
 
-      // Добавляем изображения
-      if (formData.images.length > 0) {
-        formData.images.forEach((image, index) => {
-          formDataToSend.append('images[]', image);
-        });
+      // Добавляем изображение
+      if (formData.image) {
+        formDataToSend.append('images[]', formData.image);
       }
 
       // Отладка: выводим содержимое FormData
@@ -126,9 +140,10 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
           subcategory: '',
           brand: '',
           discount: '',
-          images: [],
+          image: null,
           specs: [{ key: '', value: '' }],
         });
+        setImagePreview('');
 
         if (onProductAdded) {
           onProductAdded(result.data);
@@ -250,12 +265,30 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
           </div>
 
           <div className="form-group">
-            <label>Изображения</label>
+            <label>Изображение</label>
+            
+            {/* Показываем превью изображения */}
+            {imagePreview && (
+              <div className="image-preview" style={{ marginBottom: '10px' }}>
+                <p>Превью изображения:</p>
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  style={{ 
+                    width: '150px', 
+                    height: '150px', 
+                    objectFit: 'cover', 
+                    border: '1px solid #ddd',
+                    borderRadius: '4px'
+                  }} 
+                />
+              </div>
+            )}
+            
             <input
               type="file"
-              name="images"
+              name="image"
               onChange={handleFileChange}
-              multiple
               accept="image/*"
             />
           </div>
@@ -300,7 +333,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
               {t('admin.catalog.cancel')}
             </Button>
             <Button type="submit" disabled={loading} className="submit-button">
-              {t('admin.catalog.add')}
+              {loading ? 'Добавление...' : t('admin.catalog.add')}
             </Button>
           </div>
         </form>

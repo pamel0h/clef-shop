@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../UI/Button';
-import Modal from '../../UI/Modal';
+import '../../../../css/components/AddProductModal.css';
 
 const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
   const { t } = useTranslation();
@@ -15,11 +15,14 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
     subcategory: '',
     brand: '',
     discount: '',
-    images: [],
+    image: null, // Изменено на одно изображение
     specs: [{ key: '', value: '' }]
   });
+  const [currentImageUrl, setCurrentImageUrl] = useState(''); // Для отображения текущего изображения
+  const [newImagePreview, setNewImagePreview] = useState(''); // Для превью нового изображения
   const [specKeys, setSpecKeys] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   // Initialize form with product data when modal opens
   useEffect(() => {
@@ -35,11 +38,17 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
         subcategory: product.subcategory || '',
         brand: product.brand || '',
         discount: product.discount || '',
-        images: [], // Images are not pre-filled in the file input
+        image: null, // Сбрасываем при открытии
         specs: product.specs
           ? Object.entries(product.specs).map(([key, value]) => ({ key, value }))
           : [{ key: '', value: '' }]
       });
+      
+      // Устанавливаем текущее изображение
+      if (product.image) {
+        setCurrentImageUrl(product.image);
+      }
+      setNewImagePreview(''); // Сбрасываем превью нового изображения
       fetchSpecKeys();
     }
   }, [isOpen, product]);
@@ -69,36 +78,50 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
   };
 
   const handleFileChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      images: Array.from(e.target.files)
-    }));
+    const file = e.target.files[0]; // Берем только первый файл
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
+      
+      // Создаем превью нового изображения
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        image: null
+      }));
+      setNewImagePreview('');
+    }
   };
 
   const handleSpecChange = (index, field, value) => {
-    const newSpecs = [...formData.specs];
-    newSpecs[index][field] = value;
-    setFormData(prev => ({
-      ...prev,
-      specs: newSpecs
-    }));
+    setFormData(prev => {
+      const newSpecs = [...prev.specs];
+      newSpecs[index] = { ...newSpecs[index], [field]: value };
+      return { ...prev, specs: newSpecs };
+    });
   };
 
-  const addSpec = () => {
+  const addSpecField = (e) => {
+    e.preventDefault();
     setFormData(prev => ({
       ...prev,
       specs: [...prev.specs, { key: '', value: '' }]
     }));
   };
 
-  const removeSpec = (index) => {
-    if (formData.specs.length > 1) {
-      const newSpecs = formData.specs.filter((_, i) => i !== index);
-      setFormData(prev => ({
-        ...prev,
-        specs: newSpecs
-      }));
-    }
+  const removeSpecField = (index, e) => {
+    e.preventDefault();
+    setFormData(prev => ({
+      ...prev,
+      specs: prev.specs.filter((_, i) => i !== index)
+    }));
   };
 
   const getCSRFToken = () => {
@@ -108,60 +131,56 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.name || !formData.price || !formData.category || !formData.subcategory) {
-      alert(t('admin.catalog.fillRequiredFields'));
-      return;
-    }
-
     setLoading(true);
+    setError('');
 
     try {
-      const submitData = new FormData();
+      const formDataToSend = new FormData();
       
       // Добавляем _method для имитации PUT запроса
-      submitData.append('_method', 'PUT');
+      formDataToSend.append('_method', 'PUT');
       
+      // Добавляем текстовые поля
       Object.keys(formData).forEach(key => {
-        if (key !== 'images' && key !== 'specs' && key !== 'id') {
-          submitData.append(key, formData[key]);
+        if (key !== 'image' && key !== 'specs' && key !== 'id' && formData[key]) {
+          formDataToSend.append(key, formData[key]);
         }
       });
 
-      // Добавляем изображения, если они есть
-      if (formData.images.length > 0) {
-        formData.images.forEach((image, index) => {
-          submitData.append(`images[${index}]`, image);
-        });
+      // Добавляем изображение, если выбрано новое
+      if (formData.image) {
+        formDataToSend.append('images[]', formData.image);
       }
 
       // Добавляем только заполненные характеристики
       const validSpecs = formData.specs.filter(spec => spec.key.trim() && spec.value.trim());
       validSpecs.forEach((spec, index) => {
-        submitData.append(`specs[${index}][key]`, spec.key.trim());
-        submitData.append(`specs[${index}][value]`, spec.value.trim());
+        formDataToSend.append(`specs[${index}][key]`, spec.key.trim());
+        formDataToSend.append(`specs[${index}][value]`, spec.value.trim());
       });
+
+      // Отладка: выводим содержимое FormData
+      console.log('FormData contents:');
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`${key}: ${value instanceof File ? `File: ${value.name}` : value}`);
+      }
 
       const csrfToken = getCSRFToken();
       
-      // Используем POST с _method=PUT для совместимости с FormData
       const response = await fetch(`/api/admin/catalog/${formData.id}`, {
         method: 'POST',
-        body: submitData,
+        body: formDataToSend,
         headers: {
           'X-Requested-With': 'XMLHttpRequest',
           ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken })
         }
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      const result = await response.json();
+      console.log('Response from server:', result);
 
-      const data = await response.json();
-      
-      if (data.success) {
-        await onSubmit();
+      if (result.success) {
+        // Сбрасываем форму
         setFormData({
           id: '',
           name: '',
@@ -172,188 +191,215 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
           subcategory: '',
           brand: '',
           discount: '',
-          images: [],
+          image: null,
           specs: [{ key: '', value: '' }]
         });
+        setCurrentImageUrl('');
+        setNewImagePreview('');
+
+        if (onSubmit) {
+          await onSubmit();
+        }
         onClose();
       } else {
-        throw new Error(data.error || t('admin.catalog.failedToUpdate'));
+        setError(result.error || 'Ошибка при обновлении товара');
       }
-      
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert(t('admin.catalog.errorUpdating') + error.message);
+    } catch (err) {
+      console.error('Network error:', err);
+      setError('Ошибка сети: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={t('admin.catalog.editProduct')}>
-      <form onSubmit={handleSubmit} className="edit-product-form">
-        <div className="form-group">
-          <label>{t('admin.catalog.name')} *</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-          />
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>Изменить товар</h2>
+          <button className="modal-close" onClick={onClose}>&times;</button>
         </div>
 
-        <div className="form-group">
-          <label>{t('admin.catalog.descriptionEn')}</label>
-          <textarea
-            name="description_en"
-            value={formData.description_en}
-            onChange={handleInputChange}
-            rows={3}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>{t('admin.catalog.descriptionRu')}</label>
-          <textarea
-            name="description_ru"
-            value={formData.description_ru}
-            onChange={handleInputChange}
-            rows={3}
-          />
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label>{t('admin.catalog.price')} *</label>
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleInputChange}
-              min="0"
-              step="0.01"
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="add-product-form">
+          {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
-            <label>{t('admin.catalog.discount')}</label>
-            <input
-              type="number"
-              name="discount"
-              value={formData.discount}
-              onChange={handleInputChange}
-              min="0"
-              max="100"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label>{t('admin.catalog.category')} *</label>
+            <label>Название товара *</label>
             <input
               type="text"
-              name="category"
-              value={formData.category}
+              name="name"
+              value={formData.name}
               onChange={handleInputChange}
               required
             />
           </div>
 
-          <div className="form-group">
-            <label>{t('admin.catalog.subcategory')} *</label>
-            <input
-              type="text"
-              name="subcategory"
-              value={formData.subcategory}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>{t('admin.catalog.brand')}</label>
-          <input
-            type="text"
-            name="brand"
-            value={formData.brand}
-            onChange={handleInputChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>{t('admin.catalog.image')}</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-          {product?.images?.length > 0 && (
-            <div className="existing-images">
-              <p>{t('admin.catalog.existingImages')}:</p>
-              {product.image_urls?.map((url, index) => (
-                <img key={index} src={url} alt={`Product ${index}`} style={{ width: '100px', margin: '5px' }} />
-              ))}
+          <div className="form-row">
+            <div className="form-group">
+              <label>Цена *</label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+                required
+              />
             </div>
-          )}
-        </div>
+            <div className="form-group">
+              <label>Скидка (%)</label>
+              <input
+                type="number"
+                name="discount"
+                value={formData.discount}
+                onChange={handleInputChange}
+                min="0"
+                max="100"
+              />
+            </div>
+          </div>
 
-        <div className="specs-section">
-          <label>{t('admin.catalog.specs')}</label>
-          {formData.specs.map((spec, index) => (
-            <div key={index} className="spec-row">
+          <div className="form-row">
+            <div className="form-group">
+              <label>Категория *</label>
               <input
                 type="text"
-                placeholder={t('admin.catalog.specKey')}
-                value={spec.key}
-                onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
-                list="spec-keys"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                required
               />
+            </div>
+            <div className="form-group">
+              <label>Подкатегория *</label>
               <input
                 type="text"
-                placeholder={t('admin.catalog.specValue')}
-                value={spec.value}
-                onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                name="subcategory"
+                value={formData.subcategory}
+                onChange={handleInputChange}
+                required
               />
-              {formData.specs.length > 1 && (
-                <Button
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Бренд</label>
+            <input
+              type="text"
+              name="brand"
+              value={formData.brand}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Описание (EN)</label>
+            <textarea
+              name="description_en"
+              value={formData.description_en}
+              onChange={handleInputChange}
+              rows="3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Описание (RU)</label>
+            <textarea
+              name="description_ru"
+              value={formData.description_ru}
+              onChange={handleInputChange}
+              rows="3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Изображение</label>
+            
+            {/* Показываем текущее изображение или превью нового */}
+            {(newImagePreview || currentImageUrl) && (
+              <div className="current-image-preview" style={{ marginBottom: '10px' }}>
+                <p>{newImagePreview ? 'Новое изображение:' : 'Текущее изображение:'}</p>
+                <img 
+                  src={newImagePreview || currentImageUrl} 
+                  alt="Product" 
+                  style={{ 
+                    width: '150px', 
+                    height: '150px', 
+                    objectFit: 'cover', 
+                    border: '1px solid #ddd',
+                    borderRadius: '4px'
+                  }} 
+                />
+              </div>
+            )}
+            
+            <input
+              type="file"
+              name="image"
+              onChange={handleFileChange}
+              accept="image/*"
+            />
+            <small style={{ color: '#666', fontSize: '12px' }}>
+              Оставьте пустым, чтобы сохранить текущее изображение
+            </small>
+          </div>
+
+          <div className="form-group">
+            <label>Характеристики</label>
+            {formData.specs.map((spec, index) => (
+              <div className="spec-row" key={index}>
+                <input
+                  type="text"
+                  placeholder="Название характеристики"
+                  value={spec.key}
+                  onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
+                  list="spec-keys"
+                />
+                <input
+                  type="text"
+                  placeholder="Значение"
+                  value={spec.value}
+                  onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                />
+                <button
                   type="button"
-                  onClick={() => removeSpec(index)}
-                  className="remove-spec-btn"
+                  onClick={(e) => removeSpecField(index, e)}
+                  className="remove-spec-button"
+                  disabled={formData.specs.length === 1}
                 >
-                  ×
-                </Button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addSpec}
-            className="add-spec-btn"
-          >
-            + {t('admin.catalog.addSpec')}
-          </button>
-        </div>
+                  −
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addSpecField}
+              className="add-spec-button"
+            >
+              + Добавить характеристику
+            </button>
+          </div>
 
-        <datalist id="spec-keys">
-          {specKeys.map(key => (
-            <option key={key} value={key} />
-          ))}
-        </datalist>
+          <datalist id="spec-keys">
+            {specKeys.map(key => (
+              <option key={key} value={key} />
+            ))}
+          </datalist>
 
-        <div className="form-actions">
-          <Button type="button" onClick={onClose} className="cancel-btn">
-            {t('admin.catalog.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading} className="submit-btn">
-            {loading ? t('Loading') : t('admin.catalog.edit')}
-          </Button>
-        </div>
-      </form>
-    </Modal>
+          <div className="modal-actions">
+            <Button type="button" onClick={onClose} className="cancel-button">
+              Отмена
+            </Button>
+            <Button type="submit" disabled={loading} className="submit-button">
+              {loading ? 'Сохранение...' : 'Сохранить изменения'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 
