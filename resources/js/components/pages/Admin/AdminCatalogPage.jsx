@@ -1,62 +1,21 @@
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import useCatalogData from '../../../hooks/useCatalogData';
 import Button from '../../UI/Button';
-import AdminProductFilter from './AdminProductFilter';
+import { ProductFilter } from '../Catalog/ProductFilter';
+import useProductFilteringAndSorting from '../../../hooks/useProductFilteringAndSorting';
 import '../../../../css/components/AdminCatalog.css';
 
 const AdminCatalogPage = () => {
   const { t } = useTranslation();
   const { data: products, loading, error } = useCatalogData('admin_catalog');
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const isAdminPage = true; // Флаг для страницы администратора
 
-  // Инициализация отфильтрованных товаров
-  useEffect(() => {
-    if (products && products.length > 0) {
-      setFilteredProducts(products);
-      console.log('AdminCatalogPage: Initialized filteredProducts', products);
-    }
-  }, [products]);
-
-  // Функция обработки изменений фильтров
-  const handleFilterChange = (newFilters) => {
-    if (!products) {
-      console.warn('AdminCatalogPage: No products available for filtering');
-      return;
-    }
-
-    console.log('AdminCatalogPage: Applying filters', newFilters);
-
-    const filtered = products.filter((product) => {
-      const price = Number(product.price) || 0;
-      const discountPrice = product.discount ? price * (1 - product.discount / 100) : price;
-
-      // Фильтр по цене
-      if (newFilters.priceRange && (discountPrice < newFilters.priceRange[0] || discountPrice > newFilters.priceRange[1])) {
-        return false;
-      }
-
-      // Фильтр по бренду
-      if (newFilters.brand !== 'all' && product.brand !== newFilters.brand) {
-        return false;
-      }
-
-      // Фильтр по категории
-      if (newFilters.category !== 'all' && product.category !== newFilters.category) {
-        return false;
-      }
-
-      // Фильтр по подкатегории
-      if (newFilters.subcategory !== 'all' && product.subcategory !== newFilters.subcategory) {
-        return false;
-      }
-
-      return true;
-    });
-
-    console.log('AdminCatalogPage: Filtered products', filtered);
-    setFilteredProducts(filtered);
-  };
+  // Используем хук для фильтрации и сортировки
+  const { filteredProducts, sortOption, handleFilterChange, handleSortChange } = useProductFilteringAndSorting(
+    products || [], // Передаем products как initialProducts
+    { field: 'name', direction: 'asc' },
+    isAdminPage // Передаем флаг isAdminPage
+  );
 
   // Функция для удаления товара (заглушка)
   const handleDeleteProduct = (id) => {
@@ -69,13 +28,18 @@ const AdminCatalogPage = () => {
   if (!products || products.length === 0) return <div>{t('admin.catalog.noProducts')}</div>;
 
   return (
-    <div className="admin-catalog-page">
+    <div className="admin-catalog-page page">
       <h1>{t('admin.catalog.title')}</h1>
       <div className="admin-catalog-layout">
         <div className="filter-column">
-          <AdminProductFilter
+          <ProductFilter
             initialProducts={products}
+            filteredByMainFilters={products}
+            filteredProducts={filteredProducts}
             onFilterChange={handleFilterChange}
+            onSortChange={handleSortChange}
+            sortOption={sortOption}
+            isAdminPage={isAdminPage} // Передаем флаг isAdminPage
           />
         </div>
         <div className="table-column">
@@ -104,6 +68,12 @@ const AdminCatalogPage = () => {
                     <td>{t(`subcategory.${product.category}.${product.subcategory}`) || '-'}</td>
                     <td>{product.brand || '-'}</td>
                     <td>
+                      <Button
+                        className="edit-button"
+                        onClick={() => handleDeleteProduct(product.id)}
+                      >
+                        {t('admin.catalog.edit')}
+                      </Button>
                       <Button
                         className="delete-button"
                         onClick={() => handleDeleteProduct(product.id)}

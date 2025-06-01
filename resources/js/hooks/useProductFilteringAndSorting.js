@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 const useProductFilteringAndSorting = (
   initialProducts = [],
   initialSortOption = { field: 'name', direction: 'asc' },
-  isSearchPage = false
+  isSearchPage = false,
+  isAdminPage = false
 ) => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [sortOption, setSortOption] = useState(initialSortOption);
@@ -34,10 +35,10 @@ const useProductFilteringAndSorting = (
       if (newFilters.brand !== 'all' && product.brand !== newFilters.brand) {
         return false;
       }
-      if (isSearchPage && newFilters.category !== 'all' && product.category !== newFilters.category) {
+      if ((isSearchPage || isAdminPage) && newFilters.category !== 'all' && product.category !== newFilters.category) {
         return false;
       }
-      if (isSearchPage && newFilters.subcategory !== 'all' && product.subcategory !== newFilters.subcategory) {
+      if ((isSearchPage || isAdminPage) && newFilters.subcategory !== 'all' && product.subcategory !== newFilters.subcategory) {
         return false;
       }
       if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
@@ -62,12 +63,26 @@ const useProductFilteringAndSorting = (
     setSortOption({ field, direction });
   };
 
-  useEffect(() => {
-    if (initialProducts && initialProducts.length > 0) {
-      const sorted = sortProducts(initialProducts);
-      setFilteredProducts(sorted);
-    }
-  }, [initialProducts, sortOption]);
+useEffect(() => {
+  if (initialProducts && initialProducts.length > 0) {
+    // Применяем фильтры по умолчанию (все товары показываем)
+    const defaultFilters = {
+      priceRange: [0, Infinity],
+      brand: 'all',
+      category: 'all', 
+      subcategory: 'all',
+      selectedSpecs: {}
+    };
+    handleFilterChange(defaultFilters);
+  }
+}, [initialProducts]);
+
+useEffect(() => {
+  if (filteredProducts.length > 0) {
+    const sorted = sortProducts(filteredProducts);
+    setFilteredProducts(sorted);
+  }
+}, [sortOption]);
 
   return {
     filteredProducts,

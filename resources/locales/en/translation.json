@@ -82,7 +82,8 @@
       "subcategory": "SubCategory",
       "brand": "Brand",
       "actions": "Actions",
-      "delete": "Delete"
+      "delete": "Delete",
+      "edit": "Edit"
     }
   },
   "specs": {

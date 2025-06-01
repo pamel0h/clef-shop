@@ -25,6 +25,7 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
   onSortChange={handleSortChange}
   sortOption={sortOption}
   isSearchPage={isSearchPage}
+  isAdminPage={false}
 />
 
       <div className="products">

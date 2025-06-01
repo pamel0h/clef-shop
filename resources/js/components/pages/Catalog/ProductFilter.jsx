@@ -14,6 +14,7 @@ export const ProductFilter = ({
   onSortChange,
   sortOption = { field: 'name', direction: 'asc' },
   isSearchPage = false,
+  isAdminPage = false,
 }) => {
   const { t } = useTranslation();
   const { filters, setFilters } = useProductFilter(initialProducts, filteredByMainFilters);
@@ -226,7 +227,7 @@ export const ProductFilter = ({
           </select>
 
         </div>
-        {isSearchPage && (
+        {(isSearchPage || isAdminPage ) && (
           <>
             <div className="filter-group">
               <label>{t('filters.category')}:</label>
