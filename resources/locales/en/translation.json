@@ -84,7 +84,14 @@
       "actions": "Actions",
       "delete": "Delete",
       "edit": "Edit",
-      "add": "Add new product"
+      "cancel": "Cancel",
+      "editProduct": "Edit product",
+      "specs": "Specifications",
+      "image": "Image",
+      "add": "Add new product",
+      "addSpec": "Add specification",
+      "descriptionEn":"Description in English",
+      "descriptionRu":"Description in Russian"
     }
   },
   "specs": {

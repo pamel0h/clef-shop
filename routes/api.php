@@ -22,7 +22,9 @@ Route::get('/catalog/data', [CatalogController::class, 'fetchData'])
           Route::get('/catalog/data', [AdminCatalogController::class, 'fetchData'])->name('admin.catalog.data');
           Route::post('/catalog', [AdminCatalogController::class, 'store'])->name('admin.catalog.store');
           Route::put('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update');
+          Route::post('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update.post'); // Добавляем POST версию для FormData
           Route::delete('/catalog/{id}', [AdminCatalogController::class, 'destroy'])->name('admin.catalog.destroy');
+          Route::get('/catalog/spec-keys', [AdminCatalogController::class, 'getSpecKeys'])->name('admin.catalog.spec-keys'); // Добавляем маршрут для spec keys
       });
 
 // Route::get('/', function(){

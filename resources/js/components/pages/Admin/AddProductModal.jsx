@@ -152,7 +152,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{t('admin.catalog.addProduct')}</h2>
+          <h2>{t('admin.catalog.add')}</h2>
           <button className="modal-close" onClick={onClose}>&times;</button>
         </div>
 
@@ -297,10 +297,10 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
           <div className="modal-actions">
             <Button type="button" onClick={onClose} className="cancel-button">
-              Отмена
+              {t('admin.catalog.cancel')}
             </Button>
             <Button type="submit" disabled={loading} className="submit-button">
-              {loading ? 'Добавление...' : 'Добавить товар'}
+              {t('admin.catalog.add')}
             </Button>
           </div>
         </form>

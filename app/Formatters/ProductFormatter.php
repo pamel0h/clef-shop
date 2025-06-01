@@ -18,6 +18,7 @@ class ProductFormatter
             'brand' => $item->brand,
             'discount' => $item->discount,
             'specs' => $item->specs,
+            'description' => $item->description,
         ];
     }
 
