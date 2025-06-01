@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Formatters\ProductFormatter;
+use App\Services\SearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class SearchController extends Controller
 {
   public function __construct(
+    private SearchService $searchService,
     private ProductFormatter $productFormatter
   ) {}
 
@@ -19,31 +21,19 @@ class SearchController extends Controller
     $id = $request->input('id');
     Log::info('SearchController: Received query', ['query' => $query, 'id' => $id]);
 
-    if (empty($query) && !$id) {
-      return response()->json([
-        'success' => true,
-        'data' => []
-      ]);
-    }
+    $results = $this->searchService->search($query, $id);
 
-    $queryBuilder = Item::query();
+    $formatted = $results->map(function ($item) use ($id) {
+      return $id
+          ? $this->productFormatter->formatProductDetails($item)
+          : $this->productFormatter->formatProduct($item);
+  });
 
-    if ($id) {
-      $queryBuilder->where('_id', $id);
-    } else {
-      $queryBuilder->where('name', 'like', "%{$query}%")
-        ->orWhere('description', 'like', "%{$query}%")
-        ->orWhere('brand', 'like', "%{$query}%");
-    }
+  Log::info('SearchController: Search results', ['results' => $formatted->toArray()]);
 
-    $results = $queryBuilder->get()->map(function ($item) use ($id) {
-      return $id ? $this->productFormatter->formatProductDetails($item) : $this->productFormatter->formatProduct($item);
-    });
-
-    Log::info('SearchController: Search results', ['results' => $results->toArray()]);
-    return response()->json([
+  return response()->json([
       'success' => true,
-      'data' => $id ? $results->first() : $results->toArray()
-    ]);
+      'data' => $id ? $formatted->first() : $formatted->toArray()
+  ]);
   }
 }
