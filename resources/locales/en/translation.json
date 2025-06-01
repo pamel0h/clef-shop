@@ -83,7 +83,8 @@
       "brand": "Brand",
       "actions": "Actions",
       "delete": "Delete",
-      "edit": "Edit"
+      "edit": "Edit",
+      "add": "Add new product"
     }
   },
   "specs": {

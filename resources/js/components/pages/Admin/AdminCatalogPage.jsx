@@ -58,17 +58,10 @@ const AdminCatalogPage = () => {
 
   return (
     <div className="admin-catalog-page page">
-      <div className="admin-catalog-header">
         <h1>{t('admin.catalog.title')}</h1>
-        <Button 
-          onClick={() => setIsModalOpen(true)}
-          className="add-product-button"
-        >
-          Добавить товар
-        </Button>
-      </div>
 
       <div className="admin-catalog-layout">
+
         <div className="filter-column">
           <ProductFilter
             initialProducts={products || []}
@@ -82,6 +75,12 @@ const AdminCatalogPage = () => {
         </div>
         
         <div className="table-column">
+        <Button 
+          onClick={() => setIsModalOpen(true)}
+          className="add-product-button"
+        >
+          {t('admin.catalog.add')}
+        </Button>
           {!products || products.length === 0 ? (
             <div className="no-products">{t('admin.catalog.noProducts')}</div>
           ) : (
