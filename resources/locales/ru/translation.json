@@ -39,7 +39,8 @@
   },
   "catalog":{
     "mainTitle":"Каталог",
-    "categories":"Все категории"
+    "categories":"Все категории",
+    "noProducts": "Товаров нет"
   },
   "search":{
     "mainTitle":"Поиск",

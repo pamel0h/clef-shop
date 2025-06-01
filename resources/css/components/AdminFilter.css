@@ -1,0 +1,64 @@
+.admin-filter-panel {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .admin-filter-panel h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .filter-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .filter-group label {
+    font-weight: 500;
+    color: #555;
+  }
+  
+  .price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .price-input {
+    padding: 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    width: 100px;
+  }
+  
+  .filter-select {
+    padding: 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    width: 100%;
+    background: #fff;
+  }
+  
+  /* .reset-button {
+    background: #1890ff;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .reset-button:hover {
+    background: #40a9ff;
+  } */

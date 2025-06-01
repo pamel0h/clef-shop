@@ -39,15 +39,15 @@ const ProductsPage = () => {
     sortOption,
   });
 
-  if (loading) return <div className="loading">{t('Loading')}...</div>;
-  if (error) return <div>{t('Error')}: {error.message}</div>;
+  if (loading) return <div className="loading"></div>;
+  if (error) return <div className="error">{error.message}</div>;
 
   return (
     <>
       {isSearchPage && <h2>{t('search.result')}: {query}</h2>}
       <ProductsList
         products={products}
-        emptyMessage={t('No products found')}
+        emptyMessage={t('catalog.noProducts')}
         isSearchPage={isSearchPage}
         query={query}
         initialFilters={filters}

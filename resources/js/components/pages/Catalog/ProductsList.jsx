@@ -39,7 +39,7 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
               />
             ))
           ) : (
-            <p>{emptyMessage || 'Товаров нет'}</p>
+            <p>{emptyMessage}</p>
           )}
         </div>
       </div>

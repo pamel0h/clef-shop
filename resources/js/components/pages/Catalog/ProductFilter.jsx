@@ -209,33 +209,39 @@ export const ProductFilter = ({
               onFilterChange(newFilters);
             }}
             value={filters.brand}
+            // disabled={filters.brands.length === 0}
           >
-            <option value="all">{t('filters.all')}</option>
             {filters.brands.length > 0 ? (
-              filters.brands.map((brand) => (
-                <option key={brand} value={brand}>
-                  {brand}
-                </option>
-              ))
+              <>
+                <option value="all">{t('filters.all')}</option>
+                {filters.brands.map((brand) => (
+                  <option key={brand} value={brand}>
+                    {brand}
+                  </option>
+                ))}
+              </>
             ) : (
-              <option disabled>{t('filters.noBrands')}</option>
+              <option value="all">{t('filters.all')}</option>
             )}
           </select>
+
         </div>
         {isSearchPage && (
           <>
             <div className="filter-group">
               <label>{t('filters.category')}:</label>
               <select onChange={(e) => handleCategoryChange(e.target.value)} value={filters.category}>
-                <option value="all">{t('filters.all')}</option>
                 {filters.categories.length > 0 ? (
-                  filters.categories.map((category) => (
-                    <option key={category} value={category}>
-                      {t(`category.${category}`)}
-                    </option>
-                  ))
+                  <>
+                    <option value="all">{t('filters.all')}</option>
+                    {filters.categories.map((category) => (
+                      <option key={category} value={category}>
+                        {t(`category.${category}`)}
+                      </option>
+                    ))}
+                  </>
                 ) : (
-                  <option disabled>{t('filters.noCategories')}</option>
+                  <option value="all">{t('filters.all')}</option>
                 )}
               </select>
             </div>
@@ -246,17 +252,19 @@ export const ProductFilter = ({
                 value={filters.subcategory}
                 disabled={filters.category === 'all' || availableSubcategories.length === 0}
               >
-                <option value="all">{t('filters.all')}</option>
-                {availableSubcategories.length > 0 ? (
-                  availableSubcategories.map((subcategory) => (
+              {availableSubcategories.length > 0 ? (
+                <>
+                  <option value="all">{t('filters.all')}</option>
+                  {availableSubcategories.map((subcategory) => (
                     <option key={subcategory} value={subcategory}>
                       {t(`subcategory.${filters.category}.${subcategory}`)}
                     </option>
-                  ))
-                ) : (
-                  <option disabled>{t('filters.noSubcategories')}</option>
-                )}
-              </select>
+                  ))}
+                </>
+              ) : (
+                <option value="all">{t('filters.all')}</option>
+              )}
+            </select>
             </div>
           </>
         )}

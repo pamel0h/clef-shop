@@ -39,8 +39,8 @@ const ProductDetailsPage = () => {
     sortOption,
   });
 
-  if (loading) return <div className="loading">Загрузка...</div>;
-  if (error) return <div>Error: {error?.message || 'Неизвестная ошибка'}</div>;
+  if (loading) return <div className="loading"></div>;
+  if (error) return <div className="error">{error.message}</div>;
   if (!product) return <div>Товар не найден</div>;
 
   return (

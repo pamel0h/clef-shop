@@ -2,7 +2,7 @@ import { useState } from 'react';
 import useProductFilter from '../../../hooks/useProductFilter';
 import { useTranslation } from 'react-i18next';
 import Button from '../../UI/Button';
-// import '../../../../css/components/AdminFilter.css';
+import '../../../../css/components/AdminFilter.css';
 
 const AdminProductFilter = ({ initialProducts = [], onFilterChange }) => {
   const { t } = useTranslation();

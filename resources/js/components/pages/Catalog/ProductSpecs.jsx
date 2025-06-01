@@ -1,4 +1,7 @@
+import { useTranslation } from 'react-i18next';
+
 const ProductSpecs = ({ specs }) => {
+  const { t } = useTranslation();
     if (!specs) return null;
     
     return (
@@ -6,7 +9,7 @@ const ProductSpecs = ({ specs }) => {
         <h3>Характеристики товара:</h3>
       <ul className="product-specs">
         {Object.entries(specs).map(([key, value]) => (
-          <li key={key}>{key}: {value}</li>
+          <li key={key}>{t(`specs.${key}`)}: {value}</li>
         ))}
       </ul>
       </div>

@@ -39,7 +39,8 @@
   },
   "catalog":{
     "mainTitle":"Catalog",
-    "categories":"All categories"
+    "categories":"All categories",
+    "noProducts": "No products"
   },
   "search":{
     "mainTitle":"Search",

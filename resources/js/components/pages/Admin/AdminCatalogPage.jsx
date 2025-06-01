@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import useCatalogData from '../../../hooks/useCatalogData';
 import Button from '../../UI/Button';
 import AdminProductFilter from './AdminProductFilter';
-// import '../../../../css/components/AdminCatalog.css';
+import '../../../../css/components/AdminCatalog.css';
 
 const AdminCatalogPage = () => {
   const { t } = useTranslation();

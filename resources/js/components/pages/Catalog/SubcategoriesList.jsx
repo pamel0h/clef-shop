@@ -22,8 +22,8 @@ export const SubcategoriesList = () => {
   const { data, loading, error } = useCatalogData('subcategories', { category: categorySlug });
   console.log('Subcategories data:', { data, loading, error });
 
-  if (loading) return <div className="subcategories-page">Загрузка подкатегорий...</div>;
-  if (error) return <div className="subcategories-page">Ошибка: {error.message}</div>;
+  if (loading) return <div className="loading"></div>;
+  if (error) return <div className="error">Ошибка: {error.message}</div>;
 
   return (
      <div className="subcategories-page categories-list"> 
