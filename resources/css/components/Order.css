@@ -1,18 +1,18 @@
-.order{
+.order {
     width: 100%;
     padding: 20px;
     background-color: var(--color-light-gray);
     display: flex;
     justify-content: space-between;
     flex-direction: column;
-     box-sizing: border-box;
-     transition: all 0.3s ease;
+    box-sizing: border-box;
+    transition: all 0.5s ease; /* Плавный переход для всех изменений */
 }
 
 .order:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  background-color: var(--color-light-gray);
+    transform: scale(1.01); /* Небольшое увеличение (3%) */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Тень для эффекта глубины */
+    background-color: var(--color-light-gray); /* Сохраняем цвет фона */
 }
 
 .titleOrder{

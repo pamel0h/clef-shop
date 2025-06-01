@@ -1,20 +1,166 @@
-//CartPage.jsx
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useCart } from '../../../../context/CartContext';
+import { useAuth } from '../../../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import CartItem from './CartItem';
 import Button from '../../UI/Button';
-import "../../../../css/components/CartPage.css"
+import "../../../../css/components/CartPage.css";
 
 const CartPage = () => {
+    const { t } = useTranslation();
+    const { cartItems, loading, clearCart } = useCart();
+    const { user } = useAuth(); // Получаем текущего пользователя
+    const navigate = useNavigate();
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [isPickup, setIsPickup] = useState(true);
+    const [phone, setPhone] = useState('');
+    const [address, setAddress] = useState('');
+    const [error, setError] = useState('');
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
+
+    useEffect(() => {
+        const total = cartItems.reduce((sum, item) => {
+            const itemPrice = item.product?.price * (1 - (item.product?.discount || 0) / 100);
+            return sum + (itemPrice * item.quantity);
+        }, 0);
+        setTotalPrice(total);
+    }, [cartItems]);
+
+    const resetForm = () => {
+        setPhone('');
+        setAddress('');
+        setError('');
+        setLoadingSubmit(false);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoadingSubmit(true);
+
+        if (!user) {
+            setError(t('cart.please_login'));
+            setLoadingSubmit(false);
+            return;
+        }
+
+        if (!phone) {
+            setError(t('cart.phone_required'));
+            setLoadingSubmit(false);
+            return;
+        }
+
+        if (!isPickup && !address) {
+            setError(t('cart.address_required'));
+            setLoadingSubmit(false);
+            return;
+        }
+
+        try {
+            const orderData = {
+                items: cartItems.map(item => ({
+                    product_id: item.product_id,
+                    quantity: item.quantity,
+                    attributes: item.attributes || [],
+                })),
+                phone,
+                delivery_type: isPickup ? 'pickup' : 'delivery',
+                ...(isPickup ? {} : { address }), // Добавляем адрес только для доставки
+            };
+
+            const response = await axios.post('/api/order/create', orderData);
+
+            if (response.data.success) {
+                clearCart(); // Очищаем корзину после успешного заказа
+                resetForm();
+                navigate('/profile'); // Перенаправляем в профиль
+            } else {
+                setError(response.data.message || t('cart.order_error'));
+            }
+        } catch (error) {
+            setError(t('cart.order_error'));
+        } finally {
+            setLoadingSubmit(false);
+        }
+    };
+
+    if (loading) return <p>{t('cart.loading')}</p>;
+
     return (
         <div className="page--cart page">
-            <h1>Cart</h1>
-            <div className="productsCart">
-                <h2>Товары</h2>
+            <h1>{t('cart.title')}</h1>
+            <div className="containerProductsCart">
+                <div className="productsCart">
+                    {cartItems.length === 0 ? (
+                        <p>{t('cart.empty')}</p>
+                    ) : (
+                        <>
+                            {cartItems.map(item => (
+                                <CartItem key={item.product_id} item={item} />
+                            ))}
+                            <Button onClick={clearCart}>
+                                {t('cart.clear_cart')}
+                            </Button>
+                        </>
+                    )}
+                </div>
             </div>
-            <div className="final">
-                <h2>Итого:</h2>
-                <Button variant='secondary'>Заказать</Button>
+            <div className="orderForm">
+                <h2>{t('cart.total')}: {totalPrice.toFixed(2)}</h2>
+                <div className="order-tabs">
+                    <button
+                        className={`order-tab pickup-btn ${isPickup ? 'active' : ''}`}
+                        onClick={() => setIsPickup(true)}
+                    >
+                        {t('cart.pickup')}
+                    </button>
+                    <button
+                        className={`order-tab order-btn ${!isPickup ? 'active' : ''}`}
+                        onClick={() => setIsPickup(false)}
+                    >
+                        {t('cart.delivery')}
+                    </button>
+                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>{t('cart.phone_label')}</label>
+                        <input
+                            type="text"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder={t('cart.phone_placeholder')}
+                            required
+                            disabled={loadingSubmit}
+                        />
+                    </div>
+                    {!isPickup && (
+                        <div className="form-group">
+                            <label>{t('cart.address_label')}</label>
+                            <input
+                                type="text"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                placeholder={t('cart.address_placeholder')}
+                                required
+                                disabled={loadingSubmit}
+                            />
+                        </div>
+                    )}
+                    {error && <p className="error">{error}</p>}
+                    <Button
+                        type="submit"
+                        className="submitOrder"
+                        variant="secondary"
+                        disabled={loadingSubmit || cartItems.length === 0}
+                    >
+                        {loadingSubmit ? t('cart.loading') : t('cart.order')}
+                    </Button>
+                </form>
             </div>
-            
         </div>
     );
 };
+
 export default CartPage;

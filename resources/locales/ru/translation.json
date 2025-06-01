@@ -80,5 +80,42 @@
     "updating": "Обновление...",
     "update_success": "Профиль успешно обновлен",
     "update_error": "Ошибка при обновлении профиля"
+  },
+  "cart": {
+    "title": "Корзина",
+    "empty": "Ваша корзина пуста",
+    "clear_cart": "Очистить корзину",
+    "total": "Итого",
+    "pickup": "Самовывоз",
+    "delivery": "Доставка",
+    "phone_label": "Номер телефона",
+    "phone_placeholder": "Введите номер телефона",
+    "address_label": "Адрес",
+    "address_placeholder": "Введите адрес доставки",
+    "order": "Оформить заказ",
+    "loading": "Загрузка...",
+    "please_login": "Пожалуйста, войдите в аккаунт",
+    "phone_required": "Укажите номер телефона",
+    "address_required": "Укажите адрес доставки",
+    "order_error": "Ошибка при создании заказа"
+  },
+  "order": {
+    "title": "Заказ #",
+    "total": "Итого",
+    "date": "Дата",
+    "delivery_type": "Тип доставки",
+    "pickup": "Самовывоз",
+    "delivery": "Доставка",
+    "address": "Адрес",
+    "phone": "Телефон",
+    "show_details": "Подробнее",
+    "hide_details": "Скрыть",
+    "status": {
+      "pending": "В обработке",
+      "processing": "В работе",
+      "shipped": "Отправлен",
+      "completed": "Получен",
+      "cancelled": "Отменен"
+    }
   }
 }

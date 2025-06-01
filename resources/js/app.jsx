@@ -5,6 +5,7 @@ import './i18n';
 import ReactDOM from 'react-dom/client';
 import { routes } from './config/routes';
 import { AuthProvider } from '../context/AuthContext';
+import { CartProvider } from '../context/CartContext';
 
 // Рекурсивный рендер роутов
 const renderRoutes = (routesToRender) => {
@@ -23,11 +24,13 @@ const renderRoutes = (routesToRender) => {
 const App = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {renderRoutes(routes)}
-        </Routes>
-      </BrowserRouter>
+      <CartProvider>
+        <BrowserRouter>
+          <Routes>
+            {renderRoutes(routes)}
+          </Routes>
+        </BrowserRouter>
+      </CartProvider>
     </AuthProvider>
   );
 };
