@@ -33,12 +33,6 @@ class ItemController extends Controller
             "body"=>"required",
         ]);
 
-        // $item=Item::create([
-        //     "title"=>$request->title,
-        //     "body"=>$request->body,
-        // ]);
-
-        // return redirect()->route("items.index")->with("success", "Item created.");
         try {
             $item = Item::create([
                 "title" => $request->title,

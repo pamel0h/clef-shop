@@ -38,7 +38,73 @@ class AdminCatalogController extends Controller
     // Создание нового товара
     public function store(Request $request)
     {
-   
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description_en' => 'nullable|string',
+                'description_ru' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+                'category' => 'required|string',
+                'subcategory' => 'required|string',
+                'brand' => 'nullable|string',
+                'discount' => 'nullable|numeric|min:0|max:100',
+                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                // 'specs' => 'nullable|array',
+                // 'specs.*.key' => 'required|string',
+                // 'specs.*.value' => 'required|string',
+            ]);
+
+            // Обработка изображений
+            $imagesPaths = [];
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('product_images', 'public');
+                    $imagesPaths[] = basename($path);
+                }
+            }
+
+            // Формируем specs как объект
+            // $specs = new \stdClass();
+            // if ($request->has('specs')) {
+            //     foreach ($request->specs as $spec) {
+            //         if (!empty($spec['key']) && !empty($spec['value'])) {
+            //             $specs->{$spec['key']} = $spec['value'];
+            //         }
+            //     }
+            // }
+
+            $item = Item::create([
+                'name' => $validated['name'],
+                'description' => [
+                    'en' => $validated['description_en'] ?? '',
+                    'ru' => $validated['description_ru'] ?? ''
+                ],
+                'price' => (float)$validated['price'],
+                'category' => $validated['category'],
+                'subcategory' => $validated['subcategory'],
+                'brand' => $validated['brand'],
+                'discount' => (float)($validated['discount'] ?? 0),
+                'images' => $imagesPaths,
+                'specs' => new \stdClass() 
+                // 'specs' => $specs
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $this->productFormatter->formatProduct($item),
+                'message' => 'Product created successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('AdminCatalogController: Error creating product', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     // Обновление товара
@@ -50,6 +116,57 @@ class AdminCatalogController extends Controller
     // Удаление товара
     public function destroy($id)
     {
-   
+        try {
+            $item = Item::findOrFail($id);
+            $item->delete();
+    
+            Log::info('AdminCatalogController: Product deleted', ['id' => $id]);
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Product deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('AdminCatalogController: Error deleting product', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
+
+   // Получение уникальных ключей характеристик для автодополнения
+   public function getSpecKeys()
+   {
+       try {
+           $specKeys = Item::raw(function ($collection) {
+               return $collection->aggregate([
+                   ['$project' => ['specs' => ['$objectToArray' => '$specs']]],
+                   ['$unwind' => '$specs'],
+                   ['$group' => ['_id' => '$specs.k']],
+                   ['$sort' => ['_id' => 1]]
+               ]);
+           });
+
+           $keys = $specKeys->pluck('_id')->filter()->values()->toArray();
+
+           return response()->json([
+               'success' => true,
+               'data' => $keys
+           ]);
+
+       } catch (\Exception $e) {
+           Log::error('AdminCatalogController: Error fetching spec keys', ['error' => $e->getMessage()]);
+           return response()->json([
+               'success' => false,
+               'error' => $e->getMessage()
+           ], 500);
+       }
+    }
+
 }
