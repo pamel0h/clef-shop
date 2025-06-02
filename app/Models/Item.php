@@ -64,6 +64,23 @@ class Item extends Model
         Log::info('Fetched items:', ['category' => $category, 'subcategory' => $subcategory, 'items' => $items->toArray()]);
         return $items;
     }
+ 
+    public static function getAllBrands()
+    {
+        $result = self::raw(function ($collection) {
+            return $collection->aggregate([
+                ['$group' => ['_id' => '$brand']],
+                ['$match' => ['_id' => ['$ne' => null]]],
+                ['$sort' => ['_id' => 1]],
+                ['$project' => ['brand' => '$_id', '_id' => 0]]
+            ]);
+        });
+    
+        $brands = $result->pluck('brand')->toArray();
+        Log::info('Raw brands result:', ['rawResult' => $result->toArray()]);
+        Log::info('Fetched brands:', ['brands' => $brands]);
+        return $brands;
+    }
 
     // картинки
     public function getImageUrlAttribute()
@@ -73,14 +90,14 @@ class Item extends Model
             : asset('images/no-image.png');
     }
 
-    public function getImageUrlsAttribute()
-    {
-        if (empty($this->images)) {
-            return [$this->image_url];
-        }
+    // public function getImageUrlsAttribute()
+    // {
+    //     if (empty($this->images)) {
+    //         return [$this->image_url];
+    //     }
 
-        return array_map(function ($image) {
-            return asset('storage/product_images/' . $image);
-        }, $this->images);
-    }
+    //     return array_map(function ($image) {
+    //         return asset('storage/product_images/' . $image);
+    //     }, $this->images);
+    // }
 }

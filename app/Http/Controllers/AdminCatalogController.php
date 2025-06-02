@@ -273,4 +273,24 @@ class AdminCatalogController extends Controller
        }
     }
 
+    
+    // Получение уникальных брендов
+    public function getBrands()
+    {
+        try {
+            $brands = Item::getAllBrands();
+            return response()->json([
+                'success' => true,
+                'data' => $brands
+            ]);
+        } catch (\Exception $e) {
+            Log::error('AdminCatalogController: Error fetching brands', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+
 }

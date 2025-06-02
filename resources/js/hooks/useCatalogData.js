@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
-// useCatalogData.js
 export default function useCatalogData(type, options = {}, skip = false) {
-  const [data, setData] = useState(type === 'product_details' ? {} : []); // Инициализируем объект для product_details
+  const [data, setData] = useState(type === 'product_details' ? {} : []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -16,9 +15,8 @@ export default function useCatalogData(type, options = {}, skip = false) {
     try {
       setLoading(true);
       setError(null);
-      // Сбрасываем данные в начале загрузки
       setData(type === 'product_details' ? {} : []);
-      
+
       let url;
       if (type === 'search') {
         url = `/api/search?query=${encodeURIComponent(options.query)}`;
@@ -31,6 +29,10 @@ export default function useCatalogData(type, options = {}, skip = false) {
         url = `/api/catalog/data?${params}`;
       } else if (type === 'admin_catalog') {
         url = `/api/admin/catalog/data`;
+      } else if (type === 'brands') {
+        url = `/api/admin/catalog/brands`;
+      } else if (type === 'spec_keys') {
+        url = `/api/admin/catalog/spec-keys`;
       } else {
         const params = new URLSearchParams({ type });
         if (options.category) params.append('category', options.category);
@@ -42,13 +44,19 @@ export default function useCatalogData(type, options = {}, skip = false) {
       console.log('useCatalogData: Fetching URL', url, 'options:', options);
       const response = await fetch(url);
       console.log('useCatalogData: Response status', response.status, response.statusText);
+
+      const contentType = response.headers.get('Content-Type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Ожидался JSON-ответ, получен неверный формат');
+      }
+
       const result = await response.json();
       console.log('useCatalogData: Response data', result);
-      
+
       if (!response.ok || !result?.success) {
-        throw new Error(result.error || 'Server error');
+        throw new Error(result.error || `HTTP error ${response.status}`);
       }
-      
+
       setData(result.data || (type === 'product_details' ? {} : []));
     } catch (err) {
       console.error('useCatalogData: Fetch error:', err.message);
@@ -58,7 +66,6 @@ export default function useCatalogData(type, options = {}, skip = false) {
     }
   }, [type, options.category, options.subcategory, options.id, options.query, skip]);
 
-  // Сбрасываем данные при изменении ключевых параметров
   useEffect(() => {
     setData(type === 'product_details' ? {} : []);
     setError(null);

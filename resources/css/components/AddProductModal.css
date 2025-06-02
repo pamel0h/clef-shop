@@ -145,3 +145,12 @@
     background-color: #6c757d;
     cursor: not-allowed;
   }
+
+  .spec-row{
+margin-bottom: 20px;
+  }
+
+.scrollable-datalist {
+  max-height: 200px;
+  overflow-y: scroll;
+}
