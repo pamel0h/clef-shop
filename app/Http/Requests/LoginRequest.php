@@ -8,14 +8,14 @@ class LoginRequest extends FormRequest
 {
     public function authorize()
     {
-        return true; // Разрешить всем
+        return true;
     }
 
     public function rules()
     {
         return [
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:8',
         ];
     }
 }

@@ -304,6 +304,26 @@
       "midi_controllers": "MIDI Controllers",
       "synthesizers": "Synthesizers"
     }
-  }
+  },
+    "profile": {
+      "title": "Profile",
+      "my_data": "My Data",
+      "orders": "Orders",
+      "purchases": "Purchases",
+      "my_orders": "My Orders",
+      "my_purchases": "My Purchases",
+      "logout": "Log Out",
+      "phone": "Phone",
+      "address": "Address",
+      "phone_placeholder": "Enter phone number",
+      "address_placeholder": "Enter address",
+      "update": "Update",
+      "updating": "Updating...",
+      "update_success": "Profile updated successfully",
+      "update_error": "Error updating profile",
+      "no_purchases":"No purchases",
+      "no_orders": "No orders",
+      "loading": "Loading..."
+    }
 }
   

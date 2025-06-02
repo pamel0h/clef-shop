@@ -26,6 +26,7 @@ function Header() {
         } else {
             setIsAuthModalOpen(true);
         };
+    }   
     const handleSearch = (e) => {
         if (e.key === 'Enter' && searchQuery.trim()) {
             console.log('Navigating to:', `/search?query=${encodeURIComponent(searchQuery)}`); // Отладка
@@ -46,7 +47,11 @@ function Header() {
                         placeholder={t('header.search')}  
                         variant="search"
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => {
+                            console.log('Input changed:', e.target.value); // Отладка
+                            setSearchQuery(e.target.value);
+                        }}
+                        onKeyDown={handleSearch}
                     />
                     <Navbar/>
                 </div>
@@ -74,6 +79,6 @@ function Header() {
             />
         </div>
     );
-}}
+}
 
 export default Header;

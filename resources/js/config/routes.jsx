@@ -14,7 +14,6 @@ import NewsItem from '../components/pages/News/NewsItem'
 import SearchPage from '../components/pages/Catalog/SearchPage';
 import ProtectedRoute from './ProtectedRoute';
 
-import NewsItem from '../components/pages/News/NewsItem';
 import AdminCatalogPage from '../components/pages/Admin/AdminCatalogPage';
 export const routes = [
   {
