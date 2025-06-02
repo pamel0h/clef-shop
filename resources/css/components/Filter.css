@@ -1,8 +1,16 @@
-.filters {
-    padding: 20px;
-    max-width: 300px;
-  }
-  
+
+  .filters {
+  grid-column: 1;
+  background: var(--color-white);
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 300px;
+}
+
+.filters h3 {
+  margin-top: 0;
+}
+
   .filter-group {
     margin-bottom: 20px;
   }
@@ -20,6 +28,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-bottom: 5px;
   }
   
   .price-input {

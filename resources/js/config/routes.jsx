@@ -10,7 +10,10 @@ import CategoriesList from '../components/pages/Catalog/CategoriesList';
 import {SubcategoriesList} from '../components/pages/Catalog/SubcategoriesList';
 import ProductsPage  from '../components/pages/Catalog/ProductsPage'; 
 import ProductDetailsPage from '../components/pages/Catalog/ProductDetailsPage'; 
+import NewsItem from '../components/pages/News/NewsItem'
 import SearchPage from '../components/pages/Catalog/SearchPage';
+import ProtectedRoute from './ProtectedRoute';
+
 import NewsItem from '../components/pages/News/NewsItem';
 import AdminCatalogPage from '../components/pages/Admin/AdminCatalogPage';
 export const routes = [
@@ -40,10 +43,17 @@ export const routes = [
           },
         ],
       },
-      { path: '/about', element: <AboutPage /> },
-      { path: '/contacts', element: <ContactPage /> },
-      { path: '/profile', element: <ProfilePage /> },
-      { path: '/cart', element: <CartPage /> },
+      { path: '/about', element: <AboutPage/> },
+      { path: '/contacts', element: <ContactPage/> },
+      {
+        path: '/profile',
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        )
+      },
+      { path: '/cart', element: <CartPage />},
       { path: ':search', 
         element: <SearchPage />,
         children: [
@@ -59,5 +69,6 @@ export const routes = [
         element: <AdminCatalogPage />
       }
     ],
+  
   },
 ];

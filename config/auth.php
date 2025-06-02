@@ -13,10 +13,6 @@ return [
     |
     */
 
-    'defaults' => [
-        'guard' => env('AUTH_GUARD', 'web'),
-        'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
-    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -35,13 +31,22 @@ return [
     |
     */
 
+    
+
+
+    'defaults' => [
+        'guard' => 'web',
+        'passwords' => 'users',
+    ],
+
     'guards' => [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+        
+        ]
         ],
-    ],
-
+       
     /*
     |--------------------------------------------------------------------------
     | User Providers

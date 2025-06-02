@@ -2,10 +2,14 @@
 
 .page--user{
      grid-template-rows: 
-    repeat(1, 100px)     
+    repeat(1, 100px)  
     repeat(1, 2fr) 
     repeat(1, 200px)  
     
+}
+
+.page--user .user-info{
+ grid-column: span 3; 
 }
 
 .page--user h1{

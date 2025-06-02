@@ -1,7 +1,7 @@
 @import '../_variables.css';
 
 .page--cart{
-        grid-template-rows: 
+    grid-template-rows: 
     repeat(1, 100px)     
     repeat(1, 2fr) 
     repeat(1, 200px)  
@@ -11,23 +11,64 @@
     font-size: 4rem; 
 }
 
-.productsCart{
-    background-color: var(--color-light-gray);
+.containerProductsCart{
     grid-column: span 2; 
-    padding: 20px;
+   
+    width: 100%;
 }
 
-.final{
+.productsCart{
+    width: 100%;
     padding: 20px;
+    box-sizing: border-box;
+}
+
+.orderForm{
+    color: white;
+    padding: 10px 20px 30px;
     display: flex;
     flex-direction: column;
-    height: 100px;
     justify-content: space-between;
     background-color: var(--color-primary);
     grid-column: span 1; 
+    border-radius: 5px;
 }
 
-.final h2{
-    color: var(--color-light-gray);
+.submitOrder{
+    margin-top: 5px;
+    background-color:var(--color-white);
+}
 
+.orderForm form{
+    display: flex;
+    flex-direction: column;
+}
+
+.order-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border: 1px solid white;
+  border-radius: 5px;
+}
+
+.pickup-btn{
+    border-radius: 4px 0px 0px 4px;
+}
+
+.order-btn{
+    border-radius: 0px 4px 4px 0px;
+}
+.order-tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  cursor: pointer;
+}
+
+.order-tab.active {
+  background:var(--color-white);
+  color:var(--color-primary);
 }

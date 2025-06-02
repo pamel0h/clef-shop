@@ -10,7 +10,8 @@ const Input = ({
     variant = null, // "search" или "password"
     disabled = false,
     type = "text", // "text", "password", "email" и т.д.
-    value = "",   
+    value = "",  
+    name, 
     onChange = () => {}, // Колбэк для обновления значения
     onKeyDown = () => {}, // Добавляем пропс для обработки нажатия клавиш
 }) => {
@@ -30,6 +31,7 @@ const Input = ({
         type={inputType}
         placeholder={placeholder}
         value={value} 
+        name={name}
         onChange={onChange} 
         onKeyDown={onKeyDown} // Передаем onKeyDown в <input>
         disabled={disabled}
@@ -43,7 +45,7 @@ const Input = ({
 
       {/* Кнопка показа/скрытия пароля (если variant="password") */}
       {variant === 'password' && (
-        <Button size='small' variant='icon' icon={eye_password} 
+        <Button type="button" size='small' variant='icon' icon={eye_password} 
           onClick={() => setShowPassword(!showPassword)}
         >
         </Button>

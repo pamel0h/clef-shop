@@ -6,16 +6,26 @@ import LanguageSelector from '../UI/LanguageSelector';
 import LogoIcon from '../icons/LogoIcon';
 import CartIcon from '../icons/CartIcon'
 import ProfileIcon from '../icons/ProfileIcon'
-import LanguageIcon from '../icons/LanguageIcon'
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
+import { useAuth } from '../../../context/AuthContext';
+import AuthModal from '../UI/AuthModal';
 
 function Header() {
-    const [searchQuery, setSearchQuery] = useState('');
+    const { t } = useTranslation();
+    const { isAuthenticated, logout } = useAuth();
     const navigate = useNavigate();
+    
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+    const handleProfileClick = () => {
+        if (isAuthenticated) {
+            navigate('/profile');
+        } else {
+            setIsAuthModalOpen(true);
+        };
     const handleSearch = (e) => {
         if (e.key === 'Enter' && searchQuery.trim()) {
             console.log('Navigating to:', `/search?query=${encodeURIComponent(searchQuery)}`); // Отладка
@@ -23,8 +33,8 @@ function Header() {
             setSearchQuery(''); //Очищаем поле после поиска
         }
     };
-    const { t } = useTranslation();
 
+    
     return(
         <div className='container'>
             <div className='header'>
@@ -36,11 +46,7 @@ function Header() {
                         placeholder={t('header.search')}  
                         variant="search"
                         value={searchQuery}
-                        onChange={(e) => {
-                            console.log('Input changed:', e.target.value); // Отладка
-                            setSearchQuery(e.target.value);
-                        }}
-                        onKeyDown={handleSearch}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                     />
                     <Navbar/>
                 </div>
@@ -51,15 +57,23 @@ function Header() {
                     </div>
                     <div className='icons'>
                         <LanguageSelector />
-                        {/* <Button variant = 'icon' icon={<LanguageIcon />} ></Button> */}
-                        <Link to="/profile"><Button variant = 'icon' icon={<ProfileIcon />} ></Button></Link>
-                        <Link to="/cart"><Button variant = 'icon' icon={<CartIcon />} ></Button></Link>
+                        <Button
+                            variant="icon"
+                            icon={<ProfileIcon />}
+                            onClick={handleProfileClick}
+                        />
+                        <Link to="/cart">
+                            <Button variant='icon' icon={<CartIcon />} />
+                        </Link>
                     </div>
                 </div>
             </div>
+            <AuthModal 
+                isOpen={isAuthModalOpen} 
+                onClose={() => setIsAuthModalOpen(false)} 
+            />
         </div>
-        
     );
-}
+}}
 
 export default Header;

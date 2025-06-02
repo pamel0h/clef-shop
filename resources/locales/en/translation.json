@@ -204,6 +204,59 @@
     "questionsTitle": "Still have questions?",
     "questionsText": "Fill out the feedback form!"
   },
+  
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "password_confirmation": "Confirm Password",
+    "name_placeholder": "Enter your name",
+    "email_placeholder": "Enter your email",
+    "password_placeholder": "Enter your password",
+    "password_confirmation_placeholder": "Confirm your password",
+    "login_success": "Login successful!",
+    "register_success": "Registration successful!",
+    "error": "An error occurred. Please try again."
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "clear_cart": "Clear Cart",
+    "total": "Total",
+    "pickup": "Pickup",
+    "delivery": "Delivery",
+    "phone_label": "Phone Number",
+    "phone_placeholder": "Enter phone number",
+    "address_label": "Address",
+    "address_placeholder": "Enter delivery address",
+    "order": "Place Order",
+    "loading": "Loading...",
+    "please_login": "Please log in to your account",
+    "phone_required": "Phone number is required",
+    "address_required": "Delivery address is required",
+    "order_error": "Error creating order"
+  },
+  "order": {
+    "title": "Order #",
+    "total": "Total",
+    "date": "Date",
+    "delivery_type": "Delivery Type",
+    "pickup": "Pickup",
+    "delivery": "Delivery",
+    "address": "Address",
+    "phone": "Phone",
+    "show_details": "Show Details",
+    "hide_details": "Hide Details",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
   "contactForm":{
     "name":"Name",
     "email":"Email",

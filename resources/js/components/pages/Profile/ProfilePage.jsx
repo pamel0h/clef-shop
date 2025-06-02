@@ -1,66 +1,122 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../../../context/AuthContext';
+import axios from 'axios';
 import "../../../../css/components/ProfilePage.css";
 import Order from './Order';
 import ProfileForm from './ProfileForm';
 import Button from '../../UI/Button';
-import Input from '../../UI/Input';
 
 const ProfilePage = () => {
+    const { t } = useTranslation();
+    const { user, logout, loading } = useAuth();
+    const navigate = useNavigate();
     const [activeContainer, setActiveContainer] = useState('profile');
+    const [orders, setOrders] = useState([]);
+    const [loadingOrders, setLoadingOrders] = useState(false);
+    const [error, setError] = useState('');
+
+
+    useEffect(() => {
+        if (user) {
+            const fetchOrders = async () => {
+                setLoadingOrders(true);
+                setError('');
+                try {
+                    const response = await axios.get('/api/order');
+                    setOrders(response.data.orders);
+                } catch (err) {
+                    setError(t('profile.orders_error'));
+                } finally {
+                    setLoadingOrders(false);
+                }
+            };
+            fetchOrders();
+        }
+    }, [user, t]);
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/');
+    };
+
+    if (loading) {
+        return (
+            <div className="page--user page">
+                <div className="loading">{t('profile.loading')}</div>
+            </div>
+        );
+    }
+
+    // Разделяем заказы на текущие и завершенные
+    const currentOrders = orders.filter(order => order.status !== 'completed');
+    const completedOrders = orders.filter(order => order.status === 'completed');
 
     return (
         <div className="page--user page">
-            <h1>Profile</h1>
+            <h1>{t('profile.title')}</h1>
             <div className="menu">
                 <ul>
-                    <li 
+                    <li
                         onClick={() => setActiveContainer('profile')}
                         className={activeContainer === 'profile' ? 'active' : ''}
                     >
-                        My profile
+                        {t('profile.my_data')}
                     </li>
-                    <li 
+                    <li
                         onClick={() => setActiveContainer('orders')}
                         className={activeContainer === 'orders' ? 'active' : ''}
                     >
-                        Orders
+                        {t('profile.orders')}
                     </li>
-                    <li 
+                    <li
                         onClick={() => setActiveContainer('purchases')}
                         className={activeContainer === 'purchases' ? 'active' : ''}
                     >
-                        Purchases
+                        {t('profile.purchases')}
                     </li>
                 </ul>
-                <Button>Выйти</Button>
+                <Button onClick={handleLogout}>{t('profile.logout')}</Button>
             </div>
-            
+
             <div className="user--container">
                 {activeContainer === 'profile' && (
                     <div className="profile-container">
-                        <h2>My profile</h2>
-                        <ProfileForm />
+                        <h2>{t('profile.my_data')}</h2>
+                        <ProfileForm user={user} />
                     </div>
                 )}
                 {activeContainer === 'orders' && (
                     <div className="orders-container">
-                        <h2>My orders</h2>
-                            <Order status='Доставлен' title='#100'/>
-                            <Order status='В пути' title='#120'/>
+                        <h2>{t('profile.my_orders')}</h2>
+                        {loadingOrders ? (
+                            <p>{t('profile.loading')}</p>
+                        ) : error ? (
+                            <p className="error">{error}</p>
+                        ) : currentOrders.length === 0 ? (
+                            <p>{t('profile.no_orders')}</p>
+                        ) : (
+                            currentOrders.map(order => (
+                                <Order key={order.id} order={order} />
+                            ))
+                        )}
                     </div>
                 )}
                 {activeContainer === 'purchases' && (
                     <div className="purchases-container">
-                        <h2>My purchases</h2>
-                        <Order status='Получен' title='#100'/>
-                        <Order status='Получен' title='#110'/>
-                        <Order status='Получен' title='#110'/>
-                        <Order status='Получен' title='#110'/>
-                        <Order status='Получен' title='#110'/>
-                        <Order status='Получен' title='#110'/>
-                        <Order status='Получен' title='#110'/>
-                        <Order status='Получен' title='#110'/>
-                        <Order status='Получен' title='#110'/>
+                        <h2>{t('profile.my_purchases')}</h2>
+                        {loadingOrders ? (
+                            <p>{t('profile.loading')}</p>
+                        ) : error ? (
+                            <p className="error">{error}</p>
+                        ) : completedOrders.length === 0 ? (
+                            <p>{t('profile.no_purchases')}</p>
+                        ) : (
+                            completedOrders.map(order => (
+                                <Order key={order.id} order={order} />
+                            ))
+                        )}
                     </div>
                 )}
             </div>
