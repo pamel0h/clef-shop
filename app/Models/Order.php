@@ -32,17 +32,4 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
-
-    // Статусы заказа 
-    public static function getStatuses()
-    {
-        return [
-            'pending' => 'В обработке',
-            'processing' => 'В работе',
-            'shipped' => 'Отправлен',
-            'completed' => 'Завершен',
-            'cancelled' => 'Отменен'
-        ];
-    }
 }

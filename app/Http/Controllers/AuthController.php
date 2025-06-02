@@ -2,30 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    protected $authService;
+
+    public function __construct(AuthService $authService)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $this->authService = $authService;
+    }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
+    public function register(RegisterRequest $request)
+    {
+        $user = $this->authService->register($request->validated());
+        $token = $this->authService->generateToken($user);
 
         return response()->json([
             'user' => $user,
@@ -34,21 +29,17 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $user = $this->authService->login($request->validated());
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+        if (!$user) {
+            return response()->json([
+                'errors' => ['email' => ['The provided credentials are incorrect.']],
+            ], 422);
         }
 
-        $user = User::where('email', $request->email)->first();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $this->authService->generateToken($user);
 
         return response()->json([
             'user' => $user,
@@ -59,51 +50,27 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $this->authService->logout($request->user());
 
         return response()->json([
-            'message' => 'Successfully logged out'
+            'message' => 'Successfully logged out',
         ]);
     }
 
     public function user(Request $request)
     {
         return response()->json([
-            'user' => $request->user()
+            'user' => $request->user(),
         ]);
     }
-    
-    public function updateProfile(Request $request)
+
+    public function updateProfile(UpdateProfileRequest $request)
     {
-        $user =  $request->user();
-        // Валидация только тех полей, которые были отправлены
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,',
-            'phone' => 'sometimes|string|nullable|max:20',
-            'address' => 'sometimes|string|nullable|max:255',
-            'password' => 'sometimes|string|min:8',
-        ]);
-
-        /// Если пароль передан, хешируем его
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        }
-
-        // Проверяем, что есть непустые значения для обновления
-        if (empty($validated)) {
-            return response()->json([
-                'message' => 'No valid fields provided for update'
-            ], 422);
-        }
-
-        // Массовое обновление только переданных полей
-        $user->update($validated);
-
+        $user = $this->authService->updateProfile($request->user(), $request->validated());
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'user' => $user
+            'user' => $user,
         ]);
     }
 }
