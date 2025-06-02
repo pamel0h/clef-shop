@@ -65,7 +65,7 @@ class Item extends Model
         return $items;
     }
 
-    // Accessors
+    // картинки
     public function getImageUrlAttribute()
     {
         return $this->images && count($this->images) > 0

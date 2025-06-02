@@ -15,7 +15,7 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
     subcategory: '',
     brand: '',
     discount: '',
-    image: null, // Изменено на одно изображение
+    image: null, 
     specs: [{ key: '', value: '' }]
   });
   const [currentImageUrl, setCurrentImageUrl] = useState(''); // Для отображения текущего изображения
@@ -24,7 +24,7 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Initialize form with product data when modal opens
+  // показываем текущие данные
   useEffect(() => {
     if (isOpen && product) {
       console.log('Product data:', product);
@@ -38,7 +38,7 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
         subcategory: product.subcategory || '',
         brand: product.brand || '',
         discount: product.discount || '',
-        image: null, // Сбрасываем при открытии
+        image: null,
         specs: product.specs
           ? Object.entries(product.specs).map(([key, value]) => ({ key, value }))
           : [{ key: '', value: '' }]
@@ -78,7 +78,7 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0]; // Берем только первый файл
+    const file = e.target.files[0]; 
     if (file) {
       setFormData(prev => ({
         ...prev,

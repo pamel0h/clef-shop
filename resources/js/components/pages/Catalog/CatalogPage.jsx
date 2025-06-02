@@ -9,7 +9,7 @@ const CatalogPage = () => {
   const query = queryParams.get('query') || '';
   const isFromSearch = queryParams.get('fromSearch') === 'true';
 
-  // Preserve filters unless coming from search
+  // из поиска
   const contextFilters = isFromSearch ? {} : location.state?.filters || {};
   const contextSortOption = isFromSearch ? { field: 'name', direction: 'asc' } : location.state?.sortOption || { field: 'name', direction: 'asc' };
 

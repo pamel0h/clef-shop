@@ -53,8 +53,8 @@ class AdminCatalogController extends Controller
                  'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
              ]);
              
-             // Обрабатываем specs отдельно, чтобы избежать конфликта валидации
-             $specsString = $request->input('specs_data'); // Изменили на specs_data
+             // Обрабатываем характеристикик отдельно, чтобы избежать конфликта валидации
+             $specsString = $request->input('specs_data'); 
              Log::info('AdminCatalogController: Raw specs string', ['specs_string' => $specsString]);
              Log::info('AdminCatalogController: Validation passed', ['validated' => $validated]);
  

@@ -1,5 +1,5 @@
 <?php
-// app/Formatters/ProductFormatter.php
+
 namespace App\Formatters;
 
 use App\Models\Item;

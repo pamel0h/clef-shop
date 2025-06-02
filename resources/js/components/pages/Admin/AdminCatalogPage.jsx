@@ -14,7 +14,7 @@ const AdminCatalogPage = () => {
   const { data: products, loading, error, refetch } = useCatalogData('admin_catalog');
   const isAdminPage = true;
 
-  // States for modals
+  // состояния
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -22,7 +22,7 @@ const AdminCatalogPage = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Filtering and sorting hook
+  // хук для фильтров и сортировки
   const { filteredProducts, sortOption, handleFilterChange, handleSortChange } = useProductFilteringAndSorting(
     products || [],
     { field: 'name', direction: 'asc' },

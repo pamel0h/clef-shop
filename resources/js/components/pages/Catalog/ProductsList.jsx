@@ -13,13 +13,13 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
     isSearchPage
   );
 
-  console.log('ProductsList: Filtered Products', filteredProducts); // Лог для отладки
+  console.log('ProductsList: Filtered Products', filteredProducts); 
 
   return (
     <div className="products-list-container">
 <ProductFilter
   initialProducts={initialProducts}
-  filteredByMainFilters={initialProducts} // ИЗМЕНЕНО: передаем initialProducts вместо filteredProducts
+  filteredByMainFilters={initialProducts} 
   filteredProducts={filteredProducts}
   onFilterChange={handleFilterChange}
   onSortChange={handleSortChange}
