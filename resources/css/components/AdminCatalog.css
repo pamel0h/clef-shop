@@ -192,8 +192,8 @@
   border-radius: 4px;
   border: 1px solid #ddd;
 }
+/* 
 
-/* Spec row styling */
 .spec-row {
   display: flex;
   flex-wrap: wrap;
@@ -237,7 +237,7 @@
 
 .add-spec-button:hover {
   background-color: #218838;
-}
+} */
 
 /* Form actions */
 .form-actions {
@@ -313,4 +313,89 @@
   .spec-row input {
     width: 100%;
   }
+}
+
+
+.form-group {
+  max-width: 600px;
+  margin: 0 auto;
+  margin-bottom:20px;
+  font-family: Arial, sans-serif;
+}
+
+.spec-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.spec-row input[type="text"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.spec-row input[type="text"]:not([name="slug"], [name="ru"], [name="en"]) {
+  width: 48%;
+  margin-right: 2%;
+}
+
+.spec-row input[name="slug"],
+.spec-row input[name="ru"],
+.spec-row input[name="en"] {
+  width: 48%;
+  margin-right: 2%;
+  margin-top: 8px;
+}
+
+.spec-row input:nth-child(2) {
+  margin-right: 0;
+}
+
+.spec-row label {
+  width: 100%;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.remove-spec-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 30px;
+  text-align: center;
+}
+
+.remove-spec-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.add-spec-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.add-spec-button:hover {
+  background: #218838;
 }

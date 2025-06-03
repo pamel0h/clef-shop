@@ -91,7 +91,17 @@
             "add": "Add new product",
             "addSpec": "Add specification",
             "descriptionEn": "Description in English",
-            "descriptionRu": "Description in Russian"
+            "descriptionRu": "Description in Russian",
+            "addNewCategory": "add New Category",
+            "addNewSubcategory": "add New Subcategory",
+            "selectCategory": "Select category",
+            "selectSubcategory": "Select subcategory",
+            "keyPlaceholder": "key",
+            "valuePlaceholder": "value",
+            "addNewSpec": "Add new specification",
+            "SlugPlaceholder": "name for db",
+            "RuPlaceholder": "Name in Russian",
+            "EnPlaceholder": "Name in English"
         }
     },
     "specs": {

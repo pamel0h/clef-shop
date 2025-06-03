@@ -91,7 +91,14 @@
             "add": "Добавить новый товар",
             "addSpec": "Добавить характеристику",
             "descriptionRu": "Описание на русском",
-            "descriptionEn": "Описание на английском"
+            "descriptionEn": "Описание на английском",
+            "addNewCategory": "Добавить новую категорию",
+            "addNewSubcategory": "Добавить новую подкатегорию",
+            "selectCategory": "Выберите категорию",
+            "selectSubcategory": "Выберите подкатегорию",
+            "keyPlaceholder": "Ключ",
+            "valuePlaceholder": "Значение",
+            "addNewSpec": "Добавить новую характеристику"
         }
     },
     "specs": {

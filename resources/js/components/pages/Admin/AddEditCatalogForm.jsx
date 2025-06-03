@@ -365,7 +365,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
-            <label>{t('admin.catalog.name')} *</label>
+            <label>{t('admin.catalog.name')}</label>
             <input
               type="text"
               name="name"
@@ -377,7 +377,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
           <div className="form-row">
             <div className="form-group">
-              <label>{t('admin.catalog.price')} *</label>
+              <label>{t('admin.catalog.price')}</label>
               <input
                 type="number"
                 name="price"
@@ -403,7 +403,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
           <div className="form-row">
             <div className="form-group">
-              <label>{t('admin.catalog.category')} *</label>
+              <label>{t('admin.catalog.category')}</label>
               <label style={{ marginBottom: '10px', display: 'block' }}>
                 <input
                   type="checkbox"
@@ -417,7 +417,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   <input
                     type="text"
                     name="slug"
-                    placeholder={t('admin.catalog.categorySlugPlaceholder')}
+                    placeholder={t('admin.catalog.SlugPlaceholder')}
                     value={formData.newCategory.slug}
                     onChange={handleNewCategoryChange}
                     required
@@ -426,7 +426,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   <input
                     type="text"
                     name="ru"
-                    placeholder={t('admin.catalog.categoryRuPlaceholder')}
+                    placeholder={t('admin.catalog.RuPlaceholder')}
                     value={formData.newCategory.ru}
                     onChange={handleNewCategoryChange}
                     required
@@ -435,7 +435,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   <input
                     type="text"
                     name="en"
-                    placeholder={t('admin.catalog.categoryEnPlaceholder')}
+                    placeholder={t('admin.catalog.EnPlaceholder')}
                     value={formData.newCategory.en}
                     onChange={handleNewCategoryChange}
                     required
@@ -459,7 +459,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               )}
             </div>
             <div className="form-group">
-              <label>{t('admin.catalog.subcategory')} *</label>
+              <label>{t('admin.catalog.subcategory')}</label>
               <label style={{ marginBottom: '10px', display: 'block' }}>
                 <input
                   type="checkbox"
@@ -474,7 +474,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   <input
                     type="text"
                     name="slug"
-                    placeholder={t('admin.catalog.subcategorySlugPlaceholder')}
+                    placeholder={t('admin.catalog.SlugPlaceholder')}
                     value={formData.newSubcategory.slug}
                     onChange={handleNewSubcategoryChange}
                     required
@@ -483,7 +483,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   <input
                     type="text"
                     name="ru"
-                    placeholder={t('admin.catalog.subcategoryRuPlaceholder')}
+                    placeholder={t('admin.catalog.RuPlaceholder')}
                     value={formData.newSubcategory.ru}
                     onChange={handleNewSubcategoryChange}
                     required
@@ -492,7 +492,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   <input
                     type="text"
                     name="en"
-                    placeholder={t('admin.catalog.subcategoryEnPlaceholder')}
+                    placeholder={t('admin.catalog.EnPlaceholder')}
                     value={formData.newSubcategory.en}
                     onChange={handleNewSubcategoryChange}
                     required
@@ -604,21 +604,20 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                 {spec.isNewSpec ? (
                   <>
                     <div style={{ marginBottom: '10px' }}>
-                      <strong>{t('specs.newSpec')}</strong>
                     </div>
                     <input
                       type="text"
                       name="slug"
-                      placeholder={t('specs.slugPlaceholder')}
+                      placeholder={t('admin.catalog.SlugPlaceholder')}
                       value={spec.newSpec.slug}
                       onChange={(e) => handleNewSpecChange(index, 'slug', e.target.value)}
                       required
-                      style={{ marginBottom: '8px' }}
+                      // style={{ marginBottom: '8px' }}
                     />
                     <input
                       type="text"
                       name="ru"
-                      placeholder={t('specs.ruPlaceholder')}
+                      placeholder={t('admin.catalog.RuPlaceholder')}
                       value={spec.newSpec.ru}
                       onChange={(e) => handleNewSpecChange(index, 'ru', e.target.value)}
                       required
@@ -627,7 +626,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                     <input
                       type="text"
                       name="en"
-                      placeholder={t('specs.enPlaceholder')}
+                      placeholder={t('admin.catalog.EnPlaceholder')}
                       value={spec.newSpec.en}
                       onChange={(e) => handleNewSpecChange(index, 'en', e.target.value)}
                       required
@@ -637,7 +636,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                 ) : (
                   <input
                     type="text"
-                    placeholder={t('specs.keyPlaceholder')}
+                    placeholder={t('admin.catalog.keyPlaceholder')}
                     value={spec.key}
                     onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
                     list="spec-keys"
@@ -645,7 +644,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                 )}
                 <input
                   type="text"
-                  placeholder={t('specs.valuePlaceholder')}
+                  placeholder={t('admin.catalog.valuePlaceholder')}
                   value={spec.value}
                   onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
                   list={`spec-values-${index}`}
@@ -661,7 +660,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                     checked={spec.isNewSpec}
                     onChange={() => handleSpecCheckboxChange(index)}
                   />
-                  {t('specs.addNewSpec')}
+                  {t('admin.catalog.addNewSpec')}
                 </label>
                 <button
                   type="button"
@@ -678,7 +677,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               onClick={addSpecField}
               className="add-spec-button"
             >
-              + {t('specs.addSpec')}
+              + {t('admin.catalog.addSpec')}
             </button>
           </div>
 
