@@ -22,25 +22,23 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     newCategory: { slug: '', ru: '', en: '' },
     isNewSubcategory: false,
     newSubcategory: { slug: '', ru: '', en: '' },
-    isNewBrand: false,
-    newBrand: { slug: '', ru: '', en: '' },
   });
   const [imagePreviews, setImagePreviews] = useState([]);
   const [translatedSpecKeys, setTranslatedSpecKeys] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(initialData?.category || '');
-  
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   const { data: categories, loading: categoriesLoading } = useCatalogData('categories');
   const { data: subcategories, loading: subcategoriesLoading } = useCatalogData('subcategories', { category: selectedCategory }, !selectedCategory);
   const { data: brands, loading: brandsLoading } = useCatalogData('brands');
   const { data: specKeysValues, loading: specKeysValuesLoading } = useCatalogData('spec_keys_values');
 
-
-  // Инициализация данных для редактирования
   useEffect(() => {
     if (initialData) {
+      // Устанавливаем selectedCategory ПЕРЕД установкой formData
+      setSelectedCategory(initialData.category || '');
+      
       setFormData({
         id: initialData.id || '',
         name: initialData.name || '',
@@ -64,11 +62,18 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         newCategory: { slug: '', ru: '', en: '' },
         isNewSubcategory: false,
         newSubcategory: { slug: '', ru: '', en: '' },
-        isNewBrand: false,
-        newBrand: { slug: '', ru: '', en: '' },
       });
-      setImagePreviews(initialData.images ? initialData.images.map(img => `/storage/product_images/${img}`) : []);
+      
+      // Устанавливаем превью изображений из базы данных
+      if (initialData.images && initialData.images.length > 0) {
+        const imagePaths = initialData.images.map(img => `/storage/product_images/${img}`);
+        setImagePreviews(imagePaths);
+      } else {
+        setImagePreviews([]);
+      }
     } else {
+      // Сброс для нового товара
+      setSelectedCategory('');
       setFormData({
         name: '',
         description_en: '',
@@ -84,21 +89,17 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         newCategory: { slug: '', ru: '', en: '' },
         isNewSubcategory: false,
         newSubcategory: { slug: '', ru: '', en: '' },
-        isNewBrand: false,
-        newBrand: { slug: '', ru: '', en: '' },
       });
       setImagePreviews([]);
     }
   }, [initialData]);
 
-  // Обновление подкатегорий при изменении категории
   useEffect(() => {
     if (!formData.isNewCategory && formData.category) {
       console.log('Fetching subcategories for category:', formData.category);
     }
   }, [formData.category, formData.isNewCategory]);
 
-  // Обновление переводов ключей характеристик
   useEffect(() => {
     const translatedKeys = {};
     if (specKeysValues && Object.keys(specKeysValues).length > 0) {
@@ -133,11 +134,18 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     const { name, value } = e.target;
     if (name === 'category') {
       setSelectedCategory(value);
+      // Сбрасываем подкатегорию при смене категории
+      setFormData((prev) => ({
+        ...prev,
+        category: value,
+        subcategory: '', // Очищаем подкатегорию
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   const handleNewCategoryChange = (e) => {
@@ -153,14 +161,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     setFormData((prev) => ({
       ...prev,
       newSubcategory: { ...prev.newSubcategory, [name]: value },
-    }));
-  };
-
-  const handleNewBrandChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      newBrand: { ...prev.newBrand, [name]: value },
     }));
   };
 
@@ -201,6 +201,11 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       isNewSubcategory: !prev.isNewCategory ? false : prev.isNewSubcategory,
       subcategory: !prev.isNewCategory ? '' : prev.subcategory,
     }));
+    
+    // Сбрасываем selectedCategory если переключаемся на новую категорию
+    if (!formData.isNewCategory) {
+      setSelectedCategory('');
+    }
   };
 
   const handleSubcategoryCheckboxChange = () => {
@@ -208,14 +213,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       ...prev,
       isNewSubcategory: !prev.isNewSubcategory,
       subcategory: !prev.isNewSubcategory ? '' : prev.subcategory,
-    }));
-  };
-
-  const handleBrandCheckboxChange = () => {
-    setFormData((prev) => ({
-      ...prev,
-      isNewBrand: !prev.isNewBrand,
-      brand: !prev.isNewBrand ? '' : prev.brand,
     }));
   };
 
@@ -265,7 +262,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         throw new Error(t('required_fields_missing'));
       }
 
-      const fields = ['name', 'description_en', 'description_ru', 'price', 'discount'];
+      const fields = ['name', 'description_en', 'description_ru', 'price', 'discount', 'brand'];
       fields.forEach((key) => {
         if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
           formDataToSend.append(key, formData[key]);
@@ -286,13 +283,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         formDataToSend.append('subcategory', formData.subcategory);
       }
 
-      if (formData.isNewBrand && formData.newBrand.slug) {
-        formDataToSend.append('brand', formData.newBrand.slug);
-        formDataToSend.append('new_brand', JSON.stringify(formData.newBrand));
-      } else {
-        formDataToSend.append('brand', formData.brand);
-      }
-
       formData.images.forEach((image, index) => {
         formDataToSend.append(`images[${index}]`, image);
       });
@@ -309,12 +299,13 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         }
         return obj;
       }, {});
+      
       if (Object.keys(specsObject).length > 0) {
         formDataToSend.append('specs_data', JSON.stringify(specsObject));
       }
 
       const url = initialData ? `/api/admin/catalog/${initialData.id}` : '/api/admin/catalog';
-      const method = initialData ? 'POST' : 'POST'; // Используем POST для обоих случаев, как в исходной версии
+      const method = initialData ? 'POST' : 'POST';
 
       const response = await fetch(url, {
         method,
@@ -344,10 +335,9 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
           newCategory: { slug: '', ru: '', en: '' },
           isNewSubcategory: false,
           newSubcategory: { slug: '', ru: '', en: '' },
-          isNewBrand: false,
-          newBrand: { slug: '', ru: '', en: '' },
         });
         setImagePreviews([]);
+        setSelectedCategory('');
         await onSubmit(result.data);
         onClose();
       } else {
@@ -514,7 +504,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   value={formData.subcategory}
                   onChange={handleInputChange}
                   required
-                  disabled={subcategoriesLoading || !formData.category}
+                  disabled={subcategoriesLoading || (!formData.category && !formData.isNewCategory)}
                 >
                   <option value="">{subcategoriesLoading ? t('loading') : t('admin.catalog.selectSubcategory')}</option>
                   {subcategories?.map((subcategory) => (
@@ -529,52 +519,13 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
           <div className="form-group">
             <label>{t('admin.catalog.brand')}</label>
-            <label style={{ marginBottom: '10px', display: 'block' }}>
-              <input
-                type="checkbox"
-                checked={formData.isNewBrand}
-                onChange={handleBrandCheckboxChange}
-              />
-              {t('admin.catalog.addNewBrand')}
-            </label>
-            {formData.isNewBrand ? (
-              <>
-                <input
-                  type="text"
-                  name="slug"
-                  placeholder={t('admin.catalog.brandSlugPlaceholder')}
-                  value={formData.newBrand.slug}
-                  onChange={handleNewBrandChange}
-                  required
-                  style={{ marginBottom: '8px' }}
-                />
-                <input
-                  type="text"
-                  name="ru"
-                  placeholder={t('admin.catalog.brandRuPlaceholder')}
-                  value={formData.newBrand.ru}
-                  onChange={handleNewBrandChange}
-                  required
-                  style={{ marginBottom: '8px' }}
-                />
-                <input
-                  type="text"
-                  name="en"
-                  placeholder={t('admin.catalog.brandEnPlaceholder')}
-                  value={formData.newBrand.en}
-                  onChange={handleNewBrandChange}
-                  required
-                />
-              </>
-            ) : (
-              <input
-                type="text"
-                name="brand"
-                value={formData.brand}
-                onChange={handleInputChange}
-                list="brands-list"
-              />
-            )}
+            <input
+              type="text"
+              name="brand"
+              value={formData.brand}
+              onChange={handleInputChange}
+              list="brands-list"
+            />
             <datalist id="brands-list">
               {brands?.map((brand) => (
                 <option key={brand} value={brand} />
@@ -692,14 +643,13 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                     list="spec-keys"
                   />
                 )}
-                  <input
-                    type="text"
-                    placeholder={t('specs.valuePlaceholder')}
-                    value={spec.value}
-                    onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-                    list={`spec-values-${index}`}
-                  />
-                  
+                <input
+                  type="text"
+                  placeholder={t('specs.valuePlaceholder')}
+                  value={spec.value}
+                  onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                  list={`spec-values-${index}`}
+                />
                 <datalist id={`spec-values-${index}`}>
                   {getFilteredSpecValues(spec.key, '').map((value) => (
                     <option key={value} value={String(value)} />
