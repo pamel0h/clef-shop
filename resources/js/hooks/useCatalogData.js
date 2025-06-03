@@ -1,3 +1,4 @@
+// useCatalogData.js
 import { useState, useEffect, useCallback } from 'react';
 
 export default function useCatalogData(type, options = {}, skip = false) {
@@ -7,13 +8,7 @@ export default function useCatalogData(type, options = {}, skip = false) {
 
   // Функция для получения токена авторизации
   const getAuthToken = () => {
-    return localStorage.getItem('auth_token') || localStorage.getItem('token');
-  };
-
-  // Функция для получения CSRF токена
-  const getCSRFToken = () => {
-    const metaTag = document.querySelector('meta[name="csrf-token"]');
-    return metaTag ? metaTag.getAttribute('content') : null;
+    return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
   };
 
   const fetchData = useCallback(async () => {
@@ -29,30 +24,27 @@ export default function useCatalogData(type, options = {}, skip = false) {
       setData(type === 'product_details' ? {} : []);
 
       let url;
-      let headers = {
+      const headers = {
         'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
+        'X-Requested-With': 'XMLHttpRequest',
       };
 
-   // Добавляем авторизацию для админских запросов
-   const isAdminRequest = type === 'admin_catalog' || type === 'brands' || type === 'spec_keys';
-   if (isAdminRequest) {
-     const token = getAuthToken();
-     if (token) {
-       headers['Authorization'] = `Bearer ${token}`;
-     }
-     
-     // Добавляем CSRF токен из мета-тега Laravel
-     const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-     if (csrfMeta) {
-       headers['X-CSRF-TOKEN'] = csrfMeta.getAttribute('content');
-     }
-   }
+      // Добавляем токен авторизации для админских запросов
+      const isAdminRequest = type === 'admin_catalog' || type === 'brands' || type === 'spec_keys_values';
+      if (isAdminRequest) {
+        const token = getAuthToken();
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        } else {
+          throw new Error('Authorization token is missing');
+        }
+      }
 
+      // Формируем URL в зависимости от типа запроса
       if (type === 'search') {
-        url = `/api/search?query=${encodeURIComponent(options.query)}`;
-      } else if (type === 'product_details' && options.query) {
-        url = `/api/search?id=${encodeURIComponent(options.id)}&query=${encodeURIComponent(options.query)}`;
+        url = `/api/search?query=${encodeURIComponent(options.query || '')}`;
+      } else if (type === 'product_details' && options.id) {
+        url = `/api/search?id=${encodeURIComponent(options.id)}&query=${encodeURIComponent(options.query || '')}`;
       } else if (type === 'products') {
         const params = new URLSearchParams({ type });
         if (options.category) params.append('category', options.category);
@@ -62,8 +54,14 @@ export default function useCatalogData(type, options = {}, skip = false) {
         url = `/api/admin/catalog/data`;
       } else if (type === 'brands') {
         url = `/api/admin/catalog/brands`;
-      } else if (type === 'spec_keys') {
-        url = `/api/admin/catalog/spec-keys`;
+      } else if (type === 'spec_keys_values') {
+        url = `/api/admin/catalog/spec-keys-values`;
+      } else if (type === 'categories') {
+        url = `/api/catalog/data?type=categories`;
+      } else if (type === 'subcategories') {
+        const params = new URLSearchParams({ type: 'subcategories' });
+        if (options.category) params.append('category', options.category);
+        url = `/api/catalog/data?${params}`;
       } else {
         const params = new URLSearchParams({ type });
         if (options.category) params.append('category', options.category);
@@ -77,11 +75,10 @@ export default function useCatalogData(type, options = {}, skip = false) {
       console.log('useCatalogData: Response status', response.status, response.statusText);
 
       if (!response.ok) {
-        // Если ошибка авторизации, выводим специфичное сообщение
         if (response.status === 401) {
-          throw new Error('Требуется авторизация');
+          throw new Error('Unauthorized: Please log in');
         } else if (response.status === 403) {
-          throw new Error('Доступ запрещен');
+          throw new Error('Forbidden: Access denied');
         } else {
           throw new Error(`HTTP error ${response.status}`);
         }
@@ -91,38 +88,34 @@ export default function useCatalogData(type, options = {}, skip = false) {
       if (!contentType || !contentType.includes('application/json')) {
         const textResponse = await response.text();
         console.error('useCatalogData: Non-JSON response:', textResponse);
-        throw new Error('Ожидался JSON-ответ, получен неверный формат');
+        throw new Error('Expected JSON response, received invalid format');
       }
 
       const result = await response.json();
       console.log('useCatalogData: Response data', result);
 
       if (!result?.success) {
-        throw new Error(result.error || 'Ошибка сервера');
+        throw new Error(result.error || 'Server error');
       }
 
       setData(result.data || (type === 'product_details' ? {} : []));
     } catch (err) {
       console.error('useCatalogData: Fetch error:', err.message);
-      setError(err);
+      setError(err.message);
+      setData(type === 'product_details' ? {} : []); // Устанавливаем пустые данные при ошибке
     } finally {
       setLoading(false);
     }
   }, [type, options.category, options.subcategory, options.id, options.query, skip]);
 
   useEffect(() => {
-    setData(type === 'product_details' ? {} : []);
-    setError(null);
-  }, [type, options.id, options.query, options.category, options.subcategory]);
-
-  useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  return { 
-    data, 
-    loading, 
-    error, 
-    refetch: fetchData 
+  return {
+    data,
+    loading,
+    error,
+    refetch: fetchData,
   };
 }

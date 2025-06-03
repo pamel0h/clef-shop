@@ -40,6 +40,7 @@ class Item extends Model
 
     public static function getSubcategoriesOf($category)
     {
+        
         $result = self::raw(function ($collection) use ($category) {
             return $collection->aggregate([
                 ['$match' => ['category' => $category]],

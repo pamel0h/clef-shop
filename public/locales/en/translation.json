@@ -284,7 +284,8 @@
         "1newcategory": "Newnew category",
         "probka": "Probka",
         "ggg": "GGG",
-        "jyhg": "JUEYRSGBF"
+        "jyhg": "JUEYRSGBF",
+        "tracat": "Tralala category"
     },
     "subcategory": {
         "accessories": {
@@ -324,6 +325,9 @@
         "fff": "FFF",
         "jyhg": {
             "ejyrsgb": "RUMETYNRGSB"
+        },
+        "tracat": {
+            "trasubcat": "Tralala subcategory"
         }
     },
     "profile": {
@@ -342,10 +346,9 @@
         "updating": "Updating...",
         "update_success": "Profile updated successfully",
         "update_error": "Error updating profile",
-        "no_purchases":"No purchases",
+        "no_purchases": "No purchases",
         "no_orders": "No orders",
         "loading": "Loading...",
         "messages": "Messages"
-  
-      }
+    }
 }

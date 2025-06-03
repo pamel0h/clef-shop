@@ -340,35 +340,162 @@ private function saveTranslation($namespace, $key, $ru, $en, $parentCategory = n
 
 
    // Получение уникальных ключей характеристик для автодополнения
-   public function getSpecKeys()
-   {
-    try {
-        // Простой способ получения ключей спецификаций
-        $items = Item::whereNotNull('specs')->get();
-        $keys = collect();
+//    public function getSpecKeys()
+//    {
+//     try {
+//         Log::info('AdminCatalogController: getSpecKeys begin');
+//         // Простой способ получения ключей спецификаций
+//         $items = Item::whereNotNull('specs')->get();
+//         Log::info('AdminCatalogController: Items with specs', [
+//             'count' => $items->count(),
+//             'specs' => $items->pluck('specs')->toArray()
+//         ]);
+//         $keys = collect();
         
+//         foreach ($items as $item) {
+//             if ($item->specs && is_object($item->specs)) {
+//                 $specKeys = array_keys((array)$item->specs);
+//                 $keys = $keys->merge($specKeys);
+//             }
+//         }
+        
+//         $uniqueKeys = $keys->unique()->sort()->values()->toArray();
+//         Log::info('AdminCatalogController: ',$uniqueKeys );
+//         return response()->json([
+//             'success' => true,
+//             'data' => $uniqueKeys
+//         ]);
+
+//     } catch (\Exception $e) {
+//         Log::error('AdminCatalogController: Error fetching spec keys', ['error' => $e->getMessage()]);
+//         return response()->json([
+//             'success' => false,
+//             'error' => $e->getMessage()
+//         ], 500);
+//     }
+//     }
+// public function getSpecKeys()
+// {
+//     try {
+//         Log::info('AdminCatalogController: getSpecKeys begin');
+//         $items = Item::whereNotNull('specs')->get();
+//         Log::info('AdminCatalogController: Items with specs', [
+//             'count' => $items->count(),
+//             'specs' => $items->pluck('specs')->toArray()
+//         ]);
+
+//         $keys = collect();
+//         foreach ($items as $item) {
+//             Log::info('AdminCatalogController: Processing item', [
+//                 'item_id' => $item->id,
+//                 'specs_type' => gettype($item->specs),
+//                 'specs_content' => $item->specs
+//             ]);
+
+//             // Обрабатываем specs как массив или объект
+//             if ($item->specs && (is_array($item->specs) || is_object($item->specs))) {
+//                 $specKeys = array_keys((array)$item->specs);
+//                 Log::info('AdminCatalogController: Spec keys for item', [
+//                     'item_id' => $item->id,
+//                     'spec_keys' => $specKeys
+//                 ]);
+//                 $keys = $keys->merge($specKeys);
+//             } else {
+//                 Log::warning('AdminCatalogController: Invalid specs for item', [
+//                     'item_id' => $item->id,
+//                     'specs' => $item->specs
+//                 ]);
+//             }
+//         }
+
+//         $uniqueKeys = $keys->unique()->sort()->values()->toArray();
+
+//         return response()->json([
+//             'success' => true,
+//             'data' => $uniqueKeys
+//         ]);
+//     } catch (\Exception $e) {
+//         Log::error('AdminCatalogController: Error fetching spec keys', [
+//             'error' => $e->getMessage(),
+//             'trace' => $e->getTraceAsString()
+//         ]);
+//         return response()->json([
+//             'success' => false,
+//             'error' => $e->getMessage()
+//         ], 500);
+//     }
+// }
+
+public function getSpecKeysAndValues()
+{
+    try {
+        Log::info('AdminCatalogController: getSpecKeysAndValues begin');
+        $items = Item::whereNotNull('specs')->get();
+        Log::info('AdminCatalogController: Items with specs', [
+            'count' => $items->count(),
+            'specs' => $items->pluck('specs')->toArray()
+        ]);
+
+        $specData = [];
         foreach ($items as $item) {
-            if ($item->specs && is_object($item->specs)) {
-                $specKeys = array_keys((array)$item->specs);
-                $keys = $keys->merge($specKeys);
+            $specs = $item->specs;
+            // Если specs - строка, декодируем JSON
+            if (is_string($item->specs)) {
+                $specs = json_decode($item->specs, true);
+                Log::info('AdminCatalogController: Decoded string specs for item', [
+                    'item_id' => $item->id,
+                    'specs' => $specs
+                ]);
+            }
+
+            // Проверяем, что specs является массивом или объектом и не пуст
+            if ($specs && (is_array($specs) || is_object($specs)) && !empty($specs)) {
+                foreach ((array)$specs as $key => $value) {
+                    if (!empty($key) && $value !== null) {
+                        // Инициализируем массив для ключа, если его нет
+                        if (!isset($specData[$key])) {
+                            $specData[$key] = [];
+                        }
+                        // Добавляем значение, если оно еще не добавлено
+                        if (!in_array($value, $specData[$key])) {
+                            $specData[$key][] = $value;
+                        }
+                    }
+                }
+            } else {
+                // Логируем только если specs вообще невалидный (не массив/объект/null).  Пустой массив не логируем.
+                if ($specs !== null && !is_array($specs) && !is_object($specs)) {
+                    Log::warning('AdminCatalogController: Invalid specs for item', [
+                        'item_id' => $item->id,
+                        'specs' => $specs
+                    ]);
+                }
             }
         }
-        
-        $uniqueKeys = $keys->unique()->sort()->values()->toArray();
+
+        // Сортируем значения для каждого ключа
+        foreach ($specData as $key => $values) {
+            sort($specData[$key]);
+        }
+
+        Log::info('AdminCatalogController: Spec keys and values', ['spec_data' => $specData]);
 
         return response()->json([
             'success' => true,
-            'data' => $uniqueKeys
+            'data' => $specData
         ]);
-
     } catch (\Exception $e) {
-        Log::error('AdminCatalogController: Error fetching spec keys', ['error' => $e->getMessage()]);
+        Log::error('AdminCatalogController: Error fetching spec keys and values', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
         return response()->json([
             'success' => false,
             'error' => $e->getMessage()
         ], 500);
     }
-    }
+}
+
 
     
     // Получение уникальных брендов

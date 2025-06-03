@@ -77,7 +77,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
         Route::put('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update');
         Route::post('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update.post');
         Route::delete('/catalog/{id}', [AdminCatalogController::class, 'destroy'])->name('admin.catalog.destroy');
-        Route::get('/catalog/spec-keys', [AdminCatalogController::class, 'getSpecKeys'])->name('admin.catalog.spec-keys'); 
+        Route::get('/catalog/spec-keys-values', [AdminCatalogController::class, 'getSpecKeysAndValues'])->name('admin.catalog.spec-keys-values'); 
         Route::get('/catalog/brands', [AdminCatalogController::class, 'getBrands'])->name('admin.catalog.brands');
         Route::post('/catalog/translations', [TranslationController::class, 'store'])->name('admin.catalog.translation');
 });

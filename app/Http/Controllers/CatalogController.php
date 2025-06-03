@@ -19,7 +19,9 @@ class CatalogController extends Controller
     
             $data = match($request->type) {
                 'categories' => $this->catalogService->getAllCategories(),
-                'subcategories' => $this->catalogService->getSubcategories($request->category),
+                'subcategories' => $request->category
+                ? $this->catalogService->getSubcategories($request->category)
+                : [], // Возвращаем пустой массив, если category не указан
                 'products' => $this->catalogService->getProducts($request->category, $request->subcategory),
                 'product_details' => $this->catalogService->getProductDetails(
                     $request->id,
