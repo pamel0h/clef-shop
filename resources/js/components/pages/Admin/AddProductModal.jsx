@@ -165,46 +165,66 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+  
     try {
       const formDataToSend = new FormData();
-
+  
+      // Исправляем логику заполнения основных полей
       Object.keys(formData).forEach((key) => {
-        if (key !== 'image' && key !== 'specs' && key !== 'newCategory' && key !== 'newSubcategory' && key !== 'newBrand' && formData[key]) {
+        if (key === 'image' || key === 'specs' || key === 'newCategory' || key === 'newSubcategory' || key === 'newBrand') {
+          return; // Пропускаем эти поля, они обрабатываются отдельно
+        }
+        
+        if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
           formDataToSend.append(key, formData[key]);
         }
       });
-
+  
+      // Обработка характеристик
       const specsObject = formData.specs.reduce((obj, spec) => {
         if (spec.isNewSpec && spec.newSpec.slug.trim() && spec.value.trim()) {
-          obj[spec.newSpec.slug.trim()] = { value: spec.value.trim(), translations: { ru: spec.newSpec.ru, en: spec.newSpec.en } };
+          obj[spec.newSpec.slug.trim()] = { 
+            value: spec.value.trim(), 
+            translations: { ru: spec.newSpec.ru, en: spec.newSpec.en } 
+          };
         } else if (spec.key.trim() && spec.value.trim()) {
           obj[spec.key.trim()] = spec.value.trim();
         }
         return obj;
       }, {});
+      
       if (Object.keys(specsObject).length > 0) {
         formDataToSend.append('specs_data', JSON.stringify(specsObject));
       }
-
+  
+      // Обработка изображения
       if (formData.image) {
         formDataToSend.append('images[]', formData.image);
       }
-
-      if (isNewCategoryAndSubcategory && formData.newCategory.slug && formData.newSubcategory.slug) {
-        formDataToSend.append('new_category', JSON.stringify(formData.newCategory));
-        formDataToSend.append('new_subcategory', JSON.stringify(formData.newSubcategory));
+  
+      // Обработка новых категорий и подкатегорий
+      if (isNewCategoryAndSubcategory) {
+        if (formData.newCategory.slug) {
+          formDataToSend.append('category', formData.newCategory.slug);
+          formDataToSend.append('new_category', JSON.stringify(formData.newCategory));
+        }
+        if (formData.newSubcategory.slug) {
+          formDataToSend.append('subcategory', formData.newSubcategory.slug);
+          formDataToSend.append('new_subcategory', JSON.stringify(formData.newSubcategory));
+        }
       }
-
+  
+      // Обработка нового бренда
       if (isNewBrand && formData.newBrand.slug) {
+        formDataToSend.append('brand', formData.newBrand.slug);
         formDataToSend.append('new_brand', JSON.stringify(formData.newBrand));
       }
-
+  
       console.log('FormData contents:');
       for (let [key, value] of formDataToSend.entries()) {
         console.log(`${key}: ${value instanceof File ? `File: ${value.name}` : value}`);
       }
-
+  
       const response = await fetch('/api/admin/catalog', {
         method: 'POST',
         body: formDataToSend,
@@ -212,10 +232,10 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
           'X-Requested-With': 'XMLHttpRequest',
         },
       });
-
+  
       const result = await response.json();
       console.log('Response from server:', result);
-
+  
       if (result.success) {
         setFormData({
           name: '',
@@ -235,11 +255,11 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
         setImagePreview('');
         setIsNewCategoryAndSubcategory(false);
         setIsNewBrand(false);
-
+  
         if (onProductAdded) {
           onProductAdded(result.data);
         }
-
+  
         onClose();
       } else {
         setError(result.error || 'Ошибка при добавлении товара');
