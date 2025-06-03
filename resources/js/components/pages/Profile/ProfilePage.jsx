@@ -6,6 +6,7 @@ import axios from 'axios';
 import "../../../../css/components/ProfilePage.css";
 import Order from './Order';
 import ProfileForm from './ProfileForm';
+import Message from './Message'; // Новый компонент для отображения сообщений
 import Button from '../../UI/Button';
 
 const ProfilePage = () => {
@@ -14,9 +15,10 @@ const ProfilePage = () => {
     const navigate = useNavigate();
     const [activeContainer, setActiveContainer] = useState('profile');
     const [orders, setOrders] = useState([]);
+    const [messages, setMessages] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(false);
+    const [loadingMessages, setLoadingMessages] = useState(false);
     const [error, setError] = useState('');
-
 
     useEffect(() => {
         if (user) {
@@ -32,7 +34,24 @@ const ProfilePage = () => {
                     setLoadingOrders(false);
                 }
             };
+
+            const fetchMessages = async () => {
+                setLoadingMessages(true);
+                setError('');
+                try {
+                    const response = await axios.get('/api/messages', {
+                        params: { userId: user.id },
+                    });
+                    setMessages(response.data.messages);
+                } catch (err) {
+                    setError(t('profile.messages_error'));
+                } finally {
+                    setLoadingMessages(false);
+                }
+            };
+
             fetchOrders();
+            fetchMessages();
         }
     }, [user, t]);
 
@@ -76,6 +95,12 @@ const ProfilePage = () => {
                     >
                         {t('profile.purchases')}
                     </li>
+                    <li
+                        onClick={() => setActiveContainer('messages')}
+                        className={activeContainer === 'messages' ? 'active' : ''}
+                    >
+                        {t('profile.messages')}
+                    </li>
                 </ul>
                 <Button onClick={handleLogout}>{t('profile.logout')}</Button>
             </div>
@@ -115,6 +140,22 @@ const ProfilePage = () => {
                         ) : (
                             completedOrders.map(order => (
                                 <Order key={order.id} order={order} />
+                            ))
+                        )}
+                    </div>
+                )}
+                {activeContainer === 'messages' && (
+                    <div className="messages-container">
+                        <h2>{t('profile.messages')}</h2>
+                        {loadingMessages ? (
+                            <p>{t('profile.loading')}</p>
+                        ) : error ? (
+                            <p className="error">{error}</p>
+                        ) : messages.length === 0 ? (
+                            <p>{t('profile.no_messages')}</p>
+                        ) : (
+                            messages.map(message => (
+                                <Message key={message.id} message={message} />
                             ))
                         )}
                     </div>

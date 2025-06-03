@@ -1,0 +1,28 @@
+.message {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    max-width: 80%;
+}
+
+.user-message {
+    background-color: #e6f3ff;
+    margin-left: auto;
+    text-align: right;
+}
+
+.admin-message {
+    background-color: #e6ffe6;
+    margin-right: auto;
+    text-align: left;
+}
+
+.timestamp {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.status {
+    font-size: 0.8em;
+    color: #888;
+}

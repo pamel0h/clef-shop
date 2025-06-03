@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
             setUser(user);
             setIsAuthenticated(true);
             
-            return { success: true };
+            return { success: true, user };
         } catch (error) {
             return { 
                 success: false, 
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }) => {
             setUser(user);
             setIsAuthenticated(true);
             
-            return { success: true };
+            return { success: true, user };
         } catch (error) {
             return { 
                 success: false, 
@@ -106,13 +106,34 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Методы для проверки ролей
+    const isAdmin = () => {
+        return user && (user.role === 'admin' || user.role === 'super_admin');
+    };
+
+    const isSuperAdmin = () => {
+        return user && user.role === 'super_admin';
+    };
+
+    const isUser = () => {
+        return user && user.role === 'user';
+    };
+
+    const hasRole = (role) => {
+        return user && user.role === role;
+    };
+
     const value = {
         user,
         isAuthenticated,
         loading,
         login,
         register,
-        logout
+        logout,
+        isAdmin,
+        isSuperAdmin,
+        isUser,
+        hasRole
     };
 
     return (
