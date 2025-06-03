@@ -6,10 +6,6 @@ import '../../../../css/components/AddProductModal.css';
 
 const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) => {
   const { t } = useTranslation();
-  const { data: categories, loading: categoriesLoading } = useCatalogData('categories');
-  const { data: subcategories, loading: subcategoriesLoading } = useCatalogData('subcategories', { category: initialData?.category || '' }, !initialData?.category);
-  const { data: brands, loading: brandsLoading } = useCatalogData('brands');
-  const { data: specKeysValues, loading: specKeysValuesLoading } = useCatalogData('spec_keys_values');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -33,6 +29,14 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
   const [translatedSpecKeys, setTranslatedSpecKeys] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(initialData?.category || '');
+  
+
+  const { data: categories, loading: categoriesLoading } = useCatalogData('categories');
+  const { data: subcategories, loading: subcategoriesLoading } = useCatalogData('subcategories', { category: selectedCategory }, !selectedCategory);
+  const { data: brands, loading: brandsLoading } = useCatalogData('brands');
+  const { data: specKeysValues, loading: specKeysValuesLoading } = useCatalogData('spec_keys_values');
+
 
   // Инициализация данных для редактирования
   useEffect(() => {
@@ -87,12 +91,19 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     }
   }, [initialData]);
 
+  // Обновление подкатегорий при изменении категории
+  useEffect(() => {
+    if (!formData.isNewCategory && formData.category) {
+      console.log('Fetching subcategories for category:', formData.category);
+    }
+  }, [formData.category, formData.isNewCategory]);
+
   // Обновление переводов ключей характеристик
   useEffect(() => {
     const translatedKeys = {};
     if (specKeysValues && Object.keys(specKeysValues).length > 0) {
       Object.keys(specKeysValues).forEach((key) => {
-        translatedKeys[key] = t(` specs.${key}`, key);
+        translatedKeys[key] = t(`specs.${key}`, key);
       });
     }
     setTranslatedSpecKeys(translatedKeys);
@@ -120,6 +131,9 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'category') {
+      setSelectedCategory(value);
+    }
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -505,7 +519,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   <option value="">{subcategoriesLoading ? t('loading') : t('admin.catalog.selectSubcategory')}</option>
                   {subcategories?.map((subcategory) => (
                     <option key={subcategory} value={subcategory}>
-                      {t(`subcategory.${formData.category}.${subcategory}`)}
+                      {t(`subcategory.${formData.category}.${subcategory}`) || subcategory}
                     </option>
                   ))}
                 </select>
@@ -678,14 +692,14 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                     list="spec-keys"
                   />
                 )}
-                <input
-                  type="text"
-                  placeholder={t('specs.valuePlaceholder')}
-                  value={spec.value}
-                  onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-                  list={`spec-values-${index}`}
-                  disabled={!spec.key && !spec.isNewSpec}
-                />
+                  <input
+                    type="text"
+                    placeholder={t('specs.valuePlaceholder')}
+                    value={spec.value}
+                    onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                    list={`spec-values-${index}`}
+                  />
+                  
                 <datalist id={`spec-values-${index}`}>
                   {getFilteredSpecValues(spec.key, '').map((value) => (
                     <option key={value} value={String(value)} />

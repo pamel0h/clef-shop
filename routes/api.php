@@ -44,22 +44,6 @@ Route::get('/search', [SearchController::class, 'search'])
 
 Route::get('/catalog/data', [CatalogController::class, 'fetchData'])
      ->name('catalog.data');
-    //  Route::get('/catalog/last-updated', [CatalogController::class, 'lastUpdated'])
-    //  ->name('catalog.last-updated');
-
-    //  Route::prefix('admin')->group(function () {
-    //     Route::get('/catalog/data', [AdminCatalogController::class, 'fetchData'])->name('admin.catalog.data');
-    //     Route::post('/catalog', [AdminCatalogController::class, 'store'])->name('admin.catalog.store');
-    //     Route::put('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update');
-    //     Route::post('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update.post');
-    //     Route::delete('/catalog/{id}', [AdminCatalogController::class, 'destroy'])->name('admin.catalog.destroy');
-    //     Route::get('/catalog/spec-keys', [AdminCatalogController::class, 'getSpecKeys'])->name('admin.catalog.spec-keys'); 
-    //     Route::get('/catalog/brands', [AdminCatalogController::class, 'getBrands'])->name('admin.catalog.brands');
-    //     Route::post('/catalog/translations', [TranslationController::class, 'store'])->name('admin.catalog.translation');
-    // });
-
-    
-
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     // Статистика
