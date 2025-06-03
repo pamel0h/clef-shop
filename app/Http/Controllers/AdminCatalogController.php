@@ -286,7 +286,7 @@ private function saveTranslation($namespace, $key, $ru, $en, $parentCategory = n
                 'brand' => $validated['brand'],
                 'discount' => (float)($validated['discount'] ?? 0),
                 'images' => $imagesPaths,
-                'specs' => $specs
+                'specs' => $specs,
             ]);
     
             Log::info('AdminCatalogController: Product updated successfully', ['item_id' => $item->id]);
@@ -387,5 +387,4 @@ private function saveTranslation($namespace, $key, $ru, $en, $parentCategory = n
         }
     }
     
-
 }

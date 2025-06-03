@@ -1,13 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export default function useCatalogData(type, options = {}, skip = false) {
   const [data, setData] = useState(type === 'product_details' ? {} : []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const intervalRef = useRef(null);
 
   const fetchData = useCallback(async () => {
     if (skip) {
-      console.log('useCatalogData: Skipped fetch', { type, options });
+      console.log('useCatalogData: Пропущен запрос', { type, options });
       setData(type === 'product_details' ? {} : []);
       return;
     }
@@ -41,9 +43,9 @@ export default function useCatalogData(type, options = {}, skip = false) {
         url = `/api/catalog/data?${params}`;
       }
 
-      console.log('useCatalogData: Fetching URL', url, 'options:', options);
+      console.log('useCatalogData: Запрашиваем URL', url, 'опции:', options);
       const response = await fetch(url);
-      console.log('useCatalogData: Response status', response.status, response.statusText);
+      console.log('useCatalogData: Статус ответа', response.status, response.statusText);
 
       const contentType = response.headers.get('Content-Type');
       if (!contentType || !contentType.includes('application/json')) {
@@ -51,20 +53,59 @@ export default function useCatalogData(type, options = {}, skip = false) {
       }
 
       const result = await response.json();
-      console.log('useCatalogData: Response data', result);
+      console.log('useCatalogData: Данные ответа', result);
 
       if (!response.ok || !result?.success) {
-        throw new Error(result.error || `HTTP error ${response.status}`);
+        throw new Error(result.error || `Ошибка HTTP ${response.status}`);
       }
 
       setData(result.data || (type === 'product_details' ? {} : []));
     } catch (err) {
-      console.error('useCatalogData: Fetch error:', err.message);
+      console.error('useCatalogData: Ошибка запроса:', err.message);
       setError(err);
     } finally {
       setLoading(false);
     }
   }, [type, options.category, options.subcategory, options.id, options.query, skip]);
+
+  const checkForUpdates = useCallback(async () => {
+    if (skip) return;
+
+    try {
+      const url = `/api/catalog/last-updated`;
+      const response = await fetch(url);
+      const result = await response.json();
+
+      if (result.success && result.last_updated) {
+        if (lastUpdated && result.last_updated !== lastUpdated) {
+          console.log('useCatalogData: Данные обновлены, перезапрашиваем...', { type });
+          await fetchData();
+        }
+        setLastUpdated(result.last_updated);
+      }
+    } catch (err) {
+      console.error('useCatalogData: Ошибка проверки обновлений:', err.message);
+    }
+  }, [skip, type, lastUpdated, fetchData]);
+
+  // Включаем пулинг для всех типов
+  useEffect(() => {
+    if (skip) return;
+
+    const shouldPoll = ['categories', 'products', 'product_details', 'admin_catalog', 'brands', 'spec_keys'].includes(type);
+    
+    if (shouldPoll) {
+      intervalRef.current = setInterval(checkForUpdates, 10000); // Проверяем каждые 10 секунд
+      console.log('useCatalogData: Пулинг запущен для', type);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        console.log('useCatalogData: Пулинг остановлен для', type);
+      }
+    };
+  }, [checkForUpdates, skip, type]);
 
   useEffect(() => {
     setData(type === 'product_details' ? {} : []);

@@ -9,6 +9,7 @@ class Item extends Model
 {
     protected $connection = 'mongodb';
     protected $collection = 'items';
+    public $timestamps = true; // включить автоматические timestamps
     protected $fillable = [        
         'name', 
         'description', 
@@ -89,15 +90,4 @@ class Item extends Model
             ? asset('storage/product_images/' . $this->images[0])
             : asset('images/no-image.png');
     }
-
-    // public function getImageUrlsAttribute()
-    // {
-    //     if (empty($this->images)) {
-    //         return [$this->image_url];
-    //     }
-
-    //     return array_map(function ($image) {
-    //         return asset('storage/product_images/' . $image);
-    //     }, $this->images);
-    // }
 }
