@@ -15,16 +15,16 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
     subcategory: '',
     brand: '',
     discount: '',
-    image: null, 
+    image: null,
     specs: [{ key: '', value: '' }]
   });
-  const [currentImageUrl, setCurrentImageUrl] = useState(''); // Для отображения текущего изображения
-  const [newImagePreview, setNewImagePreview] = useState(''); // Для превью нового изображения
+  const [currentImageUrl, setCurrentImageUrl] = useState('');
+  const [newImagePreview, setNewImagePreview] = useState('');
   const [specKeys, setSpecKeys] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // показываем текущие данные
+  // Загрузка данных товара при открытии модального окна
   useEffect(() => {
     if (isOpen && product) {
       console.log('Product data:', product);
@@ -40,22 +40,28 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
         discount: product.discount || '',
         image: null,
         specs: product.specs
-          ? Object.entries(product.specs).map(([key, value]) => ({ key, value }))
+          ? Object.entries(product.specs).map(([key, value]) => ({ key, value: String(value) }))
           : [{ key: '', value: '' }]
       });
-      
-      // Устанавливаем текущее изображение
       if (product.image) {
         setCurrentImageUrl(product.image);
       }
-      setNewImagePreview(''); // Сбрасываем превью нового изображения
+      setNewImagePreview('');
       fetchSpecKeys();
     }
   }, [isOpen, product]);
 
   const fetchSpecKeys = async () => {
     try {
-      const response = await fetch('/api/admin/catalog/spec-keys');
+      const authToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
+      if (!authToken) throw new Error('Токен авторизации отсутствует');
+
+      const response = await fetch('/api/admin/catalog/spec-keys', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -78,14 +84,12 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0]; 
+    const file = e.target.files[0];
     if (file) {
       setFormData(prev => ({
         ...prev,
         image: file
       }));
-      
-      // Создаем превью нового изображения
       const reader = new FileReader();
       reader.onloadend = () => {
         setNewImagePreview(reader.result);
@@ -124,55 +128,59 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
     }));
   };
 
-  const getCSRFToken = () => {
-    const metaTag = document.querySelector('meta[name="csrf-token"]');
-    return metaTag ? metaTag.getAttribute('content') : null;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
+      // Подготовка FormData
       const formDataToSend = new FormData();
-      
-      // Добавляем _method для имитации PUT запроса
-      formDataToSend.append('_method', 'PUT');
-      
-      // Добавляем текстовые поля
-      Object.keys(formData).forEach(key => {
-        if (key !== 'image' && key !== 'specs' && key !== 'id' && formData[key]) {
+      const authToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
+
+      // Проверка наличия токена
+      if (!authToken) {
+        throw new Error('Токен авторизации отсутствует');
+      }
+
+      // Добавление обязательных полей
+      if (!formData.name || !formData.price || !formData.category || !formData.subcategory) {
+        throw new Error('Заполните все обязательные поля: название, цена, категория, подкатегория');
+      }
+
+      // Добавление текстовых полей
+      const fields = ['name', 'description_en', 'description_ru', 'price', 'category', 'subcategory', 'brand', 'discount'];
+      fields.forEach(key => {
+        if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
           formDataToSend.append(key, formData[key]);
         }
       });
 
-      // Добавляем изображение, если выбрано новое
+      // Добавление изображения, если выбрано новое
       if (formData.image) {
         formDataToSend.append('images[]', formData.image);
       }
 
-      // Добавляем только заполненные характеристики
+      // Формирование массива характеристик
       const validSpecs = formData.specs.filter(spec => spec.key.trim() && spec.value.trim());
       validSpecs.forEach((spec, index) => {
         formDataToSend.append(`specs[${index}][key]`, spec.key.trim());
         formDataToSend.append(`specs[${index}][value]`, spec.value.trim());
       });
 
-      // Отладка: выводим содержимое FormData
+      // Отладка: вывод содержимого FormData
       console.log('FormData contents:');
       for (let [key, value] of formDataToSend.entries()) {
         console.log(`${key}: ${value instanceof File ? `File: ${value.name}` : value}`);
       }
 
-      const csrfToken = getCSRFToken();
-      
+      // Отправка запроса
       const response = await fetch(`/api/admin/catalog/${formData.id}`, {
-        method: 'POST',
+        method: 'POST', // Используем POST с _method=PUT для поддержки FormData
         body: formDataToSend,
         headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken })
+          'Authorization': `Bearer ${authToken}`,
+          'X-Requested-With': 'XMLHttpRequest'
         }
       });
 
@@ -180,7 +188,7 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
       console.log('Response from server:', result);
 
       if (result.success) {
-        // Сбрасываем форму
+        // Сброс формы
         setFormData({
           id: '',
           name: '',
@@ -197,6 +205,7 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
         setCurrentImageUrl('');
         setNewImagePreview('');
 
+        // Вызов коллбэка onSubmit
         if (onSubmit) {
           await onSubmit();
         }
@@ -205,8 +214,8 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
         setError(result.error || 'Ошибка при обновлении товара');
       }
     } catch (err) {
-      console.error('Network error:', err);
-      setError('Ошибка сети: ' + err.message);
+      console.error('Error updating product:', err);
+      setError('Ошибка: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -219,7 +228,7 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Изменить товар</h2>
-          <button className="modal-close" onClick={onClose}>&times;</button>
+          <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="add-product-form">
@@ -317,25 +326,22 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
 
           <div className="form-group">
             <label>Изображение</label>
-            
-            {/* Показываем текущее изображение или превью нового */}
             {(newImagePreview || currentImageUrl) && (
               <div className="current-image-preview" style={{ marginBottom: '10px' }}>
                 <p>{newImagePreview ? 'Новое изображение:' : 'Текущее изображение:'}</p>
-                <img 
-                  src={newImagePreview || currentImageUrl} 
-                  alt="Product" 
-                  style={{ 
-                    width: '150px', 
-                    height: '150px', 
-                    objectFit: 'cover', 
+                <img
+                  src={newImagePreview || currentImageUrl}
+                  alt="Product"
+                  style={{
+                    width: '150px',
+                    height: '150px',
+                    objectFit: 'cover',
                     border: '1px solid #ddd',
                     borderRadius: '4px'
-                  }} 
+                  }}
                 />
               </div>
             )}
-            
             <input
               type="file"
               name="image"

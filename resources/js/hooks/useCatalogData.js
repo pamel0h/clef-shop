@@ -1,15 +1,24 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export default function useCatalogData(type, options = {}, skip = false) {
   const [data, setData] = useState(type === 'product_details' ? {} : []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
-  const intervalRef = useRef(null);
+
+  // Функция для получения токена авторизации
+  const getAuthToken = () => {
+    return localStorage.getItem('auth_token') || localStorage.getItem('token');
+  };
+
+  // Функция для получения CSRF токена
+  const getCSRFToken = () => {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    return metaTag ? metaTag.getAttribute('content') : null;
+  };
 
   const fetchData = useCallback(async () => {
     if (skip) {
-      console.log('useCatalogData: Пропущен запрос', { type, options });
+      console.log('useCatalogData: Skipped fetch', { type, options });
       setData(type === 'product_details' ? {} : []);
       return;
     }
@@ -20,6 +29,26 @@ export default function useCatalogData(type, options = {}, skip = false) {
       setData(type === 'product_details' ? {} : []);
 
       let url;
+      let headers = {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      };
+
+   // Добавляем авторизацию для админских запросов
+   const isAdminRequest = type === 'admin_catalog' || type === 'brands' || type === 'spec_keys';
+   if (isAdminRequest) {
+     const token = getAuthToken();
+     if (token) {
+       headers['Authorization'] = `Bearer ${token}`;
+     }
+     
+     // Добавляем CSRF токен из мета-тега Laravel
+     const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+     if (csrfMeta) {
+       headers['X-CSRF-TOKEN'] = csrfMeta.getAttribute('content');
+     }
+   }
+
       if (type === 'search') {
         url = `/api/search?query=${encodeURIComponent(options.query)}`;
       } else if (type === 'product_details' && options.query) {
@@ -43,69 +72,43 @@ export default function useCatalogData(type, options = {}, skip = false) {
         url = `/api/catalog/data?${params}`;
       }
 
-      console.log('useCatalogData: Запрашиваем URL', url, 'опции:', options);
-      const response = await fetch(url);
-      console.log('useCatalogData: Статус ответа', response.status, response.statusText);
+      console.log('useCatalogData: Fetching URL', url, 'options:', options);
+      const response = await fetch(url, { headers });
+      console.log('useCatalogData: Response status', response.status, response.statusText);
+
+      if (!response.ok) {
+        // Если ошибка авторизации, выводим специфичное сообщение
+        if (response.status === 401) {
+          throw new Error('Требуется авторизация');
+        } else if (response.status === 403) {
+          throw new Error('Доступ запрещен');
+        } else {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+      }
 
       const contentType = response.headers.get('Content-Type');
       if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text();
+        console.error('useCatalogData: Non-JSON response:', textResponse);
         throw new Error('Ожидался JSON-ответ, получен неверный формат');
       }
 
       const result = await response.json();
-      console.log('useCatalogData: Данные ответа', result);
+      console.log('useCatalogData: Response data', result);
 
-      if (!response.ok || !result?.success) {
-        throw new Error(result.error || `Ошибка HTTP ${response.status}`);
+      if (!result?.success) {
+        throw new Error(result.error || 'Ошибка сервера');
       }
 
       setData(result.data || (type === 'product_details' ? {} : []));
     } catch (err) {
-      console.error('useCatalogData: Ошибка запроса:', err.message);
+      console.error('useCatalogData: Fetch error:', err.message);
       setError(err);
     } finally {
       setLoading(false);
     }
   }, [type, options.category, options.subcategory, options.id, options.query, skip]);
-
-  const checkForUpdates = useCallback(async () => {
-    if (skip) return;
-
-    try {
-      const url = `/api/catalog/last-updated`;
-      const response = await fetch(url);
-      const result = await response.json();
-
-      if (result.success && result.last_updated) {
-        if (lastUpdated && result.last_updated !== lastUpdated) {
-          console.log('useCatalogData: Данные обновлены, перезапрашиваем...', { type });
-          await fetchData();
-        }
-        setLastUpdated(result.last_updated);
-      }
-    } catch (err) {
-      console.error('useCatalogData: Ошибка проверки обновлений:', err.message);
-    }
-  }, [skip, type, lastUpdated, fetchData]);
-
-  // Включаем пулинг для всех типов
-  useEffect(() => {
-    if (skip) return;
-
-    const shouldPoll = ['categories', 'products', 'product_details', 'admin_catalog', 'brands', 'spec_keys'].includes(type);
-    
-    if (shouldPoll) {
-      intervalRef.current = setInterval(checkForUpdates, 10000); // Проверяем каждые 10 секунд
-      console.log('useCatalogData: Пулинг запущен для', type);
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        console.log('useCatalogData: Пулинг остановлен для', type);
-      }
-    };
-  }, [checkForUpdates, skip, type]);
 
   useEffect(() => {
     setData(type === 'product_details' ? {} : []);

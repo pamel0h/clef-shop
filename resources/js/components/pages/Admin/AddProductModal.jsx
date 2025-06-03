@@ -161,116 +161,109 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-  
-    try {
-      const formDataToSend = new FormData();
-  
-      // Исправляем логику заполнения основных полей
-      Object.keys(formData).forEach((key) => {
-        if (key === 'image' || key === 'specs' || key === 'newCategory' || key === 'newSubcategory' || key === 'newBrand') {
-          return; // Пропускаем эти поля, они обрабатываются отдельно
-        }
-        
-        if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
-  
-      // Обработка характеристик
-      const specsObject = formData.specs.reduce((obj, spec) => {
-        if (spec.isNewSpec && spec.newSpec.slug.trim() && spec.value.trim()) {
-          obj[spec.newSpec.slug.trim()] = { 
-            value: spec.value.trim(), 
-            translations: { ru: spec.newSpec.ru, en: spec.newSpec.en } 
-          };
-        } else if (spec.key.trim() && spec.value.trim()) {
-          obj[spec.key.trim()] = spec.value.trim();
-        }
-        return obj;
-      }, {});
-      
-      if (Object.keys(specsObject).length > 0) {
-        formDataToSend.append('specs_data', JSON.stringify(specsObject));
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+
+  try {
+    const formDataToSend = new FormData();
+    const authToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
+
+    // Заполнение FormData
+    Object.keys(formData).forEach((key) => {
+      if (key === 'image' || key === 'specs' || key === 'newCategory' || key === 'newSubcategory' || key === 'newBrand') {
+        return;
       }
-  
-      // Обработка изображения
-      if (formData.image) {
-        formDataToSend.append('images[]', formData.image);
+      if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
+        formDataToSend.append(key, formData[key]);
       }
-  
-      // Обработка новых категорий и подкатегорий
-      if (isNewCategoryAndSubcategory) {
-        if (formData.newCategory.slug) {
-          formDataToSend.append('category', formData.newCategory.slug);
-          formDataToSend.append('new_category', JSON.stringify(formData.newCategory));
-        }
-        if (formData.newSubcategory.slug) {
-          formDataToSend.append('subcategory', formData.newSubcategory.slug);
-          formDataToSend.append('new_subcategory', JSON.stringify(formData.newSubcategory));
-        }
+    });
+
+    // Обработка характеристик
+    const specsObject = formData.specs.reduce((obj, spec) => {
+      if (spec.isNewSpec && spec.newSpec.slug.trim() && spec.value.trim()) {
+        obj[spec.newSpec.slug.trim()] = {
+          value: spec.value.trim(),
+          translations: { ru: spec.newSpec.ru, en: spec.newSpec.en }
+        };
+      } else if (spec.key.trim() && spec.value.trim()) {
+        obj[spec.key.trim()] = spec.value.trim();
       }
-  
-      // Обработка нового бренда
-      if (isNewBrand && formData.newBrand.slug) {
-        formDataToSend.append('brand', formData.newBrand.slug);
-        formDataToSend.append('new_brand', JSON.stringify(formData.newBrand));
-      }
-  
-      console.log('FormData contents:');
-      for (let [key, value] of formDataToSend.entries()) {
-        console.log(`${key}: ${value instanceof File ? `File: ${value.name}` : value}`);
-      }
-  
-      const response = await fetch('/api/admin/catalog', {
-        method: 'POST',
-        body: formDataToSend,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-      });
-  
-      const result = await response.json();
-      console.log('Response from server:', result);
-  
-      if (result.success) {
-        setFormData({
-          name: '',
-          description_en: '',
-          description_ru: '',
-          price: '',
-          category: '',
-          subcategory: '',
-          brand: '',
-          discount: '',
-          image: null,
-          specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
-          newCategory: { slug: '', ru: '', en: '' },
-          newSubcategory: { slug: '', ru: '', en: '' },
-          newBrand: { slug: '', ru: '', en: '' },
-        });
-        setImagePreview('');
-        setIsNewCategoryAndSubcategory(false);
-        setIsNewBrand(false);
-  
-        if (onProductAdded) {
-          onProductAdded(result.data);
-        }
-  
-        onClose();
-      } else {
-        setError(result.error || 'Ошибка при добавлении товара');
-      }
-    } catch (err) {
-      console.error('Network error:', err);
-      setError('Ошибка сети: ' + err.message);
-    } finally {
-      setLoading(false);
+      return obj;
+    }, {});
+    if (Object.keys(specsObject).length > 0) {
+      formDataToSend.append('specs_data', JSON.stringify(specsObject));
     }
-  };
+
+    // Обработка изображения
+    if (formData.image) {
+      formDataToSend.append('images[]', formData.image);
+    }
+
+    // Обработка новых категорий и подкатегорий
+    if (isNewCategoryAndSubcategory) {
+      if (formData.newCategory.slug) {
+        formDataToSend.append('category', formData.newCategory.slug);
+        formDataToSend.append('new_category', JSON.stringify(formData.newCategory));
+      }
+      if (formData.newSubcategory.slug) {
+        formDataToSend.append('subcategory', formData.newSubcategory.slug);
+        formDataToSend.append('new_subcategory', JSON.stringify(formData.newSubcategory));
+      }
+    }
+
+    // Обработка нового бренда
+    if (isNewBrand && formData.newBrand.slug) {
+      formDataToSend.append('brand', formData.newBrand.slug);
+      formDataToSend.append('new_brand', JSON.stringify(formData.newBrand));
+    }
+
+    const response = await fetch('/api/admin/catalog', {
+      method: 'POST',
+      body: formDataToSend,
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    const result = await response.json();
+    console.log('Response from server:', result);
+
+    if (result.success) {
+      setFormData({
+        name: '',
+        description_en: '',
+        description_ru: '',
+        price: '',
+        category: '',
+        subcategory: '',
+        brand: '',
+        discount: '',
+        image: null,
+        specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+        newCategory: { slug: '', ru: '', en: '' },
+        newSubcategory: { slug: '', ru: '', en: '' },
+        newBrand: { slug: '', ru: '', en: '' },
+      });
+      setImagePreview('');
+      setIsNewCategoryAndSubcategory(false);
+      setIsNewBrand(false);
+      if (onProductAdded) {
+        onProductAdded(result.data);
+      }
+      onClose();
+    } else {
+      setError(result.error || 'Ошибка при добавлении товара');
+    }
+  } catch (err) {
+    console.error('Network error:', err);
+    setError('Ошибка сети: ' + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (!isOpen) return null;
 

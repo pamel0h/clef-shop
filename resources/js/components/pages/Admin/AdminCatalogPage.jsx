@@ -68,15 +68,25 @@ const AdminCatalogPage = () => {
   
     setDeleteLoading(true);
     try {
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
       const csrfToken = getCSRFToken();
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      if (csrfToken) {
+        headers['X-CSRF-TOKEN'] = csrfToken;
+      }
       
       const response = await fetch(`/api/admin/catalog/${productToDelete.id}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken })
-        }
+        headers
       });
   
       if (!response.ok) {

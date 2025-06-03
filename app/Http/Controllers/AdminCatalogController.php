@@ -342,30 +342,32 @@ private function saveTranslation($namespace, $key, $ru, $en, $parentCategory = n
    // Получение уникальных ключей характеристик для автодополнения
    public function getSpecKeys()
    {
-       try {
-           $specKeys = Item::raw(function ($collection) {
-               return $collection->aggregate([
-                   ['$project' => ['specs' => ['$objectToArray' => '$specs']]],
-                   ['$unwind' => '$specs'],
-                   ['$group' => ['_id' => '$specs.k']],
-                   ['$sort' => ['_id' => 1]]
-               ]);
-           });
+    try {
+        // Простой способ получения ключей спецификаций
+        $items = Item::whereNotNull('specs')->get();
+        $keys = collect();
+        
+        foreach ($items as $item) {
+            if ($item->specs && is_object($item->specs)) {
+                $specKeys = array_keys((array)$item->specs);
+                $keys = $keys->merge($specKeys);
+            }
+        }
+        
+        $uniqueKeys = $keys->unique()->sort()->values()->toArray();
 
-           $keys = $specKeys->pluck('_id')->filter()->values()->toArray();
+        return response()->json([
+            'success' => true,
+            'data' => $uniqueKeys
+        ]);
 
-           return response()->json([
-               'success' => true,
-               'data' => $keys
-           ]);
-
-       } catch (\Exception $e) {
-           Log::error('AdminCatalogController: Error fetching spec keys', ['error' => $e->getMessage()]);
-           return response()->json([
-               'success' => false,
-               'error' => $e->getMessage()
-           ], 500);
-       }
+    } catch (\Exception $e) {
+        Log::error('AdminCatalogController: Error fetching spec keys', ['error' => $e->getMessage()]);
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 
     
