@@ -60,10 +60,10 @@ export const routes = [
         element: <AdminLayout />, // Отдельный layout для админки
         children: [
             {
-                path: '/admin/dashboard',
+                path: '/admin/catalog',
                 element: (
                     <AdminProtectedRoute>
-                        <AdminDashboard />
+                        <AdminCatalogPage />
                     </AdminProtectedRoute>
                 ),
             },

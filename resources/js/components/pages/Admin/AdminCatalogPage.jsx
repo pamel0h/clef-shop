@@ -116,9 +116,9 @@ const AdminCatalogPage = () => {
   if (!products || products.length === 0) return <div>{t('admin.catalog.noProducts')}</div>;
 
   return (
-    <div className="admin-catalog-page page">
+    <div className="admin-catalog-page">
       <meta name="csrf-token" content="{{ csrf_token() }}"></meta>
-      <h1>{t('admin.catalog.title')}</h1>
+      {/* <h1>{t('admin.catalog.title')}</h1> */}
 
       <div className="admin-catalog-layout">
         <div className="filter-column">

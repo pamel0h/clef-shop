@@ -36,7 +36,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
   useEffect(() => {
     if (initialData) {
-      // Устанавливаем selectedCategory ПЕРЕД установкой formData
       setSelectedCategory(initialData.category || '');
       
       setFormData({
@@ -64,7 +63,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         newSubcategory: { slug: '', ru: '', en: '' },
       });
       
-      // Устанавливаем превью изображений из базы данных
       if (initialData.images && initialData.images.length > 0) {
         const imagePaths = initialData.images.map(img => `/storage/product_images/${img}`);
         setImagePreviews(imagePaths);
@@ -72,7 +70,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         setImagePreviews([]);
       }
     } else {
-      // Сброс для нового товара
       setSelectedCategory('');
       setFormData({
         name: '',
@@ -134,11 +131,10 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     const { name, value } = e.target;
     if (name === 'category') {
       setSelectedCategory(value);
-      // Сбрасываем подкатегорию при смене категории
       setFormData((prev) => ({
         ...prev,
         category: value,
-        subcategory: '', // Очищаем подкатегорию
+        subcategory: '',
       }));
     } else {
       setFormData((prev) => ({
@@ -202,7 +198,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       subcategory: !prev.isNewCategory ? '' : prev.subcategory,
     }));
     
-    // Сбрасываем selectedCategory если переключаемся на новую категорию
     if (!formData.isNewCategory) {
       setSelectedCategory('');
     }
@@ -258,15 +253,17 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         throw new Error(t('auth_token_missing'));
       }
 
-      if (!formData.name || !formData.price || (!formData.isNewCategory && !formData.category) || (!formData.isNewSubcategory && !formData.subcategory)) {
+      // Проверка обязательных полей, включая brand
+      if (!formData.name || !formData.price || !formData.brand || 
+          (!formData.isNewCategory && !formData.category) || 
+          (!formData.isNewSubcategory && !formData.subcategory)) {
         throw new Error(t('required_fields_missing'));
       }
 
       const fields = ['name', 'description_en', 'description_ru', 'price', 'discount', 'brand'];
       fields.forEach((key) => {
-        if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
-          formDataToSend.append(key, formData[key]);
-        }
+        // Отправляем brand даже если он пустой (но проверка выше не позволит отправить пустой)
+        formDataToSend.append(key, formData[key] || '');
       });
 
       if (formData.isNewCategory && formData.newCategory.slug) {
@@ -305,7 +302,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       }
 
       const url = initialData ? `/api/admin/catalog/${initialData.id}` : '/api/admin/catalog';
-      const method = initialData ? 'POST' : 'POST';
+      const method = initialData ? 'PUT' : 'POST'; // Исправлено: PUT для обновления
 
       const response = await fetch(url, {
         method,
@@ -525,6 +522,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               value={formData.brand}
               onChange={handleInputChange}
               list="brands-list"
+              required // Добавлено required
             />
             <datalist id="brands-list">
               {brands?.map((brand) => (
@@ -591,97 +589,97 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
           </div>
 
           <div className="form-group specs-group">
-  <label className="specs-label">{t('specs.mainTitle')}</label>
-  <datalist id="spec-keys">
-    {getFilteredSpecKeys('').map((key) => (
-      <option key={key} value={key}>
-        {translatedSpecKeys[key] || key}
-      </option>
-    ))}
-  </datalist>
-  {formData.specs.map((spec, index) => (
-    <div className="spec-row" key={index}>
-      {spec.isNewSpec ? (
-        <div className="new-spec-fields">
-          <input
-            type="text"
-            name="slug"
-            className="spec-input"
-            placeholder={t('admin.catalog.SlugPlaceholder')}
-            value={spec.newSpec.slug}
-            onChange={(e) => handleNewSpecChange(index, 'slug', e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            name="ru"
-            className="spec-input"
-            placeholder={t('admin.catalog.RuPlaceholder')}
-            value={spec.newSpec.ru}
-            onChange={(e) => handleNewSpecChange(index, 'ru', e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            name="en"
-            className="spec-input"
-            placeholder={t('admin.catalog.EnPlaceholder')}
-            value={spec.newSpec.en}
-            onChange={(e) => handleNewSpecChange(index, 'en', e.target.value)}
-            required
-          />
-        </div>
-      ) : (
-        <input
-          type="text"
-          className="spec-input"
-          placeholder={t('admin.catalog.keyPlaceholder')}
-          value={spec.key}
-          onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
-          list="spec-keys"
-        />
-      )}
-      <input
-        type="text"
-        className="spec-input"
-        placeholder={t('admin.catalog.valuePlaceholder')}
-        value={spec.value}
-        onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-        list={`spec-values-${index}`}
-      />
-      <datalist id={`spec-values-${index}`}>
-        {getFilteredSpecValues(spec.key, '').map((value) => (
-          <option key={value} value={String(value)} />
-        ))}
-      </datalist>
-      <div className="spec-actions">
-        <label className="spec-checkbox">
-          <input
-            type="checkbox"
-            checked={spec.isNewSpec}
-            onChange={() => handleSpecCheckboxChange(index)}
-          />
-          {t('admin.catalog.addNewSpec')}
-        </label>
-        <button
-          type="button"
-          onClick={(e) => removeSpecField(index, e)}
-          className="remove-spec-button"
-          disabled={formData.specs.length === 1}
-        >
-          −
-        </button>
-      </div>
-    </div>
-  ))}
-  <button
-    type="button"
-    onClick={addSpecField}
-    className="add-spec-button"
-  >
-    + {t('admin.catalog.addSpec')}
-  </button>
-</div>
+            <label className="specs-label">{t('specs.mainTitle')}</label>
+            <datalist id="spec-keys">
+              {getFilteredSpecKeys('').map((key) => (
+                <option key={key} value={key}>
+                  {translatedSpecKeys[key] || key}
+                </option>
+              ))}
+            </datalist>
+            {formData.specs.map((spec, index) => (
+              <div className="spec-row" key={index}>
+                {spec.isNewSpec ? (
+                  <div className="new-spec-fields">
+                    <input
+                      type="text"
+                      name="slug"
+                      className="spec-input"
+                      placeholder={t('admin.catalog.SlugPlaceholder')}
+                      value={spec.newSpec.slug}
+                      onChange={(e) => handleNewSpecChange(index, 'slug', e.target.value)}
+                      required
+                    />
+                    <input
+                      type="text"
+                      name="ru"
+                      className="spec-input"
+                      placeholder={t('admin.catalog.RuPlaceholder')}
+                      value={spec.newSpec.ru}
+                      onChange={(e) => handleNewSpecChange(index, 'ru', e.target.value)}
+                      required
+                    />
+                    <input
+                      type="text"
+                      name="en"
+                      className="spec-input"
+                      placeholder={t('admin.catalog.EnPlaceholder')}
+                      value={spec.newSpec.en}
+                      onChange={(e) => handleNewSpecChange(index, 'en', e.target.value)}
+                      required
+                    />
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    className="spec-input"
+                    placeholder={t('admin.catalog.keyPlaceholder')}
+                    value={spec.key}
+                    onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
+                    list="spec-keys"
+                  />
+                )}
+                <input
+                  type="text"
+                  className="spec-input"
+                  placeholder={t('admin.catalog.valuePlaceholder')}
+                  value={spec.value}
+                  onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                  list={`spec-values-${index}`}
+                />
+                <datalist id={`spec-values-${index}`}>
+                  {getFilteredSpecValues(spec.key, '').map((value) => (
+                    <option key={value} value={String(value)} />
+                  ))}
+                </datalist>
+                <div className="spec-actions">
+                  <label className="spec-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={spec.isNewSpec}
+                      onChange={() => handleSpecCheckboxChange(index)}
+                    />
+                    {t('admin.catalog.addNewSpec')}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={(e) => removeSpecField(index, e)}
+                    className="remove-spec-button"
+                    disabled={formData.specs.length === 1}
+                  >
+                    −
+                  </button>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addSpecField}
+              className="add-spec-button"
+            >
+              + {t('admin.catalog.addSpec')}
+            </button>
+          </div>
 
           <div className="modal-actions">
             <Button type="button" onClick={onClose} className="cancel-button">

@@ -101,7 +101,11 @@
             "addNewSpec": "Add new specification",
             "SlugPlaceholder": "name for db",
             "RuPlaceholder": "name in Russian",
-            "EnPlaceholder": "name in English"
+            "EnPlaceholder": "name in English",
+            "keepCurrentImage": "Keep field empty to save current image",
+            "deleteConfirmText": "Are you sure you want to delete the product?",
+            "deleteWarning": "Upon deletion, all information about the product will be permanently erased.",
+            "confirmDelete": "Delete product"
         }
     },
     "specs": {
