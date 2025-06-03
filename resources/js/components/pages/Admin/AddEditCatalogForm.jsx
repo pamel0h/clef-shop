@@ -590,96 +590,98 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
             )}
           </div>
 
-          <div className="form-group">
-            <label>{t('specs.mainTitle')}</label>
-            <datalist id="spec-keys">
-              {getFilteredSpecKeys('').map((key) => (
-                <option key={key} value={key}>
-                  {translatedSpecKeys[key] || key}
-                </option>
-              ))}
-            </datalist>
-            {formData.specs.map((spec, index) => (
-              <div className="spec-row" key={index}>
-                {spec.isNewSpec ? (
-                  <>
-                    <div style={{ marginBottom: '10px' }}>
-                    </div>
-                    <input
-                      type="text"
-                      name="slug"
-                      placeholder={t('admin.catalog.SlugPlaceholder')}
-                      value={spec.newSpec.slug}
-                      onChange={(e) => handleNewSpecChange(index, 'slug', e.target.value)}
-                      required
-                      // style={{ marginBottom: '8px' }}
-                    />
-                    <input
-                      type="text"
-                      name="ru"
-                      placeholder={t('admin.catalog.RuPlaceholder')}
-                      value={spec.newSpec.ru}
-                      onChange={(e) => handleNewSpecChange(index, 'ru', e.target.value)}
-                      required
-                      style={{ marginBottom: '8px' }}
-                    />
-                    <input
-                      type="text"
-                      name="en"
-                      placeholder={t('admin.catalog.EnPlaceholder')}
-                      value={spec.newSpec.en}
-                      onChange={(e) => handleNewSpecChange(index, 'en', e.target.value)}
-                      required
-                      style={{ marginBottom: '8px' }}
-                    />
-                  </>
-                ) : (
-                  <input
-                    type="text"
-                    placeholder={t('admin.catalog.keyPlaceholder')}
-                    value={spec.key}
-                    onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
-                    list="spec-keys"
-                  />
-                )}
-                <input
-                  type="text"
-                  placeholder={t('admin.catalog.valuePlaceholder')}
-                  value={spec.value}
-                  onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-                  list={`spec-values-${index}`}
-                />
-                <datalist id={`spec-values-${index}`}>
-                  {getFilteredSpecValues(spec.key, '').map((value) => (
-                    <option key={value} value={String(value)} />
-                  ))}
-                </datalist>
-                <label style={{ marginTop: '10px', display: 'block' }}>
-                  <input
-                    type="checkbox"
-                    checked={spec.isNewSpec}
-                    onChange={() => handleSpecCheckboxChange(index)}
-                  />
-                  {t('admin.catalog.addNewSpec')}
-                </label>
-                <button
-                  type="button"
-                  onClick={(e) => removeSpecField(index, e)}
-                  className="remove-spec-button"
-                  disabled={formData.specs.length === 1}
-                >
-                  −
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={addSpecField}
-              className="add-spec-button"
-            >
-              + {t('admin.catalog.addSpec')}
-            </button>
-          </div>
+          <div className="form-group specs-group">
+  <label className="specs-label">{t('specs.mainTitle')}</label>
+  <datalist id="spec-keys">
+    {getFilteredSpecKeys('').map((key) => (
+      <option key={key} value={key}>
+        {translatedSpecKeys[key] || key}
+      </option>
+    ))}
+  </datalist>
+  {formData.specs.map((spec, index) => (
+    <div className="spec-row" key={index}>
+      {spec.isNewSpec ? (
+        <div className="new-spec-fields">
+          <input
+            type="text"
+            name="slug"
+            className="spec-input"
+            placeholder={t('admin.catalog.SlugPlaceholder')}
+            value={spec.newSpec.slug}
+            onChange={(e) => handleNewSpecChange(index, 'slug', e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            name="ru"
+            className="spec-input"
+            placeholder={t('admin.catalog.RuPlaceholder')}
+            value={spec.newSpec.ru}
+            onChange={(e) => handleNewSpecChange(index, 'ru', e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            name="en"
+            className="spec-input"
+            placeholder={t('admin.catalog.EnPlaceholder')}
+            value={spec.newSpec.en}
+            onChange={(e) => handleNewSpecChange(index, 'en', e.target.value)}
+            required
+          />
+        </div>
+      ) : (
+        <input
+          type="text"
+          className="spec-input"
+          placeholder={t('admin.catalog.keyPlaceholder')}
+          value={spec.key}
+          onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
+          list="spec-keys"
+        />
+      )}
+      <input
+        type="text"
+        className="spec-input"
+        placeholder={t('admin.catalog.valuePlaceholder')}
+        value={spec.value}
+        onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+        list={`spec-values-${index}`}
+      />
+      <datalist id={`spec-values-${index}`}>
+        {getFilteredSpecValues(spec.key, '').map((value) => (
+          <option key={value} value={String(value)} />
+        ))}
+      </datalist>
+      <div className="spec-actions">
+        <label className="spec-checkbox">
+          <input
+            type="checkbox"
+            checked={spec.isNewSpec}
+            onChange={() => handleSpecCheckboxChange(index)}
+          />
+          {t('admin.catalog.addNewSpec')}
+        </label>
+        <button
+          type="button"
+          onClick={(e) => removeSpecField(index, e)}
+          className="remove-spec-button"
+          disabled={formData.specs.length === 1}
+        >
+          −
+        </button>
+      </div>
+    </div>
+  ))}
+  <button
+    type="button"
+    onClick={addSpecField}
+    className="add-spec-button"
+  >
+    + {t('admin.catalog.addSpec')}
+  </button>
+</div>
 
           <div className="modal-actions">
             <Button type="button" onClick={onClose} className="cancel-button">

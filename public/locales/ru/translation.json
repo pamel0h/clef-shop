@@ -98,7 +98,10 @@
             "selectSubcategory": "Выберите подкатегорию",
             "keyPlaceholder": "Ключ",
             "valuePlaceholder": "Значение",
-            "addNewSpec": "Добавить новую характеристику"
+            "addNewSpec": "Добавить новую характеристику",
+            "SlugPlaceholder": "название для бд",
+            "RuPlaceholder": "название на русском",
+            "EnPlaceholder": "название на английском"
         }
     },
     "specs": {

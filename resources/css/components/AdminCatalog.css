@@ -130,6 +130,7 @@
 }
 
 .form-group label {
+  font-weight:bold;
   display: block;
   font-size: 14px;
   color: #555;
@@ -167,7 +168,7 @@
 /* Checkbox styling */
 .form-group input[type="checkbox"] {
   width: auto;
-  margin-right: 8px;
+  /* margin-right: 8px; */
   vertical-align: middle;
 }
 
@@ -192,35 +193,7 @@
   border-radius: 4px;
   border: 1px solid #ddd;
 }
-/* 
 
-.spec-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.spec-row input {
-  flex: 1;
-  min-width: 150px;
-}
-
-.spec-row button.remove-spec-button {
-  padding: 8px 12px;
-  background-color: #d32f2f;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.spec-row button.remove-spec-button:disabled {
-  background-color: #e0e0e0;
-  cursor: not-allowed;
-}
 
 /* Add spec button */
 .add-spec-button {
@@ -298,104 +271,72 @@
   background: #555;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .modal {
-    width: 95%;
-    padding: 15px;
-  }
 
-  .spec-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .spec-row input {
-    width: 100%;
-  }
+.specs-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
 }
 
-
-.form-group {
-  max-width: 600px;
-  margin: 0 auto;
-  margin-bottom:20px;
-  font-family: Arial, sans-serif;
+.specs-label {
+  font-weight: 500;
+  margin-bottom: 5px;
 }
 
 .spec-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+
+.new-spec-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+.spec-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.spec-actions {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  margin-bottom: 15px;
-  position: relative;
+  align-items: center;
+  gap: 10px;
 }
 
-.spec-row input[type="text"] {
-  padding: 8px;
-  border: 1px solid #ccc;
+.spec-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.remove-spec-button{
+  margin-bottom:5px;
+}
+/* .remove-spec-button, .add-spec-button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
-}
-
-.spec-row input[type="text"]:not([name="slug"], [name="ru"], [name="en"]) {
-  width: 48%;
-  margin-right: 2%;
-}
-
-.spec-row input[name="slug"],
-.spec-row input[name="ru"],
-.spec-row input[name="en"] {
-  width: 48%;
-  margin-right: 2%;
-  margin-top: 8px;
-}
-
-.spec-row input:nth-child(2) {
-  margin-right: 0;
-}
-
-.spec-row label {
-  width: 100%;
-  margin-top: 5px;
-  font-size: 14px;
-}
-
-.remove-spec-button {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 30px;
-  height: 30px;
-  background: #ff4d4d;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  background: white;
   cursor: pointer;
-  font-size: 16px;
-  line-height: 30px;
-  text-align: center;
-}
-
-.remove-spec-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
+  min-width: 30px;
+} */
+/* 
 .add-spec-button {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  text-align: center;
-  margin-top: 10px;
-}
+  align-self: flex-start;
+  padding: 8px 15px;
+  margin-right: 10px;
+} */
 
-.add-spec-button:hover {
-  background: #218838;
-}
+/* .form-group label {
+  margin-right: 10px;
+} */
