@@ -1,537 +1,739 @@
-// import React, { useState, useEffect } from 'react';
-// import { useTranslation } from 'react-i18next';
-// import useCatalogData from '../../../hooks/useCatalogData';
-// import '../../../../css/components/AdminCatalog.css';
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import useCatalogData from '../../../hooks/useCatalogData';
+import Button from '../../UI/Button';
+import '../../../../css/components/AddProductModal.css';
 
-// const AddEditCatalogForm = ({ initialData, onSubmit, onCancel, isOpen, title }) => {
-//   const { t } = useTranslation();
-//   const { data: categories, loading: categoriesLoading, error: categoriesError } = useCatalogData('categories');
-//   const { data: subcategories, loading: subcategoriesLoading, error: subcategoriesError } = useCatalogData('subcategories');
-//   const { data: brands, loading: brandsLoading, error: brandsError } = useCatalogData('brands');
-//   const { data: specKeysValues, loading: specKeysValuesLoading, error: specKeysValuesError } = useCatalogData('spec_keys_values');
-//   const [translatedSpecKeys, setTranslatedSpecKeys] = useState({});
-//   const [formData, setFormData] = useState({
-//     name: '',
-//     description: { ru: '', en: '' },
-//     price: '',
-//     category: '',
-//     subcategory: '',
-//     brand: '',
-//     discount: '',
-//     images: [],
-//     specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
-//     isNewCategory: false,
-//     newCategory: { slug: '', ru: '', en: '' },
-//     isNewSubcategory: false,
-//     newSubcategory: { slug: '', ru: '', en: '' },
-//   });
-//   const [imagePreviews, setImagePreviews] = useState([]);
-//   const [error, setError] = useState(null);
+const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) => {
+  const { t } = useTranslation();
+  const { data: categories, loading: categoriesLoading } = useCatalogData('categories');
+  const { data: subcategories, loading: subcategoriesLoading } = useCatalogData('subcategories', { category: initialData?.category || '' }, !initialData?.category);
+  const { data: brands, loading: brandsLoading } = useCatalogData('brands');
+  const { data: specKeysValues, loading: specKeysValuesLoading } = useCatalogData('spec_keys_values');
 
-//   useEffect(() => {
-//     if (initialData) {
-//       setFormData({
-//         ...initialData,
-//         specs: initialData.specs
-//           ? Object.entries(initialData.specs).map(([key, value]) => ({
-//               key,
-//               value,
-//               isNewSpec: false,
-//               newSpec: { slug: '', ru: '', en: '' },
-//             }))
-//           : [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
-//         isNewCategory: false,
-//         newCategory: { slug: '', ru: '', en: '' },
-//         isNewSubcategory: false,
-//         newSubcategory: { slug: '', ru: '', en: '' },
-//       });
-//       setImagePreviews(initialData.images || []);
-//     }
-//   }, [initialData]);
+  const [formData, setFormData] = useState({
+    name: '',
+    description_en: '',
+    description_ru: '',
+    price: '',
+    category: '',
+    subcategory: '',
+    brand: '',
+    discount: '',
+    images: [],
+    specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+    isNewCategory: false,
+    newCategory: { slug: '', ru: '', en: '' },
+    isNewSubcategory: false,
+    newSubcategory: { slug: '', ru: '', en: '' },
+    isNewBrand: false,
+    newBrand: { slug: '', ru: '', en: '' },
+  });
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [translatedSpecKeys, setTranslatedSpecKeys] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-//   useEffect(() => {
-//     const translatedKeys = {};
-//     if (specKeysValues && Object.keys(specKeysValues).length > 0) {
-//       Object.keys(specKeysValues).forEach((key) => {
-//         translatedKeys[key] = t(`specs.${key}`, key);
-//       });
-//     }
-//     setTranslatedSpecKeys(translatedKeys);
-//   }, [specKeysValues, t]);
+  // Инициализация данных для редактирования
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        id: initialData.id || '',
+        name: initialData.name || '',
+        description_en: initialData.description?.en || '',
+        description_ru: initialData.description?.ru || '',
+        price: initialData.price || '',
+        category: initialData.category || '',
+        subcategory: initialData.subcategory || '',
+        brand: initialData.brand || '',
+        discount: initialData.discount || '',
+        images: [],
+        specs: initialData.specs
+          ? Object.entries(initialData.specs).map(([key, value]) => ({
+              key,
+              value: String(value),
+              isNewSpec: false,
+              newSpec: { slug: '', ru: '', en: '' },
+            }))
+          : [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+        isNewCategory: false,
+        newCategory: { slug: '', ru: '', en: '' },
+        isNewSubcategory: false,
+        newSubcategory: { slug: '', ru: '', en: '' },
+        isNewBrand: false,
+        newBrand: { slug: '', ru: '', en: '' },
+      });
+      setImagePreviews(initialData.images ? initialData.images.map(img => `/storage/product_images/${img}`) : []);
+    } else {
+      setFormData({
+        name: '',
+        description_en: '',
+        description_ru: '',
+        price: '',
+        category: '',
+        subcategory: '',
+        brand: '',
+        discount: '',
+        images: [],
+        specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+        isNewCategory: false,
+        newCategory: { slug: '', ru: '', en: '' },
+        isNewSubcategory: false,
+        newSubcategory: { slug: '', ru: '', en: '' },
+        isNewBrand: false,
+        newBrand: { slug: '', ru: '', en: '' },
+      });
+      setImagePreviews([]);
+    }
+  }, [initialData]);
 
-//   const getFilteredSpecKeys = (searchTerm) => {
-//     if (!specKeysValues) return [];
-//     const lowercasedSearchTerm = searchTerm.toLowerCase();
-//     return Object.keys(specKeysValues).filter((key) => {
-//       const translatedKey = translatedSpecKeys[key] || key;
-//       return (
-//         key.toLowerCase().includes(lowercasedSearchTerm) ||
-//         translatedKey.toLowerCase().includes(lowercasedSearchTerm)
-//       );
-//     });
-//   };
+  // Обновление переводов ключей характеристик
+  useEffect(() => {
+    const translatedKeys = {};
+    if (specKeysValues && Object.keys(specKeysValues).length > 0) {
+      Object.keys(specKeysValues).forEach((key) => {
+        translatedKeys[key] = t(` specs.${key}`, key);
+      });
+    }
+    setTranslatedSpecKeys(translatedKeys);
+  }, [specKeysValues, t]);
 
-//   const getSpecLabel = (key) => {
-//     return translatedSpecKeys[key] || key;
-//   };
+  const getFilteredSpecKeys = (searchTerm) => {
+    if (!specKeysValues) return [];
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    return Object.keys(specKeysValues).filter((key) => {
+      const translatedKey = translatedSpecKeys[key] || key;
+      return (
+        key.toLowerCase().includes(lowercasedSearchTerm) ||
+        translatedKey.toLowerCase().includes(lowercasedSearchTerm)
+      );
+    });
+  };
 
-//   const getFilteredSpecValues = (key, searchTerm) => {
-//     if (!key || !specKeysValues[key]) return [];
-//     const lowercasedSearchTerm = searchTerm.toLowerCase();
-//     return specKeysValues[key].filter((value) =>
-//       String(value).toLowerCase().includes(lowercasedSearchTerm)
-//     );
-//   };
+  const getFilteredSpecValues = (key, searchTerm) => {
+    if (!key || !specKeysValues[key]) return [];
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    return specKeysValues[key].filter((value) =>
+      String(value).toLowerCase().includes(lowercasedSearchTerm)
+    );
+  };
 
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData({ ...formData, [name]: value });
-//   };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-//   const handleDescriptionChange = (lang, value) => {
-//     setFormData({
-//       ...formData,
-//       description: { ...formData.description, [lang]: value },
-//     });
-//   };
+  const handleNewCategoryChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      newCategory: { ...prev.newCategory, [name]: value },
+    }));
+  };
 
-//   const handleNewCategoryChange = (field, value) => {
-//     setFormData({
-//       ...formData,
-//       newCategory: { ...formData.newCategory, [field]: value },
-//     });
-//   };
+  const handleNewSubcategoryChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      newSubcategory: { ...prev.newSubcategory, [name]: value },
+    }));
+  };
 
-//   const handleNewSubcategoryChange = (field, value) => {
-//     setFormData({
-//       ...formData,
-//       newSubcategory: { ...formData.newSubcategory, [field]: value },
-//     });
-//   };
+  const handleNewBrandChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      newBrand: { ...prev.newBrand, [name]: value },
+    }));
+  };
 
-//   const handleSpecChange = (index, field, value) => {
-//     const newSpecs = [...formData.specs];
-//     newSpecs[index] = { ...newSpecs[index], [field]: value };
-//     setFormData({ ...formData, specs: newSpecs });
-//   };
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setFormData((prev) => ({
+      ...prev,
+      images: files,
+    }));
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
 
-//   const handleNewSpecChange = (index, field, value) => {
-//     const newSpecs = [...formData.specs];
-//     newSpecs[index].newSpec = { ...newSpecs[index].newSpec, [field]: value };
-//     setFormData({ ...formData, specs: newSpecs });
-//   };
+  const handleSpecChange = (index, field, value) => {
+    setFormData((prev) => {
+      const newSpecs = [...prev.specs];
+      newSpecs[index] = { ...newSpecs[index], [field]: value };
+      return { ...prev, specs: newSpecs };
+    });
+  };
 
-//   const handleCategoryCheckboxChange = () => {
-//     setFormData({
-//       ...formData,
-//       isNewCategory: !formData.isNewCategory,
-//       category: '',
-//       isNewSubcategory: false,
-//       subcategory: '',
-//     });
-//   };
+  const handleNewSpecChange = (index, field, value) => {
+    setFormData((prev) => {
+      const newSpecs = [...prev.specs];
+      newSpecs[index] = {
+        ...newSpecs[index],
+        newSpec: { ...newSpecs[index].newSpec, [field]: value },
+      };
+      return { ...prev, specs: newSpecs };
+    });
+  };
 
-//   const handleSubcategoryCheckboxChange = () => {
-//     setFormData({
-//       ...formData,
-//       isNewSubcategory: !formData.isNewSubcategory,
-//       subcategory: '',
-//     });
-//   };
+  const handleCategoryCheckboxChange = () => {
+    setFormData((prev) => ({
+      ...prev,
+      isNewCategory: !prev.isNewCategory,
+      category: !prev.isNewCategory ? '' : prev.category,
+      isNewSubcategory: !prev.isNewCategory ? false : prev.isNewSubcategory,
+      subcategory: !prev.isNewCategory ? '' : prev.subcategory,
+    }));
+  };
 
-//   const handleSpecCheckboxChange = (index) => {
-//     const newSpecs = [...formData.specs];
-//     newSpecs[index].isNewSpec = !newSpecs[index].isNewSpec;
-//     setFormData({ ...formData, specs: newSpecs });
-//   };
+  const handleSubcategoryCheckboxChange = () => {
+    setFormData((prev) => ({
+      ...prev,
+      isNewSubcategory: !prev.isNewSubcategory,
+      subcategory: !prev.isNewSubcategory ? '' : prev.subcategory,
+    }));
+  };
 
-//   const addSpecField = () => {
-//     setFormData({
-//       ...formData,
-//       specs: [
-//         ...formData.specs,
-//         { key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } },
-//       ],
-//     });
-//   };
+  const handleBrandCheckboxChange = () => {
+    setFormData((prev) => ({
+      ...prev,
+      isNewBrand: !prev.isNewBrand,
+      brand: !prev.isNewBrand ? '' : prev.brand,
+    }));
+  };
 
-//   const removeSpecField = (index, e) => {
-//     e.preventDefault();
-//     if (formData.specs.length > 1) {
-//       const newSpecs = formData.specs.filter((_, i) => i !== index);
-//       setFormData({ ...formData, specs: newSpecs });
-//     }
-//   };
+  const handleSpecCheckboxChange = (index) => {
+    setFormData((prev) => {
+      const newSpecs = [...prev.specs];
+      newSpecs[index] = {
+        ...newSpecs[index],
+        isNewSpec: !newSpecs[index].isNewSpec,
+        key: newSpecs[index].isNewSpec ? '' : newSpecs[index].key,
+        newSpec: newSpecs[index].isNewSpec ? { slug: '', ru: '', en: '' } : newSpecs[index].newSpec,
+      };
+      return { ...prev, specs: newSpecs };
+    });
+  };
 
-//   const handleImageChange = (e) => {
-//     const files = Array.from(e.target.files);
-//     setFormData({ ...formData, images: files });
-//     const previews = files.map((file) => URL.createObjectURL(file));
-//     setImagePreviews(previews);
-//   };
+  const addSpecField = (e) => {
+    e.preventDefault();
+    setFormData((prev) => ({
+      ...prev,
+      specs: [...prev.specs, { key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+    }));
+  };
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setError(null);
-//     try {
-//       const formDataToSubmit = new FormData();
-//       formDataToSubmit.append('name', formData.name);
-//       formDataToSubmit.append('description_en', formData.description.en);
-//       formDataToSubmit.append('description_ru', formData.description.ru);
-//       formDataToSubmit.append('price', formData.price);
-      
-//       if (formData.isNewCategory && formData.newCategory.slug) {
-//         formDataToSubmit.append('new_category', JSON.stringify(formData.newCategory));
-//       } else {
-//         formDataToSubmit.append('category', formData.category);
-//       }
+  const removeSpecField = (index, e) => {
+    e.preventDefault();
+    setFormData((prev) => ({
+      ...prev,
+      specs: prev.specs.filter((_, i) => i !== index),
+    }));
+  };
 
-//       if (formData.isNewSubcategory && formData.newSubcategory.slug) {
-//         formDataToSubmit.append('new_subcategory', JSON.stringify(formData.newSubcategory));
-//       } else {
-//         formDataToSubmit.append('subcategory', formData.subcategory);
-//       }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-//       formDataToSubmit.append('brand', formData.brand);
-//       formDataToSubmit.append('discount', formData.discount || '');
+    try {
+      const formDataToSend = new FormData();
+      const authToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
 
-//       formData.images.forEach((image, index) => {
-//         formDataToSubmit.append(`images[${index}]`, image);
-//       });
+      if (!authToken) {
+        throw new Error(t('auth_token_missing'));
+      }
 
-//       const specsObject = {};
-//       formData.specs.forEach((spec) => {
-//         if (spec.isNewSpec && spec.newSpec.slug) {
-//           specsObject[spec.newSpec.slug] = {
-//             value: spec.value,
-//             translations: { ru: spec.newSpec.ru, en: spec.newSpec.en },
-//           };
-//         } else if (spec.key && spec.value) {
-//           specsObject[spec.key] = spec.value;
-//         }
-//       });
-//       formDataToSubmit.append('specs_data', JSON.stringify(specsObject));
+      if (!formData.name || !formData.price || (!formData.isNewCategory && !formData.category) || (!formData.isNewSubcategory && !formData.subcategory)) {
+        throw new Error(t('required_fields_missing'));
+      }
 
-//       await onSubmit(formDataToSubmit);
-//     } catch (err) {
-//       setError(t('error.submit_failed', { message: err.message }));
-//     }
-//   };
+      const fields = ['name', 'description_en', 'description_ru', 'price', 'discount'];
+      fields.forEach((key) => {
+        if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
 
-//   if (!isOpen) return null;
+      if (formData.isNewCategory && formData.newCategory.slug) {
+        formDataToSend.append('category', formData.newCategory.slug);
+        formDataToSend.append('new_category', JSON.stringify(formData.newCategory));
+      } else {
+        formDataToSend.append('category', formData.category);
+      }
 
-//   return (
-//     <div className="modal">
-//       <h2>{title}</h2>
-//       {error && <div className="error">{error}</div>}
-//       {(categoriesError || subcategoriesError || brandsError || specKeysValuesError) && (
-//         <div className="error">
-//           {t('error.data_load_failed', { message: categoriesError || subcategoriesError || brandsError || specKeysValuesError })}
-//         </div>
-//       )}
-//       <form onSubmit={handleSubmit} encType="multipart/form-data">
-//         <div className="form-group">
-//           <label>{t('name')}</label>
-//           <input
-//             type="text"
-//             name="name"
-//             value={formData.name}
-//             onChange={handleChange}
-//             required
-//           />
-//         </div>
+      if (formData.isNewSubcategory && formData.newSubcategory.slug) {
+        formDataToSend.append('subcategory', formData.newSubcategory.slug);
+        formDataToSend.append('new_subcategory', JSON.stringify(formData.newSubcategory));
+      } else {
+        formDataToSend.append('subcategory', formData.subcategory);
+      }
 
-//         <div className="form-group">
-//           <label>{t('description.ru')}</label>
-//           <textarea
-//             name="description_ru"
-//             value={formData.description.ru}
-//             onChange={(e) => handleDescriptionChange('ru', e.target.value)}
-//           />
-//         </div>
+      if (formData.isNewBrand && formData.newBrand.slug) {
+        formDataToSend.append('brand', formData.newBrand.slug);
+        formDataToSend.append('new_brand', JSON.stringify(formData.newBrand));
+      } else {
+        formDataToSend.append('brand', formData.brand);
+      }
 
-//         <div className="form-group">
-//           <label>{t('description.en')}</label>
-//           <textarea
-//             name="description_en"
-//             value={formData.description.en}
-//             onChange={(e) => handleDescriptionChange('en', e.target.value)}
-//           />
-//         </div>
+      formData.images.forEach((image, index) => {
+        formDataToSend.append(`images[${index}]`, image);
+      });
 
-//         <div className="form-group">
-//           <label>{t('price')}</label>
-//           <input
-//             type="number"
-//             name="price"
-//             value={formData.price}
-//             onChange={handleChange}
-//             required
-//           />
-//         </div>
+      const specsObject = formData.specs.reduce((obj, spec, index) => {
+        if (spec.isNewSpec && spec.newSpec.slug.trim() && spec.value.trim()) {
+          obj[spec.newSpec.slug.trim()] = {
+            value: spec.value.trim(),
+            translations: { ru: spec.newSpec.ru, en: spec.newSpec.en },
+          };
+        } else if (spec.key.trim() && spec.value.trim()) {
+          formDataToSend.append(`specs[${index}][key]`, spec.key.trim());
+          formDataToSend.append(`specs[${index}][value]`, spec.value.trim());
+        }
+        return obj;
+      }, {});
+      if (Object.keys(specsObject).length > 0) {
+        formDataToSend.append('specs_data', JSON.stringify(specsObject));
+      }
 
-//         <div className="form-group">
-//           <label>{t('category')}</label>
-//           <label style={{ marginTop: '10px', display: 'block' }}>
-//             <input
-//               type="checkbox"
-//               checked={formData.isNewCategory}
-//               onChange={handleCategoryCheckboxChange}
-//             />
-//             {t('category.addNewCategory')}
-//           </label>
-//           {formData.isNewCategory ? (
-//             <>
-//               <input
-//                 type="text"
-//                 name="category_slug"
-//                 placeholder={t('category.slugPlaceholder')}
-//                 value={formData.newCategory.slug}
-//                 onChange={(e) => handleNewCategoryChange('slug', e.target.value)}
-//                 required
-//                 style={{ marginBottom: '8px' }}
-//               />
-//               <input
-//                 type="text"
-//                 name="category_ru"
-//                 placeholder={t('category.ruPlaceholder')}
-//                 value={formData.newCategory.ru}
-//                 onChange={(e) => handleNewCategoryChange('ru', e.target.value)}
-//                 required
-//                 style={{ marginBottom: '8px' }}
-//               />
-//               <input
-//                 type="text"
-//                 name="category_en"
-//                 placeholder={t('category.enPlaceholder')}
-//                 value={formData.newCategory.en}
-//                 onChange={(e) => handleNewCategoryChange('en', e.target.value)}
-//                 required
-//                 style={{ marginBottom: '8px' }}
-//               />
-//             </>
-//           ) : (
-//             <select
-//               name="category"
-//               value={formData.category}
-//               onChange={handleChange}
-//               disabled={categoriesLoading}
-//               required
-//             >
-//               <option value="">{t('select_category')}</option>
-//               {categories.map((cat) => (
-//                 <option key={cat} value={cat}>
-//                   {t(`category.${cat}`, cat)}
-//                 </option>
-//               ))}
-//             </select>
-//           )}
-//         </div>
+      const url = initialData ? `/api/admin/catalog/${initialData.id}` : '/api/admin/catalog';
+      const method = initialData ? 'POST' : 'POST'; // Используем POST для обоих случаев, как в исходной версии
 
-//         <div className="form-group">
-//           <label>{t('subcategory')}</label>
-//           <label style={{ marginTop: '10px', display: 'block' }}>
-//             <input
-//               type="checkbox"
-//               checked={formData.isNewSubcategory}
-//               onChange={handleSubcategoryCheckboxChange}
-//               disabled={!formData.category && !formData.isNewCategory}
-//             />
-//             {t('subcategory.addNewSubcategory')}
-//           </label>
-//           {formData.isNewSubcategory ? (
-//             <>
-//               <input
-//                 type="text"
-//                 name="subcategory_slug"
-//                 placeholder={t('subcategory.slugPlaceholder')}
-//                 value={formData.newSubcategory.slug}
-//                 onChange={(e) => handleNewSubcategoryChange('slug', e.target.value)}
-//                 required
-//                 style={{ marginBottom: '8px' }}
-//               />
-//               <input
-//                 type="text"
-//                 name="subcategory_ru"
-//                 placeholder={t('subcategory.ruPlaceholder')}
-//                 value={formData.newSubcategory.ru}
-//                 onChange={(e) => handleNewSubcategoryChange('ru', e.target.value)}
-//                 required
-//                 style={{ marginBottom: '8px' }}
-//               />
-//               <input
-//                 type="text"
-//                 name="subcategory_en"
-//                 placeholder={t('subcategory.enPlaceholder')}
-//                 value={formData.newSubcategory.en}
-//                 onChange={(e) => handleNewSubcategoryChange('en', e.target.value)}
-//                 required
-//                 style={{ marginBottom: '8px' }}
-//               />
-//             </>
-//           ) : (
-//             <select
-//               name="subcategory"
-//               value={formData.subcategory}
-//               onChange={handleChange}
-//               disabled={subcategoriesLoading || !formData.category}
-//               required
-//             >
-//               <option value="">{t('select_subcategory')}</option>
-//               {subcategories.map((sub) => (
-//                 <option key={sub} value={sub}>
-//                   {t(`subcategory.${formData.category}.${sub}`, sub)}
-//                 </option>
-//               ))}
-//             </select>
-//           )}
-//         </div>
+      const response = await fetch(url, {
+        method,
+        body: formDataToSend,
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
 
-//         <div className="form-group">
-//           <label>{t('brand')}</label>
-//           <input
-//             type="text"
-//             name="brand"
-//             value={formData.brand}
-//             onChange={handleChange}
-//             list="brands-list"
-//           />
-//           <datalist id="brands-list">
-//             {brands.map((brand) => (
-//               <option key={brand} value={brand} />
-//             ))}
-//           </datalist>
-//         </div>
+      const result = await response.json();
+      console.log('Response from server:', result);
 
-//         <div className="form-group">
-//           <label>{t('discount')}</label>
-//           <input
-//             type="number"
-//             name="discount"
-//             value={formData.discount}
-//             onChange={handleChange}
-//           />
-//         </div>
+      if (result.success) {
+        setFormData({
+          name: '',
+          description_en: '',
+          description_ru: '',
+          price: '',
+          category: '',
+          subcategory: '',
+          brand: '',
+          discount: '',
+          images: [],
+          specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+          isNewCategory: false,
+          newCategory: { slug: '', ru: '', en: '' },
+          isNewSubcategory: false,
+          newSubcategory: { slug: '', ru: '', en: '' },
+          isNewBrand: false,
+          newBrand: { slug: '', ru: '', en: '' },
+        });
+        setImagePreviews([]);
+        await onSubmit(result.data);
+        onClose();
+      } else {
+        setError(result.error || t('submit_error'));
+      }
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      setError(t('network_error', { message: err.message }));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//         <div className="form-group">
-//           <label>{t('images')}</label>
-//           <input
-//             type="file"
-//             name="images"
-//             multiple
-//             accept="image/*"
-//             onChange={handleImageChange}
-//           />
-//           <div className="image-previews">
-//             {imagePreviews.map((preview, index) => (
-//               <img key={index} src={preview} alt={`Preview ${index}`} />
-//             ))}
-//           </div>
-//         </div>
+  if (!isOpen) return null;
 
-//         <div className="form-group">
-//           <label>{t('specs.mainTitle')}</label>
-//           <datalist id="spec-keys">
-//             {getFilteredSpecKeys('').map((key) => (
-//               <option key={key} value={key}>
-//                 {getSpecLabel(key)}
-//               </option>
-//             ))}
-//           </datalist>
-//           {formData.specs.map((spec, index) => (
-//             <div className="spec-row" key={index}>
-//               {spec.isNewSpec ? (
-//                 <>
-//                   <div style={{ marginBottom: '10px' }}>
-//                     <strong>{t('specs.newSpec')}</strong>
-//                   </div>
-//                   <input
-//                     type="text"
-//                     name="slug"
-//                     placeholder={t('specs.slugPlaceholder')}
-//                     value={spec.newSpec.slug}
-//                     onChange={(e) => handleNewSpecChange(index, 'slug', e.target.value)}
-//                     required
-//                     style={{ marginBottom: '8px' }}
-//                   />
-//                   <input
-//                     type="text"
-//                     name="ru"
-//                     placeholder={t('specs.ruPlaceholder')}
-//                     value={spec.newSpec.ru}
-//                     onChange={(e) => handleNewSpecChange(index, 'ru', e.target.value)}
-//                     required
-//                     style={{ marginBottom: '8px' }}
-//                   />
-//                   <input
-//                     type="text"
-//                     name="en"
-//                     placeholder={t('specs.enPlaceholder')}
-//                     value={spec.newSpec.en}
-//                     onChange={(e) => handleNewSpecChange(index, 'en', e.target.value)}
-//                     required
-//                     style={{ marginBottom: '8px' }}
-//                   />
-//                 </>
-//               ) : (
-//                 <input
-//                   type="text"
-//                   placeholder={t('specs.keyPlaceholder')}
-//                   value={spec.key}
-//                   onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
-//                   list="spec-keys"
-//                 />
-//               )}
-//               <input
-//                 type="text"
-//                 placeholder={t('specs.valuePlaceholder')}
-//                 value={spec.value}
-//                 onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-//                 list={`spec-values-${index}`}
-//                 disabled={!spec.key}
-//               />
-//               <datalist id={`spec-values-${index}`}>
-//                 {getFilteredSpecValues(spec.key, '').map((value) => (
-//                   <option key={value} value={String(value)} />
-//                 ))}
-//               </datalist>
-//               <label style={{ marginTop: '10px', display: 'block' }}>
-//                 <input
-//                   type="checkbox"
-//                   checked={spec.isNewSpec}
-//                   onChange={() => handleSpecCheckboxChange(index)}
-//                 />
-//                 {t('specs.addNewSpec')}
-//               </label>
-//               <button
-//                 type="button"
-//                 onClick={(e) => removeSpecField(index, e)}
-//                 className="remove-spec-button"
-//                 disabled={formData.specs.length === 1}
-//               >
-//                 −
-//               </button>
-//             </div>
-//           ))}
-//           <button type="button" onClick={addSpecField} className="add-spec-button">
-//             + {t('specs.addSpec')}
-//           </button>
-//         </div>
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>{title}</h2>
+          <button className="modal-close" onClick={onClose}>×</button>
+        </div>
 
-//         <div className="form-actions">
-//           <button
-//             type="submit"
-//             disabled={categoriesLoading || subcategoriesLoading || brandsLoading || specKeysValuesLoading}
-//           >
-//             {t('submit')}
-//           </button>
-//           <button type="button" onClick={onCancel}>
-//             {t('cancel')}
-//           </button>
-//         </div>
-//       </form>
-//     </div>
-//   );
-// };
+        <form onSubmit={handleSubmit} className="add-product-form">
+          {error && <div className="error-message">{error}</div>}
 
-// export default AddEditCatalogForm;
+          <div className="form-group">
+            <label>{t('admin.catalog.name')} *</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>{t('admin.catalog.price')} *</label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>{t('admin.catalog.discount')} (%)</label>
+              <input
+                type="number"
+                name="discount"
+                value={formData.discount}
+                onChange={handleInputChange}
+                min="0"
+                max="100"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>{t('admin.catalog.category')} *</label>
+              <label style={{ marginBottom: '10px', display: 'block' }}>
+                <input
+                  type="checkbox"
+                  checked={formData.isNewCategory}
+                  onChange={handleCategoryCheckboxChange}
+                />
+                {t('admin.catalog.addNewCategory')}
+              </label>
+              {formData.isNewCategory ? (
+                <>
+                  <input
+                    type="text"
+                    name="slug"
+                    placeholder={t('admin.catalog.categorySlugPlaceholder')}
+                    value={formData.newCategory.slug}
+                    onChange={handleNewCategoryChange}
+                    required
+                    style={{ marginBottom: '8px' }}
+                  />
+                  <input
+                    type="text"
+                    name="ru"
+                    placeholder={t('admin.catalog.categoryRuPlaceholder')}
+                    value={formData.newCategory.ru}
+                    onChange={handleNewCategoryChange}
+                    required
+                    style={{ marginBottom: '8px' }}
+                  />
+                  <input
+                    type="text"
+                    name="en"
+                    placeholder={t('admin.catalog.categoryEnPlaceholder')}
+                    value={formData.newCategory.en}
+                    onChange={handleNewCategoryChange}
+                    required
+                  />
+                </>
+              ) : (
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  required
+                  disabled={categoriesLoading}
+                >
+                  <option value="">{categoriesLoading ? t('loading') : t('admin.catalog.selectCategory')}</option>
+                  {categories?.map((category) => (
+                    <option key={category} value={category}>
+                      {t(`category.${category}`)}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div className="form-group">
+              <label>{t('admin.catalog.subcategory')} *</label>
+              <label style={{ marginBottom: '10px', display: 'block' }}>
+                <input
+                  type="checkbox"
+                  checked={formData.isNewSubcategory}
+                  onChange={handleSubcategoryCheckboxChange}
+                  disabled={!formData.category && !formData.isNewCategory}
+                />
+                {t('admin.catalog.addNewSubcategory')}
+              </label>
+              {formData.isNewSubcategory ? (
+                <>
+                  <input
+                    type="text"
+                    name="slug"
+                    placeholder={t('admin.catalog.subcategorySlugPlaceholder')}
+                    value={formData.newSubcategory.slug}
+                    onChange={handleNewSubcategoryChange}
+                    required
+                    style={{ marginBottom: '8px' }}
+                  />
+                  <input
+                    type="text"
+                    name="ru"
+                    placeholder={t('admin.catalog.subcategoryRuPlaceholder')}
+                    value={formData.newSubcategory.ru}
+                    onChange={handleNewSubcategoryChange}
+                    required
+                    style={{ marginBottom: '8px' }}
+                  />
+                  <input
+                    type="text"
+                    name="en"
+                    placeholder={t('admin.catalog.subcategoryEnPlaceholder')}
+                    value={formData.newSubcategory.en}
+                    onChange={handleNewSubcategoryChange}
+                    required
+                  />
+                </>
+              ) : (
+                <select
+                  name="subcategory"
+                  value={formData.subcategory}
+                  onChange={handleInputChange}
+                  required
+                  disabled={subcategoriesLoading || !formData.category}
+                >
+                  <option value="">{subcategoriesLoading ? t('loading') : t('admin.catalog.selectSubcategory')}</option>
+                  {subcategories?.map((subcategory) => (
+                    <option key={subcategory} value={subcategory}>
+                      {t(`subcategory.${formData.category}.${subcategory}`)}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>{t('admin.catalog.brand')}</label>
+            <label style={{ marginBottom: '10px', display: 'block' }}>
+              <input
+                type="checkbox"
+                checked={formData.isNewBrand}
+                onChange={handleBrandCheckboxChange}
+              />
+              {t('admin.catalog.addNewBrand')}
+            </label>
+            {formData.isNewBrand ? (
+              <>
+                <input
+                  type="text"
+                  name="slug"
+                  placeholder={t('admin.catalog.brandSlugPlaceholder')}
+                  value={formData.newBrand.slug}
+                  onChange={handleNewBrandChange}
+                  required
+                  style={{ marginBottom: '8px' }}
+                />
+                <input
+                  type="text"
+                  name="ru"
+                  placeholder={t('admin.catalog.brandRuPlaceholder')}
+                  value={formData.newBrand.ru}
+                  onChange={handleNewBrandChange}
+                  required
+                  style={{ marginBottom: '8px' }}
+                />
+                <input
+                  type="text"
+                  name="en"
+                  placeholder={t('admin.catalog.brandEnPlaceholder')}
+                  value={formData.newBrand.en}
+                  onChange={handleNewBrandChange}
+                  required
+                />
+              </>
+            ) : (
+              <input
+                type="text"
+                name="brand"
+                value={formData.brand}
+                onChange={handleInputChange}
+                list="brands-list"
+              />
+            )}
+            <datalist id="brands-list">
+              {brands?.map((brand) => (
+                <option key={brand} value={brand} />
+              ))}
+            </datalist>
+          </div>
+
+          <div className="form-group">
+            <label>{t('admin.catalog.descriptionEn')}</label>
+            <textarea
+              name="description_en"
+              value={formData.description_en}
+              onChange={handleInputChange}
+              rows="3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>{t('admin.catalog.descriptionRu')}</label>
+            <textarea
+              name="description_ru"
+              value={formData.description_ru}
+              onChange={handleInputChange}
+              rows="3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>{t('admin.catalog.image')}</label>
+            {imagePreviews.length > 0 && (
+              <div className="image-preview" style={{ marginBottom: '10px' }}>
+                <p>{initialData ? t('admin.catalog.currentImages') : t('admin.catalog.imagePreview')}:</p>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  {imagePreviews.map((preview, index) => (
+                    <img
+                      key={index}
+                      src={preview}
+                      alt={`Preview ${index}`}
+                      style={{
+                        width: '150px',
+                        height: '150px',
+                        objectFit: 'cover',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            <input
+              type="file"
+              name="images"
+              multiple
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+            {initialData && (
+              <small style={{ color: '#666', fontSize: '12px' }}>
+                {t('admin.catalog.keepCurrentImage')}
+              </small>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label>{t('specs.mainTitle')}</label>
+            <datalist id="spec-keys">
+              {getFilteredSpecKeys('').map((key) => (
+                <option key={key} value={key}>
+                  {translatedSpecKeys[key] || key}
+                </option>
+              ))}
+            </datalist>
+            {formData.specs.map((spec, index) => (
+              <div className="spec-row" key={index}>
+                {spec.isNewSpec ? (
+                  <>
+                    <div style={{ marginBottom: '10px' }}>
+                      <strong>{t('specs.newSpec')}</strong>
+                    </div>
+                    <input
+                      type="text"
+                      name="slug"
+                      placeholder={t('specs.slugPlaceholder')}
+                      value={spec.newSpec.slug}
+                      onChange={(e) => handleNewSpecChange(index, 'slug', e.target.value)}
+                      required
+                      style={{ marginBottom: '8px' }}
+                    />
+                    <input
+                      type="text"
+                      name="ru"
+                      placeholder={t('specs.ruPlaceholder')}
+                      value={spec.newSpec.ru}
+                      onChange={(e) => handleNewSpecChange(index, 'ru', e.target.value)}
+                      required
+                      style={{ marginBottom: '8px' }}
+                    />
+                    <input
+                      type="text"
+                      name="en"
+                      placeholder={t('specs.enPlaceholder')}
+                      value={spec.newSpec.en}
+                      onChange={(e) => handleNewSpecChange(index, 'en', e.target.value)}
+                      required
+                      style={{ marginBottom: '8px' }}
+                    />
+                  </>
+                ) : (
+                  <input
+                    type="text"
+                    placeholder={t('specs.keyPlaceholder')}
+                    value={spec.key}
+                    onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
+                    list="spec-keys"
+                  />
+                )}
+                <input
+                  type="text"
+                  placeholder={t('specs.valuePlaceholder')}
+                  value={spec.value}
+                  onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                  list={`spec-values-${index}`}
+                  disabled={!spec.key && !spec.isNewSpec}
+                />
+                <datalist id={`spec-values-${index}`}>
+                  {getFilteredSpecValues(spec.key, '').map((value) => (
+                    <option key={value} value={String(value)} />
+                  ))}
+                </datalist>
+                <label style={{ marginTop: '10px', display: 'block' }}>
+                  <input
+                    type="checkbox"
+                    checked={spec.isNewSpec}
+                    onChange={() => handleSpecCheckboxChange(index)}
+                  />
+                  {t('specs.addNewSpec')}
+                </label>
+                <button
+                  type="button"
+                  onClick={(e) => removeSpecField(index, e)}
+                  className="remove-spec-button"
+                  disabled={formData.specs.length === 1}
+                >
+                  −
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addSpecField}
+              className="add-spec-button"
+            >
+              + {t('specs.addSpec')}
+            </button>
+          </div>
+
+          <div className="modal-actions">
+            <Button type="button" onClick={onClose} className="cancel-button">
+              {t('admin.catalog.cancel')}
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading || categoriesLoading || subcategoriesLoading || brandsLoading || specKeysValuesLoading}
+              className="submit-button"
+            >
+              {loading ? t('admin.catalog.saving') : t('admin.catalog.submit')}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AddEditCatalogForm;
