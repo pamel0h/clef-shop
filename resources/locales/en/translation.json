@@ -257,12 +257,15 @@
       "cancelled": "Cancelled"
     }
   },
-  "contactForm":{
-    "name":"Name",
-    "email":"Email",
-    "message": "Message",
-    "send":"Send",
-    "reset":"Reset"
+    "contactForm": {
+      "title": "Contact Us",
+      "message": "Your Message",
+      "message_placeholder": "Enter your message here...",
+      "send": "Send",
+      "sending": "Sending...",
+      "reset": "Reset",
+      "success": "Message sent successfully!",
+      "error": "An error occurred while sending the message."
   },
   "category":{
     "accessories": "Accessories",
@@ -323,7 +326,10 @@
       "update_error": "Error updating profile",
       "no_purchases":"No purchases",
       "no_orders": "No orders",
-      "loading": "Loading..."
+      "loading": "Loading...",
+      "messages": "Messages"
+
     }
+
 }
   
