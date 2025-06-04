@@ -1,136 +1,48 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Services\UserService;
 
 class AdminController extends Controller
 {
-    // Получить всех пользователей
-    public function getUsers(Request $request)
+    protected $userService;
+
+    public function __construct(UserService $userService)
     {
-        $query = User::query();
-
-        // Фильтрация по роли
-        if ($request->has('role') && $request->role !== '') {
-            $query->where('role', $request->role);
-        }
-
-        // Поиск по имени или email
-        if ($request->has('search') && $request->search !== '') {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        $users = $query->paginate($request->get('per_page', 15));
-
-        return response()->json($users);
+        $this->userService = $userService;
     }
 
-    // Получить конкретного пользователя
-    public function getUser($id)
+    
+    public function getUsers()
     {
-        $user = User::findOrFail($id);
-        return response()->json($user);
+        return response()->json($this->userService->getUsers());
     }
 
-    // Создать пользователя
-    public function createUser(Request $request)
+   
+    public function getUser(string $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-            'role' => ['required', Rule::in(array_keys(User::getRoles()))]
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'role' => $request->role,
-        ]);
-
-        return response()->json([
-            'message' => 'Пользователь успешно создан',
-            'user' => $user
-        ], 201);
+        return response()->json($this->userService->getUser($id));
     }
 
-    // Обновить пользователя
-    public function updateUser(Request $request, $id)
+    
+    public function createUser(CreateUserRequest $request)
     {
-        $user = User::findOrFail($id);
-
-        $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
-            'password' => 'sometimes|nullable|string|min:8',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-            'role' => ['sometimes', 'required', Rule::in(array_keys(User::getRoles()))]
-        ]);
-
-        $updateData = $request->only(['name', 'email', 'phone', 'address', 'role']);
-        
-        if ($request->filled('password')) {
-            $updateData['password'] = Hash::make($request->password);
-        }
-
-        $user->update($updateData);
-
-        return response()->json([
-            'message' => 'Пользователь успешно обновлен',
-            'user' => $user
-        ]);
+        return response()->json($this->userService->createUser($request->validated()), 201);
     }
 
-    // Удалить пользователя
-    public function deleteUser($id)
+   
+    public function updateUser(UpdateProfileRequest $request, string $id)
     {
-        $user = User::findOrFail($id);
-        
-        // Защита от удаления самого себя
-        if ($user->id === auth()->id()) {
-            return response()->json([
-                'message' => 'Нельзя удалить самого себя'
-            ], 422);
-        }
-
-        $user->delete();
-
-        return response()->json([
-            'message' => 'Пользователь успешно удален'
-        ]);
+        return response()->json($this->userService->updateUser($id, $request->validated()));
     }
 
-    // Получить статистику
-    public function getStats()
+   
+    public function deleteUser(string $id)
     {
-        $stats = [
-            'total_users' => User::count(),
-            'users_by_role' => [],
-            'recent_users' => User::orderBy('created_at', 'desc')->limit(5)->get()
-        ];
-
-        foreach (User::getRoles() as $role => $label) {
-            $stats['users_by_role'][$role] = [
-                'count' => User::where('role', $role)->count(),
-                'label' => $label
-            ];
-        }
-
-        return response()->json($stats);
+        $this->userService->deleteUser($id);
+        return response()->json(['message' => __('admin_users.delete_success')]);
     }
 }

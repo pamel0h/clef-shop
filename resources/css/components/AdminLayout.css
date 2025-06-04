@@ -1,0 +1,103 @@
+@import '../_variables.css';
+
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: var(--font-main);
+}
+
+.admin-sidebar {
+  width: 250px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  padding: 20px 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  height: 100%;
+}
+
+.admin-sidebar h2 {
+  margin-bottom: 30px;
+  font-size: 1.6rem;
+  padding: 0 15px;
+  letter-spacing: 2px;
+  font-weight: 500;
+}
+
+.admin-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-sidebar li {
+  margin: 5px 10px;
+}
+
+.admin-sidebar a {
+  border-radius: 4px;
+  display: block;
+  color: var(--color-white);
+  text-decoration: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.admin-sidebar a:hover, .dropdown-btn:hover {
+  background: var(--color-dark-gray);
+  color: #fff;
+}
+
+.admin-sidebar a.active {
+  background: var(--color-white);
+  color: var(--color-primary);
+}
+
+.admin-layout main {
+  flex: 1;
+  margin-left: 250px;
+  padding: 20px;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* Стили для выпадающего меню */
+.admin-layout .dropdown-btn {
+  display: flex;
+  gap:8px;
+  align-items: center;
+  border-radius: 4px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  margin-bottom: 4px;
+
+}
+
+
+.admin-layout .dropdown-btn::before {
+  content: '>';
+  font-size: 1rem;
+  transition: transform 0.3s;
+  margin-left:-15px;
+
+}
+
+.admin-layout .dropdown-btn.active::before {
+  transform: rotate(+90deg);
+}
+
+.admin-layout .dropdown-container {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+}
+
+.admin-layout .dropdown-container.open {
+  max-height: 500px; 
+}
+
+.admin-layout .dropdown-container a {
+  padding-left: 30px;
+}

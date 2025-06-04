@@ -1,29 +1,102 @@
-import '../../../../css/components/AboutPage.css'; 
+// src/components/pages/About/AboutPage.jsx
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
+import '../../../../css/components/AboutPage.css';
 
 const AboutPage = () => {
-    const { t } = useTranslation();
-    return (
-        <div className="page page--about">
-            <h1 className='titleAbout'>{t('about.mainTitle')}</h1>
-            <div className='imageAbout'>
-                <img src='/images/mainphoto.jpg'></img>
-            </div>
-            <h1 className='titleAbout1'>{t('about.title1')}</h1>
-            <div className='text1'>{t('about.text1')}</div>
-            <div className='text2'>{t('about.text2')}</div>
-            <h1 className='titleAbout2'>{t('about.title2')}</h1>
-            <div className='imageAbout1'></div>
-            <div className='imageAbout2'>{t('about.text3')}</div>
-            <h1 className='titleAbout3'>{t('about.title3')}</h1>
-            <div className='media1'></div>
-            <div className='media2'></div>
-            <div className='media3'></div>
-            <p className='sign'>Clef 2025 ❤️</p>
+  const { t, i18n } = useTranslation();
+  const [content, setContent] = useState({
+    mainTitle: '',
+    title1: '',
+    text1: '',
+    text2: '',
+    title2: '',
+    text3: '',
+    title3: '',
+    image: '/images/mainphoto.jpg',
+    sign: '',
+  });
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('/api/pages/about');
+        
+        if (response.data.success && response.data.data) {
+          const pageContent = response.data.data.content?.[i18n.language] || {};
+          setContent({
+            mainTitle: pageContent.mainTitle || t('about.mainTitle'),
+            title1: pageContent.title1 || t('about.title1'),
+            text1: pageContent.text1 || t('about.text1'),
+            text2: pageContent.text2 || t('about.text2'),
+            title2: pageContent.title2 || t('about.title2'),
+            text3: pageContent.text3 || t('about.text3'),
+            title3: pageContent.title3 || t('about.title3'),
+            image: pageContent.image || '/images/mainphoto.jpg',
+            sign: pageContent.sign || t('about.sign'),
+          });
+        } else {
+          // Если данных в БД нет, используем переводы по умолчанию
+          setContent({
+            mainTitle: t('about.mainTitle'),
+            title1: t('about.title1'),
+            text1: t('about.text1'),
+            text2: t('about.text2'),
+            title2: t('about.title2'),
+            text3: t('about.text3'),
+            title3: t('about.title3'),
+            image: '/images/mainphoto.jpg',
+            sign: t('about.sign'),
+          });
+        }
+      } catch (error) {
+        console.error('Error loading about page content:', error);
+        // В случае ошибки используем переводы по умолчанию
+        setContent({
+          mainTitle: t('about.mainTitle'),
+          title1: t('about.title1'),
+          text1: t('about.text1'),
+          text2: t('about.text2'),
+          title2: t('about.title2'),
+          text3: t('about.text3'),
+          title3: t('about.title3'),
+          image: '/images/mainphoto.jpg',
+          sign: t('about.sign'),
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        </div>
-    );
+    loadContent();
+  }, [i18n.language, t]);
+
+  if (loading) {
+    return <div className="page-loading">Загрузка...</div>;
+  }
+
+  return (
+    <div className="page page--about">
+      <h1 className="titleAbout">{content.mainTitle}</h1>
+      <div className="imageAbout">
+        <img src={content.image} alt="Main" />
+      </div>
+      <h1 className="titleAbout1">{content.title1}</h1>
+      <div className="text1" dangerouslySetInnerHTML={{ __html: content.text1 }} />
+      <div className="text2" dangerouslySetInnerHTML={{ __html: content.text2 }} />
+      <h1 className="titleAbout2">{content.title2}</h1>
+      <div className="imageAbout1"></div>
+      <div className="imageAbout2" dangerouslySetInnerHTML={{ __html: content.text3 }} />
+      <h1 className="titleAbout3">{content.title3}</h1>
+      <div className="media1"></div>
+      <div className="media2"></div>
+      <div className="media3"></div>
+      <p className="sign">{content.sign}</p>
+    </div>
+  );
 };
 
-export default AboutPage; 
+export default AboutPage;

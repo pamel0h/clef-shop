@@ -9,6 +9,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\FileUploadController;
+use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\AdminOrderController;
+
+
 
 Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'user']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -29,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/order', [OrderController::class, 'getOrder']);
     Route::post('/order/create', [OrderController::class, 'createOrder']);
+    
     /*Route::put('/order/update', [CartController::class, 'updateOrder']);*/
 });
 
@@ -43,30 +51,38 @@ Route::get('/search', [SearchController::class, 'search'])
 Route::get('/catalog/data', [CatalogController::class, 'fetchData'])
      ->name('catalog.data');
 
-// Route::prefix('admin')->group(function () {
-//           Route::get('/catalog/data', [AdminCatalogController::class, 'fetchData'])->name('admin.catalog.data');
-//           Route::post('/catalog', [AdminCatalogController::class, 'store'])->name('admin.catalog.store');
-//           Route::put('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update');
-//           Route::post('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update.post'); // Добавляем POST версию для FormData
-//           Route::delete('/catalog/{id}', [AdminCatalogController::class, 'destroy'])->name('admin.catalog.destroy');
-//           Route::get('/catalog/spec-keys', [AdminCatalogController::class, 'getSpecKeys'])->name('admin.catalog.spec-keys'); // Добавляем маршрут для spec keys
-// });
-
-use App\Http\Controllers\Api\AdminController;
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
-    // Статистика
-    Route::get('/stats', [AdminController::class, 'getStats']);
-    
+   
     // Управление пользователями
     Route::get('/users', [AdminController::class, 'getUsers']);
     Route::get('/users/{id}', [AdminController::class, 'getUser']);
     Route::post('/users', [AdminController::class, 'createUser']);
     Route::put('/users/{id}', [AdminController::class, 'updateUser']);
     Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+    Route::get('/pages', [PageController::class, 'index']);
+    Route::put('/pages/{pageId}', [PageController::class, 'update']);
+    //управление заказами
+    Route::get('/orders', [AdminOrderController::class, 'index']);
+    Route::delete('/orders/{orderId}', [AdminOrderController::class, 'destroy']);
+    Route::put('orders/{orderId}', [AdminOrderController::class, 'update']);
+    
+    // Загрузка изображений
+    Route::post('/upload-image', [ImageUploadController::class, 'uploadImage']);
+    Route::delete('/delete-image', [ImageUploadController::class, 'deleteImage']);
+    Route::get('/images', [ImageUploadController::class, 'getImages']);
+
+    
 });
 
 // Маршруты только для супер админа
-Route::middleware(['auth:sanctum', 'super_admin'])->prefix('admin/super')->group(function () {
-    // Здесь будут особо чувствительные операции
-});
+// Route::middleware(['auth:sanctum', 'super_admin'])->prefix('admin/super')->group(function () {
+    
+// });
+
+
+
+
+// Публичные роуты для получения контента страниц
+Route::get('/pages/{pageId}', [PageController::class, 'show']);
+
