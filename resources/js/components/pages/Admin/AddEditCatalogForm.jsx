@@ -29,7 +29,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
   const [error, setError] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
 
-  const { data: categories, loading: categoriesLoading } = useCatalogData('categories');
+  const { data: categories, loading: categoriesLoading, pausePolling, resumePolling } = useCatalogData('categories');
   const { data: subcategories, loading: subcategoriesLoading } = useCatalogData('subcategories', { category: selectedCategory }, !selectedCategory);
   const { data: brands, loading: brandsLoading } = useCatalogData('brands');
   const { data: specKeysValues, loading: specKeysValuesLoading } = useCatalogData('spec_keys_values');
@@ -197,7 +197,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       isNewSubcategory: !prev.isNewCategory ? false : prev.isNewSubcategory,
       subcategory: !prev.isNewCategory ? '' : prev.subcategory,
     }));
-    
     if (!formData.isNewCategory) {
       setSelectedCategory('');
     }
@@ -244,81 +243,118 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     e.preventDefault();
     setLoading(true);
     setError('');
-  
+
+    // Приостановить пулинг перед отправкой
+    pausePolling();
+
     try {
       const formDataToSend = new FormData();
       const authToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
-  
+
       if (!authToken) {
         throw new Error(t('auth_token_missing'));
       }
-  
-      // Проверка обязательных полей, включая brand
-      if (!formData.name || !formData.price || !formData.brand || 
-          (!formData.isNewCategory && !formData.category) || 
-          (!formData.isNewSubcategory && !formData.subcategory)) {
-        throw new Error(t('required_fields_missing'));
-      }
-  
+
       // Для PUT запросов добавляем _method
       if (initialData) {
         formDataToSend.append('_method', 'PUT');
       }
-  
+
       const fields = ['name', 'description_en', 'description_ru', 'price', 'discount', 'brand'];
       fields.forEach((key) => {
         formDataToSend.append(key, formData[key] || '');
       });
-  
-      if (formData.isNewCategory && formData.newCategory.slug) {
-        formDataToSend.append('category', formData.newCategory.slug);
-        formDataToSend.append('new_category', JSON.stringify(formData.newCategory));
-      } else {
-        formDataToSend.append('category', formData.category);
-      }
-  
-      if (formData.isNewSubcategory && formData.newSubcategory.slug) {
-        formDataToSend.append('subcategory', formData.newSubcategory.slug);
-        formDataToSend.append('new_subcategory', JSON.stringify(formData.newSubcategory));
-      } else {
-        formDataToSend.append('subcategory', formData.subcategory);
-      }
-  
-      formData.images.forEach((image, index) => {
-        formDataToSend.append(`images[${index}]`, image);
+
+      // Логируем состояние formData для отладки
+      console.log('FormData before sending:', {
+        formData,
+        isNewCategory: formData.isNewCategory,
+        newCategory: formData.newCategory,
+        isNewSubcategory: formData.isNewSubcategory,
+        newSubcategory: formData.newSubcategory,
       });
-  
+
+      // Отправляем is_new_category и new_category
+      formDataToSend.append('is_new_category', formData.isNewCategory ? '1' : '0');
+      if (
+        formData.isNewCategory &&
+        formData.newCategory.slug?.trim() &&
+        formData.newCategory.ru?.trim() &&
+        formData.newCategory.en?.trim()
+      ) {
+        formDataToSend.append('category', formData.newCategory.slug.trim());
+        formDataToSend.append('new_category[slug]', formData.newCategory.slug.trim());
+        formDataToSend.append('new_category[ru]', formData.newCategory.ru.trim());
+        formDataToSend.append('new_category[en]', formData.newCategory.en.trim());
+      } else {
+        formDataToSend.append('category', formData.category || '');
+      }
+
+      // Отправляем is_new_subcategory и new_subcategory
+      formDataToSend.append('is_new_subcategory', formData.isNewSubcategory ? '1' : '0');
+      if (
+        formData.isNewSubcategory &&
+        formData.newSubcategory.slug?.trim() &&
+        formData.newSubcategory.ru?.trim() &&
+        formData.newSubcategory.en?.trim()
+      ) {
+        formDataToSend.append('subcategory', formData.newSubcategory.slug.trim());
+        formDataToSend.append('new_subcategory[slug]', formData.newSubcategory.slug.trim());
+        formDataToSend.append('new_subcategory[ru]', formData.newSubcategory.ru.trim());
+        formDataToSend.append('new_subcategory[en]', formData.newSubcategory.en.trim());
+      } else {
+        formDataToSend.append('subcategory', formData.subcategory || '');
+      }
+
+      // Обработка изображения (только одно изображение)
+      if (Array.isArray(formData.images) && formData.images.length > 0) {
+        formDataToSend.append('images[]', formData.images[0]);
+      }
+
       const specsObject = formData.specs.reduce((obj, spec, index) => {
-        if (spec.isNewSpec && spec.newSpec.slug.trim() && spec.value.trim()) {
+        if (
+          spec.isNewSpec &&
+          spec.newSpec.slug?.trim() &&
+          spec.newSpec.ru?.trim() &&
+          spec.newSpec.en?.trim() &&
+          spec.value?.trim()
+        ) {
           obj[spec.newSpec.slug.trim()] = {
             value: spec.value.trim(),
-            translations: { ru: spec.newSpec.ru, en: spec.newSpec.en },
+            translations: { ru: spec.newSpec.ru.trim(), en: spec.newSpec.en.trim() },
           };
-        } else if (spec.key.trim() && spec.value.trim()) {
+        } else if (spec.key?.trim() && spec.value?.trim()) {
           formDataToSend.append(`specs[${index}][key]`, spec.key.trim());
           formDataToSend.append(`specs[${index}][value]`, spec.value.trim());
         }
         return obj;
       }, {});
-      
+
       if (Object.keys(specsObject).length > 0) {
         formDataToSend.append('specs_data', JSON.stringify(specsObject));
       }
-  
+
+      // Логируем содержимое FormData для отладки
+      const formDataEntries = {};
+      for (let [key, value] of formDataToSend.entries()) {
+        formDataEntries[key] = value;
+      }
+      console.log('FormData entries:', formDataEntries);
+
       const url = initialData ? `/api/admin/catalog/${initialData.id}` : '/api/admin/catalog';
-  
+
       const response = await fetch(url, {
-        method: 'POST', // Всегда POST, для PUT используем _method
+        method: 'POST',
         body: formDataToSend,
         headers: {
           'Authorization': `Bearer ${authToken}`,
           'X-Requested-With': 'XMLHttpRequest',
         },
       });
-  
+
       const result = await response.json();
       console.log('Response from server:', result);
-  
+
       if (result.success) {
         setFormData({
           name: '',
@@ -341,13 +377,20 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         await onSubmit(result.data);
         onClose();
       } else {
-        setError(result.error || t('submit_error'));
+        // Более детализированное сообщение об ошибке
+        const errorMessage = result.message || t('submit_error');
+        const detailedErrors = result.errors
+          ? Object.values(result.errors).flat().join(' ')
+          : '';
+        setError(`${errorMessage} ${detailedErrors}`);
       }
     } catch (err) {
       console.error('Error submitting form:', err);
       setError(t('network_error', { message: err.message }));
     } finally {
       setLoading(false);
+      // Возобновить пулинг после завершения операции
+      resumePolling();
     }
   };
 
@@ -371,7 +414,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              required
             />
           </div>
 
@@ -379,13 +421,16 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
             <div className="form-group">
               <label>{t('admin.catalog.price')}</label>
               <input
-                type="number"
+                type="text"
                 name="price"
                 value={formData.price}
-                onChange={handleInputChange}
-                min="0"
-                step="0.01"
-                required
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Разрешаем только числа и точку (для дробных значений)
+                  if (/^\d*\.?\d*$/.test(value) || value === '') {
+                    setFormData({ ...formData, price: value });
+                  }
+                }}
               />
             </div>
             <div className="form-group">
@@ -420,7 +465,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                     placeholder={t('admin.catalog.SlugPlaceholder')}
                     value={formData.newCategory.slug}
                     onChange={handleNewCategoryChange}
-                    required
                     style={{ marginBottom: '8px' }}
                   />
                   <input
@@ -429,7 +473,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                     placeholder={t('admin.catalog.RuPlaceholder')}
                     value={formData.newCategory.ru}
                     onChange={handleNewCategoryChange}
-                    required
                     style={{ marginBottom: '8px' }}
                   />
                   <input
@@ -438,7 +481,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                     placeholder={t('admin.catalog.EnPlaceholder')}
                     value={formData.newCategory.en}
                     onChange={handleNewCategoryChange}
-                    required
                   />
                 </>
               ) : (
@@ -446,7 +488,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  required
                   disabled={categoriesLoading}
                 >
                   <option value="">{categoriesLoading ? t('loading') : t('admin.catalog.selectCategory')}</option>
@@ -477,7 +518,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                     placeholder={t('admin.catalog.SlugPlaceholder')}
                     value={formData.newSubcategory.slug}
                     onChange={handleNewSubcategoryChange}
-                    required
                     style={{ marginBottom: '8px' }}
                   />
                   <input
@@ -486,7 +526,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                     placeholder={t('admin.catalog.RuPlaceholder')}
                     value={formData.newSubcategory.ru}
                     onChange={handleNewSubcategoryChange}
-                    required
                     style={{ marginBottom: '8px' }}
                   />
                   <input
@@ -495,7 +534,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                     placeholder={t('admin.catalog.EnPlaceholder')}
                     value={formData.newSubcategory.en}
                     onChange={handleNewSubcategoryChange}
-                    required
                   />
                 </>
               ) : (
@@ -503,7 +541,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   name="subcategory"
                   value={formData.subcategory}
                   onChange={handleInputChange}
-                  required
                   disabled={subcategoriesLoading || (!formData.category && !formData.isNewCategory)}
                 >
                   <option value="">{subcategoriesLoading ? t('loading') : t('admin.catalog.selectSubcategory')}</option>
@@ -525,7 +562,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               value={formData.brand}
               onChange={handleInputChange}
               list="brands-list"
-              required // Добавлено required
             />
             <datalist id="brands-list">
               {brands?.map((brand) => (
@@ -610,7 +646,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                       placeholder={t('admin.catalog.SlugPlaceholder')}
                       value={spec.newSpec.slug}
                       onChange={(e) => handleNewSpecChange(index, 'slug', e.target.value)}
-                      required
                     />
                     <input
                       type="text"
@@ -619,7 +654,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                       placeholder={t('admin.catalog.RuPlaceholder')}
                       value={spec.newSpec.ru}
                       onChange={(e) => handleNewSpecChange(index, 'ru', e.target.value)}
-                      required
                     />
                     <input
                       type="text"
@@ -628,7 +662,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                       placeholder={t('admin.catalog.EnPlaceholder')}
                       value={spec.newSpec.en}
                       onChange={(e) => handleNewSpecChange(index, 'en', e.target.value)}
-                      required
                     />
                   </div>
                 ) : (

@@ -27,8 +27,6 @@ class SearchController extends Controller
       return $this->productFormatter->formatProduct($item);
   });
 
-  Log::info('SearchController: Search results', ['results' => $formatted->toArray()]);
-
   return response()->json([
       'success' => true,
       'data' => $id ? $formatted->first() : $formatted->toArray()
