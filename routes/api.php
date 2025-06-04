@@ -12,7 +12,6 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\PageController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\AdminOrderController;
@@ -74,7 +73,8 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
         Route::post('/catalog/translations', [TranslationController::class, 'store'])->name('admin.catalog.translation');
         Route::get('/catalog/export', [AdminCatalogController::class, 'export'])->name('admin.catalog.export');
         Route::post('/catalog/import', [AdminCatalogController::class, 'import'])->name('admin.catalog.import');
-    });
+  
+
     Route::get('/pages', [PageController::class, 'index']);
     Route::put('/pages/{pageId}', [PageController::class, 'update']);
     //управление заказами
@@ -94,10 +94,11 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
 // Route::middleware(['auth:sanctum', 'super_admin'])->prefix('admin/super')->group(function () {
     
 // });
-
-
-
-
 // Публичные роуты для получения контента страниц
 Route::get('/pages/{pageId}', [PageController::class, 'show']);
+
+
+
+
+
 
