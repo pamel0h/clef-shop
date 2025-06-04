@@ -78,10 +78,6 @@ const AdminCatalogPage = () => {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      if (csrfToken) {
-        headers['X-CSRF-TOKEN'] = csrfToken;
-      }
-
       const response = await fetch(`/api/admin/catalog/${productToDelete.id}`, {
         method: 'DELETE',
         headers,
@@ -158,69 +154,74 @@ const AdminCatalogPage = () => {
     if (!files.length) return;
 
     try {
-      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-      const csrfToken = getCSRFToken();
+        const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+        const csrfToken = getCSRFToken();
 
-      const headers = {
-        'X-Requested-With': 'XMLHttpRequest',
-      };
+        const headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+        };
 
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      if (csrfToken) {
-        headers['X-CSRF-TOKEN'] = csrfToken;
-      }
-
-      const formData = new FormData();
-      let csvFile = null;
-      const imageFiles = [];
-
-      // Разделяем CSV и изображения
-      for (const file of files) {
-        const mime = file.type;
-        if (mime === 'text/csv' || mime === 'text/plain') {
-          csvFile = file;
-        } else if (['image/jpeg', 'image/png'].includes(mime)) {
-          imageFiles.push(file);
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
         }
-      }
 
-      if (!csvFile) {
-        throw new Error(t('admin.catalog.noCsvFile'));
-      }
+        if (csrfToken) {
+            headers['X-CSRF-TOKEN'] = csrfToken;
+        }
 
-      formData.append('csv', csvFile);
-      imageFiles.forEach((file, index) => {
-        formData.append(`images[${index}]`, file);
-      });
+        const formData = new FormData();
+        let csvFile = null;
+        const imageFiles = [];
 
-      const response = await fetch('/api/admin/catalog/import', {
-        method: 'POST',
-        headers,
-        body: formData,
-      });
+        for (const file of files) {
+            const mime = file.type;
+            if (mime === 'text/csv' || mime === 'text/plain') {
+                csvFile = file;
+            } else if (['image/jpeg', 'image/png'].includes(mime)) {
+                imageFiles.push(file);
+            }
+        }
 
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('Server error:', data);
-        throw new Error(data.error || `HTTP error! status: ${response.status}`);
-      }
+        if (!csvFile) {
+            throw new Error(t('admin.catalog.noCsvFile'));
+        }
 
-      if (data.success) {
-        await refetch();
-        console.log(`Imported ${data.imported} products`);
-        alert(t('admin.catalog.importSuccess', { count: data.imported }));
-      } else {
-        throw new Error(data.error || 'Failed to import products');
-      }
+        formData.append('csv', csvFile);
+        imageFiles.forEach((file, index) => {
+            formData.append(`images[${index}]`, file);
+        });
+
+        const response = await fetch('/api/admin/catalog/import', {
+            method: 'POST',
+            headers,
+            body: formData,
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            console.error('Server error:', data);
+            const errorMessage = data.errors
+                ? Object.values(data.errors).flat().join(', ')
+                : data.message || `HTTP error! status: ${response.status}`;
+            throw new Error(errorMessage);
+        }
+
+        if (data.success) {
+            await refetch();
+            console.log(`Imported ${data.imported} products`);
+            alert(t('admin.catalog.importSuccess', { count: data.imported }));
+            if (data.errors && data.errors.length > 0) {
+                alert(t('admin.catalog.importErrors', { errors: data.errors.join('; ') }));
+            }
+        } else {
+            throw new Error(data.error || 'Failed to import products');
+        }
     } catch (error) {
-      console.error('Error importing CSV:', error);
-      alert(t('admin.catalog.uploadError') + error.message);
+        console.error('Error importing CSV:', error);
+        alert(t('admin.catalog.uploadError') + ': ' + error.message);
     }
     event.target.value = '';
-  };
+};
 
   if (loading) return <div className="loading">`</div>;
   if (error) return <div>{t('Error')}: {error.message}</div>;
