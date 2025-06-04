@@ -28,18 +28,6 @@ const ProductDetailsPage = () => {
     query: isFromSearch ? query : undefined,
   });
 
-  console.log('ProductDetailsPage: State', {
-    isFromSearch,
-    query,
-    productId,
-    loading,
-    error,
-    product,
-    location: location.pathname + location.search,
-    filters,
-    sortOption,
-  });
-
   // Показываем лоадер, если данные ещё загружаются или product пустой
   if (loading || !product || Object.keys(product).length === 0) {
     return <div className="loading"></div>;

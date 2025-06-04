@@ -39,7 +39,6 @@ export const ProductFilter = ({
       selectedSpecs: newSelectedSpecs,
     };
 
-    console.log('ProductFilter: New Selected Specs', newSelectedSpecs);
     setFilters(newFilters);
     onFilterChange(newFilters);
   };
@@ -146,8 +145,6 @@ export const ProductFilter = ({
         .map((product) => product.subcategory)
         .filter((value, index, self) => value && self.indexOf(value) === index)
         .sort();
-
-  console.log('ProductFilter: Specs', filters.specs);
 
   const specKeys = Object.keys(filters.specs);
   const displayedSpecKeys = showMoreSpecs ? specKeys : specKeys.slice(0, SPECS_LIMIT);

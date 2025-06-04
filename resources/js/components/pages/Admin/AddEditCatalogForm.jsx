@@ -37,7 +37,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
   useEffect(() => {
     if (initialData) {
       setSelectedCategory(initialData.category || '');
-      
+      console.log(initialData);
       setFormData({
         id: initialData.id || '',
         name: initialData.name || '',
@@ -48,7 +48,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         subcategory: initialData.subcategory || '',
         brand: initialData.brand || '',
         discount: initialData.discount || '',
-        images: [],
+        image: [],
         specs: initialData.specs
           ? Object.entries(initialData.specs).map(([key, value]) => ({
               key,
@@ -62,10 +62,10 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         isNewSubcategory: false,
         newSubcategory: { slug: '', ru: '', en: '' },
       });
-      
-      if (initialData.images && initialData.images.length > 0) {
-        const imagePaths = initialData.images.map(img => `/storage/product_images/${img}`);
-        setImagePreviews(imagePaths);
+      console.log(initialData.image);
+      if (initialData.image) {
+        const imagePath = [initialData.image];
+        setImagePreviews(imagePath);
       } else {
         setImagePreviews([]);
       }
@@ -558,7 +558,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
             <label>{t('admin.catalog.image')}</label>
             {imagePreviews.length > 0 && (
               <div className="image-preview" style={{ marginBottom: '10px' }}>
-                <p>{initialData ? t('admin.catalog.currentImages') : t('admin.catalog.imagePreview')}:</p>
+                <p>{initialData ? t('admin.catalog.currentImage') : t('admin.catalog.imagePreview')}:</p>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   {imagePreviews.map((preview, index) => (
                     <img
@@ -580,7 +580,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
             <input
               type="file"
               name="images"
-              multiple
               accept="image/*"
               onChange={handleFileChange}
             />

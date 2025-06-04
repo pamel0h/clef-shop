@@ -11,15 +11,7 @@ const SearchPage = () => {
 
   const contextFilters = isFromCatalog ? {} : location.state?.filters || {};
   const contextSortOption = isFromCatalog ? { field: 'name', direction: 'asc' } : location.state?.sortOption || { field: 'name', direction: 'asc' };
-
-  console.log('SearchPage: State', {
-    query,
-    location: location.pathname + location.search,
-    filters: contextFilters,
-    sortOption: contextSortOption,
-    isFromCatalog,
-  });
-
+  
   return (
     <div className="search-page page">
       <h1>{t('search.mainTitle')}</h1>

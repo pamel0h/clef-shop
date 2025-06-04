@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 
 class TranslationController extends Controller
 {
@@ -55,6 +56,9 @@ class TranslationController extends Controller
         // Запись в файлы
         File::put($ruPath, json_encode($ruTranslations, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
         File::put($enPath, json_encode($enTranslations, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+
+        // Обновляем метку времени переводов в кэше
+        Cache::put('translations_last_updated', now()->toIso8601String());
 
         return response()->json(['message' => 'Translations saved successfully!'], 200);
     }

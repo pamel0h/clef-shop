@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import i18n from '../i18n'; // Импортируем i18n
 
 export default function useCatalogData(type, options = {}, skip = false) {
   const [data, setData] = useState(type === 'product_details' ? {} : []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [translationsLastUpdated, setTranslationsLastUpdated] = useState(null); // Новое состояние для переводов
 
   const getAuthToken = () => {
     return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
@@ -12,7 +14,6 @@ export default function useCatalogData(type, options = {}, skip = false) {
 
   const fetchData = useCallback(async () => {
     if (skip) {
-      console.log('useCatalogData: Skipped fetch', { type, options });
       setData(type === 'product_details' ? {} : []);
       return;
     }
@@ -67,9 +68,7 @@ export default function useCatalogData(type, options = {}, skip = false) {
         url = `/api/catalog/data?${params}`;
       }
 
-      console.log('useCatalogData: Fetching URL', url, 'options:', options);
       const response = await fetch(url, { headers });
-      console.log('useCatalogData: Response status', response.status, response.statusText);
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -89,7 +88,6 @@ export default function useCatalogData(type, options = {}, skip = false) {
       }
 
       const result = await response.json();
-      console.log('useCatalogData: Response data', result);
 
       if (!result?.success) {
         throw new Error(result.error || 'Server error');
@@ -107,23 +105,52 @@ export default function useCatalogData(type, options = {}, skip = false) {
 
   // Пулинг для обновлений
   useEffect(() => {
+    if ( type === 'brands' || type === 'spec_keys_values') return;
+
     const interval = setInterval(async () => {
       try {
         const response = await fetch('/api/catalog/last-updated');
         const data = await response.json();
+
+        // if (!data.success) {
+        //   console.log(type);
+        //   console.error('Polling error:', data.error);
+        //   return;
+        // }
+
+        // Проверяем обновление каталога
         if (data.last_updated !== lastUpdated && lastUpdated !== null) {
           setLastUpdated(data.last_updated);
-          fetchData(); // Теперь fetchData доступен
+          await fetchData(); // Обновляем данные каталога
         } else if (lastUpdated === null) {
           setLastUpdated(data.last_updated);
         }
-      } catch (error) {
-        console.error('Polling error:', error);
+
+        // Проверяем обновление переводов
+        if (data.translations_last_updated !== translationsLastUpdated && translationsLastUpdated !== null) {
+          console.log('Translations updated, reloading resources for language:', i18n.language);
+          setTranslationsLastUpdated(data.translations_last_updated);
+          try {
+            // Очищаем кэш и перезагружаем переводы
+            i18n.services.backendConnector.backend.cache?.clear?.();
+            await i18n.reloadResources(i18n.language, 'translation');
+            console.log('Translations reloaded successfully');
+            // Немедленно обновляем данные
+            await fetchData();
+          } catch (reloadError) {
+            console.error('Failed to reload translations:', reloadError);
+          }
+        } else if (translationsLastUpdated === null) {
+          setTranslationsLastUpdated(data.translations_last_updated);
+        }
+        } catch (error) {
+        console.error('Polling error:', error.message);
+
       }
-    }, 5000);
+    }, 4000); // Каждые 4 секунд
 
     return () => clearInterval(interval);
-  }, [lastUpdated, fetchData]);
+  }, [lastUpdated, translationsLastUpdated, fetchData, type]);
 
   useEffect(() => {
     fetchData();

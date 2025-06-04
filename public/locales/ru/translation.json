@@ -105,7 +105,8 @@
             "keepCurrentImage": "Оставьте поле пустым, чтобы сохранить текущее изображение",
             "deleteConfirmText": "Вы уверены, что хотите удалить товар?",
             "deleteWarning": "При удалении вся информация о товаре будет безвозвратно стерта.",
-            "confirmDelete": "Удаление товара"
+            "confirmDelete": "Удаление товара",
+            "currentImage": "Текущее изображение"
         }
     },
     "specs": {
@@ -280,7 +281,8 @@
         "please_login": "Пожалуйста, войдите в аккаунт",
         "phone_required": "Укажите номер телефона",
         "address_required": "Укажите адрес доставки",
-        "order_error": "Ошибка при создании заказа"
+        "order_error": "Ошибка при создании заказа",
+        "add_to_cart": "Добавить в корзину"
     },
     "order": {
         "title": "Заказ #",
@@ -317,12 +319,7 @@
         "audio_equipment": "Аудио оборудование",
         "drums": "Ударные",
         "guitars": "Гитары",
-        "keyboards": "Клавишные",
-        "1newcategory": "Самая новая категория",
-        "probka": "Пробка",
-        "ggg": "ГГГ",
-        "jyhg": "ГЬРЕВТАПИ",
-        "tracat": "Категория тралала"
+        "keyboards": "Клавишные"
     },
     "subcategory": {
         "accessories": {
@@ -356,17 +353,6 @@
             "digital_pianos": "Цифровые пианино",
             "midi_controllers": "MIDI-контроллеры",
             "synthesizers": "Синтезаторы"
-        },
-        "1newcategory": {
-            "1newsubcategory": "Самая новая подкатегория"
-        },
-        "miniprobka": "Мини пробка",
-        "fff": "ФФФ",
-        "jyhg": {
-            "ejyrsgb": "КГУЬЕТКПИ"
-        },
-        "tracat": {
-            "trasubcat": "Подкатегория тралала"
         }
     }
 }

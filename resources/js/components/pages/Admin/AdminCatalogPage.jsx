@@ -222,7 +222,7 @@ const AdminCatalogPage = () => {
     event.target.value = '';
   };
 
-  if (loading) return <div className="loading">{t('Loading')}...</div>;
+  if (loading) return <div className="loading">`</div>;
   if (error) return <div>{t('Error')}: {error.message}</div>;
   if (!products || products.length === 0) return <div>{t('admin.catalog.noProducts')}</div>;
 

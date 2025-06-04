@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 const CategoriesList = () => {
   const { t } = useTranslation();
 
-  console.log('CategoriesList RENDERED at:', new Date().toISOString());
   const { data, loading, error } = useCatalogData('categories');
 
   if (loading) return <div className="loading"></div>;

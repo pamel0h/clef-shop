@@ -26,19 +26,6 @@ const ProductsPage = () => {
         }
   );
 
-  console.log('ProductsPage: State', {
-    isSearchPage,
-    query,
-    categorySlug,
-    subcategorySlug,
-    loading,
-    error,
-    products,
-    location: location.pathname + location.search,
-    filters,
-    sortOption,
-  });
-
   if (loading) return <div className="loading"></div>;
   if (error) return <div className="error">{error.message}</div>;
 

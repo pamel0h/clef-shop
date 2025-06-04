@@ -105,7 +105,8 @@
             "keepCurrentImage": "Keep field empty to save current image",
             "deleteConfirmText": "Are you sure you want to delete the product?",
             "deleteWarning": "Upon deletion, all information about the product will be permanently erased.",
-            "confirmDelete": "Delete product"
+            "confirmDelete": "Delete product",
+            "currentImage": "Current image"
         }
     },
     "specs": {
@@ -260,7 +261,8 @@
         "please_login": "Please log in to your account",
         "phone_required": "Phone number is required",
         "address_required": "Delivery address is required",
-        "order_error": "Error creating order"
+        "order_error": "Error creating order",
+        "add_to_cart": "Add to cart"
     },
     "order": {
         "title": "Order #",
@@ -296,12 +298,7 @@
         "audio_equipment": "Audio Equipment",
         "drums": "Drums",
         "guitars": "Guitars",
-        "keyboards": "Keyboards",
-        "1newcategory": "Newnew category",
-        "probka": "Probka",
-        "ggg": "GGG",
-        "jyhg": "JUEYRSGBF",
-        "tracat": "Tralala category"
+        "keyboards": "Keyboards"
     },
     "subcategory": {
         "accessories": {
@@ -335,15 +332,6 @@
             "digital_pianos": "Digital Pianos",
             "midi_controllers": "MIDI Controllers",
             "synthesizers": "Synthesizers"
-        },
-        "1newsubcategory": "Newnew subcategory",
-        "miniprobka": "Mini probka",
-        "fff": "FFF",
-        "jyhg": {
-            "ejyrsgb": "RUMETYNRGSB"
-        },
-        "tracat": {
-            "trasubcat": "Tralala subcategory"
         }
     },
     "profile": {

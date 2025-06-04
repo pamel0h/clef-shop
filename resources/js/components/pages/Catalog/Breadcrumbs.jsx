@@ -53,7 +53,6 @@ const Breadcrumbs = () => {
     }
     if ((index === 1 && pathArray[0] === 'search') || (index === 3 && pathArray[0] === 'catalog')) {
       if (loading) return ''; 
-      console.log('getDisplayName: Product', { productName });
       return productName || '';
     }
     return slug.replace(/-/g, ' ').replace(/_/g, ' ');
@@ -151,8 +150,6 @@ const Breadcrumbs = () => {
       }
     }
   }
-
-  console.log('Breadcrumbs: Items', breadcrumbItems);
 
   return (
     <div className="breadcrumbs-container">

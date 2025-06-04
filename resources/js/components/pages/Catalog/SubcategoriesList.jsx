@@ -10,9 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 export const SubcategoriesList = () => {
   const { t } = useTranslation();
-  console.log('SubCategoriesList rendered'); 
   const { categorySlug } = useParams();
-  console.log('SubcategoriesList params:', { categorySlug });
 
   if (!categorySlug) {
     console.warn('Category slug is undefined');
@@ -20,7 +18,6 @@ export const SubcategoriesList = () => {
   }
 
   const { data, loading, error } = useCatalogData('subcategories', { category: categorySlug });
-  console.log('Subcategories data:', { data, loading, error });
 
   if (loading) return <div className="loading"></div>;
   if (error) return <div className="error">Ошибка: {error.message}</div>;
@@ -31,10 +28,6 @@ export const SubcategoriesList = () => {
       <div className="categories-grid">
         {data?.length > 0 ? (
           data.map((subcategory) => {
-            console.log('Rendering subcategory:', subcategory, 'Link:', `/catalog/${categorySlug}/${subcategory}`);
-            // const subcategoryTitle = typeof getReadableSubcategory(categorySlug, subcategory) === 'object'
-            //   ? getReadableSubcategory(categorySlug, subcategory).name
-            //   : getReadableSubcategory(categorySlug, subcategory);
             const subcategoryTitle=t(`subcategory.${categorySlug}.${subcategory}`)
             return (
               <Category
