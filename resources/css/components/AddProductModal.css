@@ -122,10 +122,12 @@
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
+    margin-top:10px;
   }
   
   .cancel-button:hover {
     background-color: #5a6268;
+
   }
   
   .submit-button {
@@ -136,6 +138,7 @@
     border-radius: 4px;
     cursor: pointer;
   }
+
   
   .submit-button:hover:not(:disabled) {
     background-color: #0056b3;
@@ -153,4 +156,38 @@ margin-bottom: 20px;
 .scrollable-datalist {
   max-height: 200px;
   overflow-y: scroll;
+}
+
+
+.error-container p {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.error-container ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.error-container ul li {
+  margin-bottom: 8px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.error-container ul li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+}
+
+.error-container ul ul {
+  list-style-type: none;
+  padding-left: 20px;
+  margin-top: 5px;
+}
+
+.error-container ul ul li:before {
+  content: "◦";
 }

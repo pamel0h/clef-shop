@@ -106,7 +106,8 @@
             "deleteConfirmText": "Are you sure you want to delete the product?",
             "deleteWarning": "Upon deletion, all information about the product will be permanently erased.",
             "confirmDelete": "Delete product",
-            "currentImage": "Current image"
+            "currentImage": "Current image",
+            "submit":"Submit"
         },
         "title": "Admin Panel",
         "main": "Panel editor",

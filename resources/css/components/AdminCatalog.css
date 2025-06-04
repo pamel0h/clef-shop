@@ -1,9 +1,5 @@
-/* .admin-catalog-page {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-  } */
-  
+@import '../_variables.css';
+
   .admin-catalog-page h1 {
     grid-column: span 3;    
     font-size: 6rem;
@@ -11,13 +7,13 @@
   
   .admin-catalog-layout {
     display: grid;
-    grid-template-columns: 250px 1fr; /* Фильтры слева, таблица справа */
+    grid-template-columns: 320px 1fr; /* Фильтры слева, таблица справа */
     gap: 20px;
   }
-  .filter-column {
+  /* .filter-column {
     grid-column: 1;
     background: #f8f8f8;
-    padding: 20px;
+    padding: 10px;
     border-radius: 8px;
   }  
   
@@ -31,7 +27,11 @@
     background: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
-  
+
+ .admin-products-table thead {
+    background-color: var(--color-dark-gray) !important;
+    color: var(--color-white);
+}
   .admin-products-table th,
   .admin-products-table td {
     padding: 12px;
@@ -51,13 +51,45 @@
   .delete-button {
     background: #ff4d4f;
   }
+ */
+ .admin-products-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+.admin-products-table thead {
+  background-color: var(--color-dark-gray);
+  color: var(--color-white);
+}
+.admin-products-table tbody tr {
+  background-color: var(--color-light-gray);
+}
 
-  .loading {
-    text-align: center;
-    padding: 20px;
-    font-size: 16px;
-  }
-  
+.edit-button{
+  background-color: var(--color-white);
+  color: var(--color-primary);
+  border: 1px solid var(--color-light-gray);
+}
+.delete-button{
+  background-color: #f44336;
+  color: white;
+}
+
+.admin-products-table button {
+  font-family: var(--font-main-sb);
+  padding: 4px 8px;
+  margin: 2px 4px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 80%;
+  max-width: 100px;
+}
+.admin-catalog-layout{
+  font-family: var(--font-main);
+}
+
   @media (max-width: 768px) {
     .admin-catalog-layout {
       grid-template-columns: 1fr; /* Фильтры сверху на мобильных */
@@ -322,21 +354,3 @@
 .remove-spec-button{
   margin-bottom:5px;
 }
-/* .remove-spec-button, .add-spec-button {
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  cursor: pointer;
-  min-width: 30px;
-} */
-/* 
-.add-spec-button {
-  align-self: flex-start;
-  padding: 8px 15px;
-  margin-right: 10px;
-} */
-
-/* .form-group label {
-  margin-right: 10px;
-} */
