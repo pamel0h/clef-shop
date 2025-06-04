@@ -45,7 +45,7 @@ class CatalogService
             return [];
         }
 
-        return $this->productFormatter->formatProductDetails($product);
+        return $this->productFormatter->formatProduct($product);
     }
 
 

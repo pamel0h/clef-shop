@@ -24,9 +24,7 @@ class SearchController extends Controller
     $results = $this->searchService->search($query, $id);
 
     $formatted = $results->map(function ($item) use ($id) {
-      return $id
-          ? $this->productFormatter->formatProductDetails($item)
-          : $this->productFormatter->formatProduct($item);
+      return $this->productFormatter->formatProduct($item);
   });
 
   Log::info('SearchController: Search results', ['results' => $formatted->toArray()]);

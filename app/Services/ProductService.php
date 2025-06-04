@@ -266,7 +266,7 @@ class ProductService
 
             return [
                 'success' => true,
-                'data' => $productFormatter->formatProductDetails($item),
+                'data' => $productFormatter->formatProduct($item),
                 'message' => 'Product updated successfully'
             ];
         } catch (\Exception $e) {
