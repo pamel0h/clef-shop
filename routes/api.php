@@ -11,6 +11,12 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\FileUploadController;
+use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\AdminOrderController;
+
+
 
 Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'user']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -31,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/order', [OrderController::class, 'getOrder']);
     Route::post('/order/create', [OrderController::class, 'createOrder']);
+    
     /*Route::put('/order/update', [CartController::class, 'updateOrder']);*/
 });
 
@@ -48,9 +55,7 @@ Route::get('/catalog/data', [CatalogController::class, 'fetchData'])
      ->name('catalog.last-updated');
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
-    // Статистика
-    Route::get('/stats', [AdminController::class, 'getStats']);
-    
+   
     // Управление пользователями
     Route::get('/users', [AdminController::class, 'getUsers']);
     Route::get('/users/{id}', [AdminController::class, 'getUser']);
@@ -68,9 +73,32 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
         Route::post('/catalog/translations', [TranslationController::class, 'store'])->name('admin.catalog.translation');
         Route::get('/catalog/export', [AdminCatalogController::class, 'export'])->name('admin.catalog.export');
         Route::post('/catalog/import', [AdminCatalogController::class, 'import'])->name('admin.catalog.import');
-    });
+  
+
+    Route::get('/pages', [PageController::class, 'index']);
+    Route::put('/pages/{pageId}', [PageController::class, 'update']);
+    //управление заказами
+    Route::get('/orders', [AdminOrderController::class, 'index']);
+    Route::delete('/orders/{orderId}', [AdminOrderController::class, 'destroy']);
+    Route::put('orders/{orderId}', [AdminOrderController::class, 'update']);
+    
+    // Загрузка изображений
+    Route::post('/upload-image', [ImageUploadController::class, 'uploadImage']);
+    Route::delete('/delete-image', [ImageUploadController::class, 'deleteImage']);
+    Route::get('/images', [ImageUploadController::class, 'getImages']);
+
+    
+});
 
 // Маршруты только для супер админа
-Route::middleware(['auth:sanctum', 'super_admin'])->prefix('admin/super')->group(function () {
-    // Здесь будут особо чувствительные операции
-});
+// Route::middleware(['auth:sanctum', 'super_admin'])->prefix('admin/super')->group(function () {
+    
+// });
+// Публичные роуты для получения контента страниц
+Route::get('/pages/{pageId}', [PageController::class, 'show']);
+
+
+
+
+
+

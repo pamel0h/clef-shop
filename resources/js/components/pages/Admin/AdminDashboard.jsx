@@ -229,20 +229,20 @@ const AdminDashboard = () => {
     }
   };
 
-  useEffect(() => {
-    if (activeTab === 'dashboard') {
-      loadStats();
-    } else if (activeTab === 'users') {
-      loadUsers();
-    }
-  }, [activeTab]);
+  // useEffect(() => {
+  //   if (activeTab === 'dashboard') {
+  //     loadStats();
+  //   } else if (activeTab === 'users') {
+  //     loadUsers();
+  //   }
+  // }, [activeTab]);
 
-  useEffect(() => {
-    if (activeTab === 'users') {
-      const timeoutId = setTimeout(loadUsers, 300);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [searchTerm, selectedRole]);
+  // useEffect(() => {
+  //   if (activeTab === 'users') {
+  //     const timeoutId = setTimeout(loadUsers, 300);
+  //     return () => clearTimeout(timeoutId);
+  //   }
+  // }, [searchTerm, selectedRole]);
 
   // Роли для фильтра
   const roles = {

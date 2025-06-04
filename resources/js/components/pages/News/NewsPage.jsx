@@ -1,38 +1,121 @@
-import '../../../../css/components/NewsPage.css'; 
-import Button from '../../UI/Button';
-import News from './News'
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
+import Button from '../../UI/Button';
+import News from './News';
+import sanitizeHtml from 'sanitize-html';
+import '../../../../css/components/NewsPage.css';
 
 const NewsPage = () => {
-    const { t } = useTranslation();
-    return (
-        <div className="page page--news">
-            <h1 className="titleNews">{t('news.mainTitle')}</h1>
-            <p className="descNews">{t('news.description')}</p>
-            <News title="News1" to="/news/1" className="news1" variant='big' />
-            <News title="News2" to="/news/2" className="news2" />
-            <News title="News3" to="/news/3" className="news3" />
-            <News title="News4" to="/news/4" className="news4" />
-            <News title="News5" to="/news/5" className="news5" />
-            <News title="News6" to="/news/6" className="news6" />
-            <h1 className="titleArchive">{t('news.archiveTitle')}</h1>
-            <News title="News7" to="/news/7" className="news7" />
-            <News title="News8" to="/news/8" className="news8" />
-            <News title="News9" to="/news/9" className="news9" />
-            <News title="News10" to="/news/10" className="news10" />
-            <News title="News11" to="/news/11" className="news11" />
-            <News title="News12" to="/news/12" className="news12" />
-            <div className="listpages">
-                <p>{t('news.page')}</p>
-                <div className='buttons'>
-                    <Button size='small'>1</Button>
-                    <Button size='small'>2</Button>
-                    <Button size='small'>3</Button>
+  const { t, i18n } = useTranslation();
+  const [content, setContent] = useState({
+    mainTitle: '',
+    description: '',
+    archiveTitle: '',
+    news: [],
+  });
+  const [loading, setLoading] = useState(true);
 
-                </div>
-            </div>
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('/api/pages/news');
+
+        if (response.data.success && response.data.data) {
+          const pageContent = response.data.data.content?.[i18n.language] || {};
+          setContent({
+            mainTitle: pageContent.mainTitle || t('news.mainTitle'),
+            description: pageContent.description || t('news.description'),
+            archiveTitle: pageContent.archiveTitle || t('news.archiveTitle'),
+            news: pageContent.news || [],
+          });
+        } else {
+          // Fallback к переводам
+          setContent({
+            mainTitle: t('news.mainTitle'),
+            description: t('news.description'),
+            archiveTitle: t('news.archiveTitle'),
+            news: [],
+          });
+        }
+      } catch (error) {
+        console.error('Error loading news page content:', error);
+        // Fallback к переводам при ошибке
+        setContent({
+          mainTitle: t('news.mainTitle'),
+            description: t('news.description'),
+            archiveTitle: t('news.archiveTitle'),
+            news: [],
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadContent();
+  }, [i18n.language, t]);
+
+  // Функция для очистки HTML
+  const sanitizeContent = (html) => {
+    return sanitizeHtml(html || '', {
+      allowedTags: ['p', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'br', 'span', 'div'],
+      allowedAttributes: {
+        a: ['href', 'target'],
+        span: ['style'],
+      },
+    });
+  };
+
+  if (loading) {
+    return <div className="page-loading text-center">Загрузка...</div>;
+  }
+
+  return (
+    <div className="page page--news">
+      <h1 className="titleNews">{content.mainTitle}</h1>
+      <div
+        className="descNews"
+        dangerouslySetInnerHTML={{ __html: sanitizeContent(content.description) }}
+      />
+      {content.news
+        .filter(newsItem => newsItem.visible !== false)
+        .slice(0, 6)
+        .map((newsItem, index) => (
+          <News
+            key={newsItem.id || index}
+            title={newsItem.title}
+            to={newsItem.to || `/news/${newsItem.id}`}
+            className={`news${index + 1}`}
+            variant={index === 0 ? 'big' : undefined}
+            backgroundImage={newsItem.image}
+            description={newsItem.description}
+          />
+        ))}
+      <h1 className="titleArchive">{content.archiveTitle}</h1>
+      {content.news
+        .filter(newsItem => newsItem.visible !== false)
+        .slice(6)
+        .map((newsItem, index) => (
+          <News
+            key={newsItem.id || index + 6}
+            title={newsItem.title}
+            to={newsItem.to || `/news/${newsItem.id}`}
+            className={`news${index + 7}`}
+            backgroundImage={newsItem.image}
+            description={newsItem.description}
+          />
+        ))}
+      <div className="listpages">
+        <p>{t('news.page')}</p>
+        <div className="buttons">
+          <Button size="small">1</Button>
+          <Button size="small">2</Button>
+          <Button size="small">3</Button>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default NewsPage;

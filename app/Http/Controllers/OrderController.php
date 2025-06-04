@@ -16,6 +16,23 @@ class OrderController extends Controller
         $this->orderService = $orderService;
     }
 
+    public function getAllOrders(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+
+        try {
+            $orders = $this->orderService->getAllOrders();
+            return response()->json($orders);
+        } catch (\Exception $e) {
+            \Log::error('Failed to get all orders', ['error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
+        }
+    }
+
     public function getOrder(Request $request)
     {
         $user = $request->user();

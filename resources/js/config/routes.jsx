@@ -17,6 +17,9 @@ import ProtectedRoute from './ProtectedRoute';
 import AdminProtectedRoute from './AdminProtectedRoute';
 import AdminCatalogPage from '../components/pages/Admin/AdminCatalogPage';
 import AdminDashboard from '../components/pages/Admin/AdminDashboard';
+import AdminPageEditor from '../components/pages/Admin/AdminPageEditor';
+import TableOrders from '../components/pages/Admin/TableOrders';
+import TableUsers from '../components/pages/Admin/TableUsers';
 
 export const routes = [
     {
@@ -67,7 +70,33 @@ export const routes = [
                     </AdminProtectedRoute>
                 ),
             },
+            ,
+            {
+                path: '/admin/pages/:pageId',
+                element: (
+                <AdminProtectedRoute>
+                    <AdminPageEditor />
+                </AdminProtectedRoute>
+                ),
+            },
+            {
+                path: '/admin/orders',
+                element: (
+                <AdminProtectedRoute>
+                    <TableOrders />
+                </AdminProtectedRoute>
+                ),
+            },
+            {
+                path: '/admin/users',
+                element: (
+                <AdminProtectedRoute>
+                    <TableUsers />
+                </AdminProtectedRoute>
+                ),
+            }
             
+                    
         ],
     },
 ];
