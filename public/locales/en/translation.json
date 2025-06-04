@@ -91,7 +91,22 @@
             "add": "Add new product",
             "addSpec": "Add specification",
             "descriptionEn": "Description in English",
-            "descriptionRu": "Description in Russian"
+            "descriptionRu": "Description in Russian",
+            "addNewCategory": "Add New Category",
+            "addNewSubcategory": "Add New Subcategory",
+            "selectCategory": "Select category",
+            "selectSubcategory": "Select subcategory",
+            "keyPlaceholder": "key",
+            "valuePlaceholder": "value",
+            "addNewSpec": "Add new specification",
+            "SlugPlaceholder": "name for db",
+            "RuPlaceholder": "name in Russian",
+            "EnPlaceholder": "name in English",
+            "keepCurrentImage": "Keep field empty to save current image",
+            "deleteConfirmText": "Are you sure you want to delete the product?",
+            "deleteWarning": "Upon deletion, all information about the product will be permanently erased.",
+            "confirmDelete": "Delete product",
+            "currentImage": "Current image"
         },
         "title": "Admin Panel",
         "main": "Panel editor",
@@ -249,7 +264,8 @@
         "please_login": "Please log in to your account",
         "phone_required": "Phone number is required",
         "address_required": "Delivery address is required",
-        "order_error": "Error creating order"
+        "order_error": "Error creating order",
+        "add_to_cart": "Add to cart"
     },
     "order": {
         "title": "Order #",
@@ -327,7 +343,11 @@
             "dadururu": "Daruru",
             "trururu": "Trururu",
             "kukusiki": "Kukuku",
-            "tralalelo": "srth"
+            "tralalelo": "srth",
+            "rerek": "Peperere",
+            "tralalelol": "Tralalelol",
+            "mamukis": "mamumukis",
+            "popolk": "popoluyly"
         },
         "ghg": {
             "jnj": "hnkk"

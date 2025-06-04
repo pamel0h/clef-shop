@@ -6,6 +6,8 @@ import ReactDOM from 'react-dom/client';
 import { routes } from './config/routes';
 import { AuthProvider } from '../context/AuthContext';
 import { CartProvider } from '../context/CartContext';
+import { CatalogDataProvider } from '../context/CatalogDataContext';
+
 
 // Рекурсивный рендер роутов
 const renderRoutes = (routesToRender) => {
@@ -26,9 +28,11 @@ const App = () => {
     <AuthProvider>
       <CartProvider>
         <BrowserRouter>
+        <CatalogDataProvider>
           <Routes>
             {renderRoutes(routes)}
           </Routes>
+          </CatalogDataProvider>
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>

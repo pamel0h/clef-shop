@@ -91,7 +91,22 @@
             "add": "Добавить новый товар",
             "addSpec": "Добавить характеристику",
             "descriptionRu": "Описание на русском",
-            "descriptionEn": "Описание на английском"
+            "descriptionEn": "Описание на английском",
+            "addNewCategory": "Добавить новую категорию",
+            "addNewSubcategory": "Добавить новую подкатегорию",
+            "selectCategory": "Выберите категорию",
+            "selectSubcategory": "Выберите подкатегорию",
+            "keyPlaceholder": "Ключ",
+            "valuePlaceholder": "Значение",
+            "addNewSpec": "Добавить новую характеристику",
+            "SlugPlaceholder": "название для бд",
+            "RuPlaceholder": "название на русском",
+            "EnPlaceholder": "название на английском",
+            "keepCurrentImage": "Оставьте поле пустым, чтобы сохранить текущее изображение",
+            "deleteConfirmText": "Вы уверены, что хотите удалить товар?",
+            "deleteWarning": "При удалении вся информация о товаре будет безвозвратно стерта.",
+            "confirmDelete": "Удаление товара",
+            "currentImage": "Текущее изображение"
         },
         "title": "Админ-панель",
         "main": "Панель управления",
@@ -269,7 +284,8 @@
         "please_login": "Пожалуйста, войдите в аккаунт",
         "phone_required": "Укажите номер телефона",
         "address_required": "Укажите адрес доставки",
-        "order_error": "Ошибка при создании заказа"
+        "order_error": "Ошибка при создании заказа",
+        "add_to_cart": "Добавить в корзину"
     },
     "order": {
         "title": "Заказ #",
@@ -348,7 +364,11 @@
             "dadururu": "Дадуру",
             "trururu": "Труруру",
             "kukusiki": "кукуку",
-            "tralalelo": "труруру"
+            "tralalelo": "труруру",
+            "rerek": "Ререк",
+            "tralalelol": "Тралалелол",
+            "mamukis": "мамукис",
+            "popolk": "пополу"
         },
         "ghg": {
             "jnj": "прпр"
