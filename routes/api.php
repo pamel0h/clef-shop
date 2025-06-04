@@ -10,7 +10,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\TranslationController;
-use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\ImageUploadController;
