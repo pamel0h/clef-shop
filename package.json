@@ -26,6 +26,7 @@
         "react-i18next": "^15.5.2",
         "react-redux": "^9.2.0",
         "react-router-dom": "^7.6.1",
-        "sanitize-html": "^2.17.0"
+        "sanitize-html": "^2.17.0",
+        "tinymce": "^7.9.1"
     }
 }
