@@ -13,8 +13,6 @@ const ProductsList = ({ products: initialProducts = [], emptyMessage, isSearchPa
     isSearchPage
   );
 
-  console.log('ProductsList: Filtered Products', filteredProducts); 
-
   return (
     <div className="products-list-container">
 <ProductFilter

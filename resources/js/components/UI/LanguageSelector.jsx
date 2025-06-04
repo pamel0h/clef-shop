@@ -25,7 +25,6 @@ const LanguageSelector = () => {
 
   useEffect(() => {
   const handleClickOutside = (event) => {
-    //console.log('Click target:', event.target); // логируем 
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setIsOpen(false);
     }

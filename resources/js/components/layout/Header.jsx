@@ -29,7 +29,6 @@ function Header() {
     }   
     const handleSearch = (e) => {
         if (e.key === 'Enter' && searchQuery.trim()) {
-            console.log('Navigating to:', `/search?query=${encodeURIComponent(searchQuery)}`); // Отладка
             navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
             setSearchQuery(''); //Очищаем поле после поиска
         }

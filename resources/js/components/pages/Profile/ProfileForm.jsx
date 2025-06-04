@@ -37,7 +37,6 @@ const ProfileForm = ({ user }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        console.log('Changing:', name, value); // Отладочный вывод
         setFormData(prev => ({
             ...prev,
             [name]: value

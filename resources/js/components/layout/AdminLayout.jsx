@@ -71,7 +71,7 @@ const AdminLayout = () => {
           </li>
           <li>
             <NavLink 
-              to="/admin/producti" 
+              to="/admin/catalog" 
               className={({ isActive }) => isActive ? 'active' : ''}
             >
               Товары

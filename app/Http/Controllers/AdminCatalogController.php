@@ -2,26 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Models\Item;
+use App\Services\ProductService;
 use App\Formatters\ProductFormatter;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
 
 class AdminCatalogController extends Controller
 {
-    public function __construct(
-        private ProductFormatter $productFormatter
-    ) {}
+    private $productService;
+    private $productFormatter;
 
-    // Получение всех товаров для таблицы администратора
-    public function fetchData(Request $request)
+    public function __construct(ProductService $productService, ProductFormatter $productFormatter)
+    {
+        $this->productService = $productService;
+        $this->productFormatter = $productFormatter;
+    }
+
+    public function fetchData()
     {
         try {
             Log::info('AdminCatalogController: Fetching all products');
             $items = Item::orderBy('name')->get()->map(function ($item) {
                 return $this->productFormatter->formatProduct($item);
             });
-    
+
             return response()->json([
                 'success' => true,
                 'data' => $items->toArray()
@@ -35,181 +42,13 @@ class AdminCatalogController extends Controller
         }
     }
 
-     // Создание нового товара
-     public function store(Request $request)
-     {
-         try {
-             Log::info('AdminCatalogController: Starting product creation', ['request_data' => $request->all()]);
- 
-             $validated = $request->validate([
-                 'name' => 'required|string|max:255',
-                 'description_en' => 'nullable|string',
-                 'description_ru' => 'nullable|string',
-                 'price' => 'required|numeric|min:0',
-                 'category' => 'required|string',
-                 'subcategory' => 'required|string',
-                 'brand' => 'nullable|string',
-                 'discount' => 'nullable|numeric|min:0|max:100',
-                 'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-             ]);
-             
-             // Обрабатываем характеристикик отдельно, чтобы избежать конфликта валидации
-             $specsString = $request->input('specs_data'); 
-             Log::info('AdminCatalogController: Raw specs string', ['specs_string' => $specsString]);
-             Log::info('AdminCatalogController: Validation passed', ['validated' => $validated]);
- 
-             // Обработка изображений
-             $imagesPaths = [];
-             if ($request->hasFile('images')) {
-                 foreach ($request->file('images') as $image) {
-                     $path = $image->store('product_images', 'public');
-                     $imagesPaths[] = basename($path);
-                 }
-             }
-             Log::info('AdminCatalogController: Images processed', ['images' => $imagesPaths]);
- 
-             // Обработка характеристик
-             $specs = new \stdClass();
-             if (!empty($specsString)) {
-                 try {
-                     $specsArray = json_decode($specsString, true);
-                     Log::info('AdminCatalogController: Decoded specs', ['specs' => $specsArray]);
-                     
-                     if (is_array($specsArray)) {
-                         foreach ($specsArray as $key => $value) {
-                             if (!empty($key) && !empty($value)) {
-                                 $specs->{$key} = $value;
-                             }
-                         }
-                     }
-                 } catch (\Exception $e) {
-                     Log::error('AdminCatalogController: Error parsing specs JSON', ['error' => $e->getMessage()]);
-                 }
-             }
-             Log::info('AdminCatalogController: Final specs object', ['specs' => $specs]);
- 
-             $item = Item::create([
-                 'name' => $validated['name'],
-                 'description' => [
-                     'en' => $validated['description_en'] ?? '',
-                     'ru' => $validated['description_ru'] ?? ''
-                 ],
-                 'price' => (float)$validated['price'],
-                 'category' => $validated['category'],
-                 'subcategory' => $validated['subcategory'],
-                 'brand' => $validated['brand'],
-                 'discount' => (float)($validated['discount'] ?? 0),
-                 'images' => $imagesPaths,
-                 'specs' => $specs
-             ]);
- 
-             Log::info('AdminCatalogController: Product created successfully', ['item_id' => $item->id]);
- 
-             return response()->json([
-                 'success' => true,
-                 'data' => $this->productFormatter->formatProduct($item),
-                 'message' => 'Product created successfully'
-             ]);
- 
-         } catch (\Exception $e) {
-             Log::error('AdminCatalogController: Error creating product', [
-                 'error' => $e->getMessage(),
-                 'trace' => $e->getTraceAsString(),
-                 'file' => $e->getFile(),
-                 'line' => $e->getLine()
-             ]);
-             return response()->json([
-                 'success' => false,
-                 'error' => $e->getMessage()
-             ], 500);
-         }
-     }
-
-    // Обновление товара
-    public function update(Request $request, $id)
+    public function store(StoreProductRequest $request)
     {
         try {
-            Log::info('AdminCatalogController: Starting product update', [
-                'id' => $id,
-                'request_data' => $request->all()
-            ]);
-    
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'description_en' => 'nullable|string',
-                'description_ru' => 'nullable|string',
-                'price' => 'required|numeric|min:0',
-                'category' => 'required|string',
-                'subcategory' => 'required|string',
-                'brand' => 'nullable|string',
-                'discount' => 'nullable|numeric|min:0|max:100',
-                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'specs' => 'nullable|array',
-                'specs.*.key' => 'required_with:specs|string',
-                'specs.*.value' => 'required_with:specs|string',
-            ]);
-    
-            // Find the item
-            $item = Item::findOrFail($id);
-    
-            // Handle images
-            $imagesPaths = $item->images ?? [];
-            if ($request->hasFile('images')) {
-                $imagesPaths = [];
-                foreach ($request->file('images') as $image) {
-                    $path = $image->store('product_images', 'public');
-                    $imagesPaths[] = basename($path);
-                }
-                Log::info('AdminCatalogController: New images processed', ['images' => $imagesPaths]);
-            }
-    
-            // Format specs as object
-            $specs = new \stdClass();
-            if ($request->has('specs') && is_array($request->specs)) {
-                foreach ($request->specs as $spec) {
-                    if (!empty($spec['key']) && !empty($spec['value'])) {
-                        $specs->{trim($spec['key'])} = trim($spec['value']);
-                    }
-                }
-                Log::info('AdminCatalogController: Specs processed', ['specs' => $specs]);
-            } else {
-                // Keep existing specs if none provided
-                $specs = $item->specs ?? new \stdClass();
-                Log::info('AdminCatalogController: Keeping existing specs', ['specs' => $specs]);
-            }
-    
-            // Update the item
-            $item->update([
-                'name' => $validated['name'],
-                'description' => [
-                    'en' => $validated['description_en'] ?? '',
-                    'ru' => $validated['description_ru'] ?? ''
-                ],
-                'price' => (float)$validated['price'],
-                'category' => $validated['category'],
-                'subcategory' => $validated['subcategory'],
-                'brand' => $validated['brand'],
-                'discount' => (float)($validated['discount'] ?? 0),
-                'images' => $imagesPaths,
-                'specs' => $specs
-            ]);
-    
-            Log::info('AdminCatalogController: Product updated successfully', ['item_id' => $item->id]);
-    
-            return response()->json([
-                'success' => true,
-                'data' => $this->productFormatter->formatProductDetails($item), // Используем formatProductDetails
-                'message' => 'Product updated successfully'
-            ]);
-    
+            $validated = $request->validated();
+            $result = $this->productService->storeProduct($validated, $request, $this->productFormatter);
+            return response()->json($result);
         } catch (\Exception $e) {
-            Log::error('AdminCatalogController: Error updating product', [
-                'id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ]);
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -217,25 +56,26 @@ class AdminCatalogController extends Controller
         }
     }
 
-    // Удаление товара
+    public function update(UpdateProductRequest $request, $id)
+    {
+        try {
+            $validated = $request->validated();
+            $result = $this->productService->updateProduct($id, $validated, $request, $this->productFormatter);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function destroy($id)
     {
         try {
-            $item = Item::findOrFail($id);
-            $item->delete();
-    
-            Log::info('AdminCatalogController: Product deleted', ['id' => $id]);
-    
-            return response()->json([
-                'success' => true,
-                'message' => 'Product deleted successfully'
-            ]);
+            $result = $this->productService->deleteProduct($id);
+            return response()->json($result);
         } catch (\Exception $e) {
-            Log::error('AdminCatalogController: Error deleting product', [
-                'id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -243,34 +83,100 @@ class AdminCatalogController extends Controller
         }
     }
 
+    public function getSpecKeysAndValues()
+    {
+        try {
+            $result = $this->productService->getSpecKeysAndValues();
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
-   // Получение уникальных ключей характеристик для автодополнения
-   public function getSpecKeys()
-   {
-       try {
-           $specKeys = Item::raw(function ($collection) {
-               return $collection->aggregate([
-                   ['$project' => ['specs' => ['$objectToArray' => '$specs']]],
-                   ['$unwind' => '$specs'],
-                   ['$group' => ['_id' => '$specs.k']],
-                   ['$sort' => ['_id' => 1]]
-               ]);
-           });
+    public function getBrands()
+    {
+        try {
+            $brands = Item::getAllBrands();
+            return response()->json([
+                'success' => true,
+                'data' => $brands
+            ]);
+        } catch (\Exception $e) {
+            Log::error('AdminCatalogController: Error fetching brands', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
-           $keys = $specKeys->pluck('_id')->filter()->values()->toArray();
+    public function export()
+    {
+        // Имя файла для скачивания
+        $filename = 'catalog_export_' . date('Y-m-d_H-i-s') . '.csv';
 
-           return response()->json([
-               'success' => true,
-               'data' => $keys
-           ]);
+        // Заголовки ответа
+        $headers = [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ];
 
-       } catch (\Exception $e) {
-           Log::error('AdminCatalogController: Error fetching spec keys', ['error' => $e->getMessage()]);
-           return response()->json([
-               'success' => false,
-               'error' => $e->getMessage()
-           ], 500);
-       }
+        // Потоковая генерация CSV
+        return Response::stream(function () {
+            // Открываем поток вывода
+            $handle = fopen('php://output', 'w');
+
+            // Добавляем UTF-8 BOM для корректной кодировки
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            // Заголовки CSV
+            $columns = [
+                'id',
+                'name',
+                'description',
+                'price',
+                'category',
+                'subcategory',
+                'brand',
+                'images',
+                'specs',
+                'discount',
+                'created_at',
+                'updated_at',
+            ];
+            fputcsv($handle, $columns);
+
+            // Получаем все товары
+            $items = Item::all();
+
+            // Записываем данные для каждого товара
+            foreach ($items as $item) {
+                $row = [
+                    (string) $item->_id, // MongoDB ObjectId как строка
+                    $item->name ?? '',
+                    json_encode($item->description ?? [], JSON_UNESCAPED_UNICODE), // Сохраняем кириллицу как есть
+                    $item->price ?? 0,
+                    $item->category ?? '',
+                    $item->subcategory ?? '',
+                    $item->brand ?? '',
+                    !empty($item->images) ? implode(',', $item->images) : '', // Массив images в строку
+                    json_encode($item->specs ?? [], JSON_UNESCAPED_UNICODE), // Сохраняем кириллицу как есть
+                    $item->discount ?? 0,
+                    $item->created_at ? $item->created_at->toIso8601String() : '',
+                    $item->updated_at ? $item->updated_at->toIso8601String() : '',
+                ];
+                fputcsv($handle, $row);
+            }
+
+            // Закрываем поток
+            fclose($handle);
+        }, 200, $headers);
     }
 
 }

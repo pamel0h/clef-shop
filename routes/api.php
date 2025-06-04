@@ -9,6 +9,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\TranslationController;
+use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FileUploadController;
@@ -50,7 +52,8 @@ Route::get('/search', [SearchController::class, 'search'])
 
 Route::get('/catalog/data', [CatalogController::class, 'fetchData'])
      ->name('catalog.data');
-
+     Route::get('/catalog/last-updated', [CatalogController::class, 'lastUpdated'])
+     ->name('catalog.last-updated');
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
    
@@ -60,6 +63,18 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/users', [AdminController::class, 'createUser']);
     Route::put('/users/{id}', [AdminController::class, 'updateUser']);
     Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+
+        Route::get('/catalog/data', [AdminCatalogController::class, 'fetchData'])->name('admin.catalog.data');
+        Route::post('/catalog', [AdminCatalogController::class, 'store'])->name('admin.catalog.store');
+        Route::put('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update');
+        Route::post('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update.post');
+        Route::delete('/catalog/{id}', [AdminCatalogController::class, 'destroy'])->name('admin.catalog.destroy');
+        Route::get('/catalog/spec-keys-values', [AdminCatalogController::class, 'getSpecKeysAndValues'])->name('admin.catalog.spec-keys-values'); 
+        Route::get('/catalog/brands', [AdminCatalogController::class, 'getBrands'])->name('admin.catalog.brands');
+        Route::post('/catalog/translations', [TranslationController::class, 'store'])->name('admin.catalog.translation');
+        Route::get('/catalog/export', [AdminCatalogController::class, 'export'])->name('admin.catalog.export');
+        Route::post('/catalog/import', [AdminCatalogController::class, 'import'])->name('admin.catalog.import');
+    });
     Route::get('/pages', [PageController::class, 'index']);
     Route::put('/pages/{pageId}', [PageController::class, 'update']);
     //управление заказами

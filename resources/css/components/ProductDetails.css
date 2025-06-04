@@ -16,6 +16,7 @@
 .product-gallery {
   grid-column: span 1;
   display: flex;
+  /* background-color: white; */
   justify-content: center;
   align-items: center;
 }
@@ -32,7 +33,11 @@
   flex-direction: column;
   gap: 10px;
 }
-
+.spec-block{
+  display: flex;
+  flex-direction: column;
+grid-column: span 3 ;
+}
 /* .product-name {
   font-size: 1.2em;
 } */

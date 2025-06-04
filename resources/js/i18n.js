@@ -10,10 +10,7 @@ i18n
   .use(LanguageDetector) // Автоопределение языка браузера
   .use(initReactI18next) // Интеграция с React
   .init({
-    // resources: {
-    //   en: { translation: enTranslation },
-    //   ru: { translation: ruTranslation },
-    // },
+
     fallbackLng: 'en', // Язык по умолчанию
     detection: {
       order: ['localStorage', 'navigator'], // Сначала проверяем localStorage, затем язык браузера
@@ -25,6 +22,7 @@ i18n
     interpolation: {
       escapeValue: false, // React уже экранирует значения
     },
+    
   });
 
 export default i18n;
