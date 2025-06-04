@@ -44,6 +44,8 @@ Route::get('/search', [SearchController::class, 'search'])
 
 Route::get('/catalog/data', [CatalogController::class, 'fetchData'])
      ->name('catalog.data');
+     Route::get('/catalog/last-updated', [CatalogController::class, 'lastUpdated'])
+     ->name('catalog.last-updated');
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     // Статистика
@@ -64,7 +66,9 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
         Route::get('/catalog/spec-keys-values', [AdminCatalogController::class, 'getSpecKeysAndValues'])->name('admin.catalog.spec-keys-values'); 
         Route::get('/catalog/brands', [AdminCatalogController::class, 'getBrands'])->name('admin.catalog.brands');
         Route::post('/catalog/translations', [TranslationController::class, 'store'])->name('admin.catalog.translation');
-});
+        Route::get('/catalog/export', [AdminCatalogController::class, 'export'])->name('admin.catalog.export');
+        Route::post('/catalog/import', [AdminCatalogController::class, 'import'])->name('admin.catalog.import');
+    });
 
 // Маршруты только для супер админа
 Route::middleware(['auth:sanctum', 'super_admin'])->prefix('admin/super')->group(function () {

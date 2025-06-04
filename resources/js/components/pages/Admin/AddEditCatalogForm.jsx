@@ -244,46 +244,50 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     e.preventDefault();
     setLoading(true);
     setError('');
-
+  
     try {
       const formDataToSend = new FormData();
       const authToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
-
+  
       if (!authToken) {
         throw new Error(t('auth_token_missing'));
       }
-
+  
       // Проверка обязательных полей, включая brand
       if (!formData.name || !formData.price || !formData.brand || 
           (!formData.isNewCategory && !formData.category) || 
           (!formData.isNewSubcategory && !formData.subcategory)) {
         throw new Error(t('required_fields_missing'));
       }
-
+  
+      // Для PUT запросов добавляем _method
+      if (initialData) {
+        formDataToSend.append('_method', 'PUT');
+      }
+  
       const fields = ['name', 'description_en', 'description_ru', 'price', 'discount', 'brand'];
       fields.forEach((key) => {
-        // Отправляем brand даже если он пустой (но проверка выше не позволит отправить пустой)
         formDataToSend.append(key, formData[key] || '');
       });
-
+  
       if (formData.isNewCategory && formData.newCategory.slug) {
         formDataToSend.append('category', formData.newCategory.slug);
         formDataToSend.append('new_category', JSON.stringify(formData.newCategory));
       } else {
         formDataToSend.append('category', formData.category);
       }
-
+  
       if (formData.isNewSubcategory && formData.newSubcategory.slug) {
         formDataToSend.append('subcategory', formData.newSubcategory.slug);
         formDataToSend.append('new_subcategory', JSON.stringify(formData.newSubcategory));
       } else {
         formDataToSend.append('subcategory', formData.subcategory);
       }
-
+  
       formData.images.forEach((image, index) => {
         formDataToSend.append(`images[${index}]`, image);
       });
-
+  
       const specsObject = formData.specs.reduce((obj, spec, index) => {
         if (spec.isNewSpec && spec.newSpec.slug.trim() && spec.value.trim()) {
           obj[spec.newSpec.slug.trim()] = {
@@ -300,22 +304,21 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       if (Object.keys(specsObject).length > 0) {
         formDataToSend.append('specs_data', JSON.stringify(specsObject));
       }
-
+  
       const url = initialData ? `/api/admin/catalog/${initialData.id}` : '/api/admin/catalog';
-      const method = initialData ? 'PUT' : 'POST'; // Исправлено: PUT для обновления
-
+  
       const response = await fetch(url, {
-        method,
+        method: 'POST', // Всегда POST, для PUT используем _method
         body: formDataToSend,
         headers: {
           'Authorization': `Bearer ${authToken}`,
           'X-Requested-With': 'XMLHttpRequest',
         },
       });
-
+  
       const result = await response.json();
       console.log('Response from server:', result);
-
+  
       if (result.success) {
         setFormData({
           name: '',

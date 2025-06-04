@@ -106,7 +106,7 @@ class ProductService
             if (!empty($specsString)) {
                 try {
                     $specsArray = json_decode($specsString, true);
-                    Log::info('ProductService: Decoded specs', ['specs' => $specsArray]);
+                    // Log::info('ProductService: Decoded specs', ['specs' => $specsArray]);
 
                     if (is_array($specsArray)) {
                         foreach ($specsArray as $key => $value) {
@@ -114,7 +114,7 @@ class ProductService
                                 if (is_array($value) && isset($value['value'], $value['translations'])) {
                                     $specs->{$key} = $value['value'];
                                     $this->saveTranslation('specs', $key, $value['translations']['ru'], $value['translations']['en']);
-                                    Log::info('ProductService: New spec translation saved', ['spec' => $key, 'translations' => $value['translations']]);
+                                    // Log::info('ProductService: New spec translation saved', ['spec' => $key, 'translations' => $value['translations']]);
                                 } else if (!empty($value)) {
                                     $specs->{$key} = $value;
                                 }
@@ -190,10 +190,10 @@ class ProductService
                         $specs->{trim($spec['key'])} = trim($spec['value']);
                     }
                 }
-                Log::info('ProductService: Specs processed', ['specs' => $specs]);
+                // Log::info('ProductService: Specs processed', ['specs' => $specs]);
             } else {
                 $specs = $item->specs ?? new stdClass();
-                Log::info('ProductService: Keeping existing specs', ['specs' => $specs]);
+                // Log::info('ProductService: Keeping existing specs', ['specs' => $specs]);
             }
 
             // Update the item
@@ -256,22 +256,23 @@ class ProductService
     public function getSpecKeysAndValues()
     {
         try {
-            Log::info('ProductService: getSpecKeysAndValues begin');
+            // Log::info('ProductService: getSpecKeysAndValues begin');
             $items = Item::whereNotNull('specs')->get();
-            Log::info('ProductService: Items with specs', [
-                'count' => $items->count(),
-                'specs' => $items->pluck('specs')->toArray()
-            ]);
+            // Log::info('ProductService: Items with specs', [
+            //     'count' => $items->count(),
+            //     'specs' => $items->pluck('specs')->toArray()
+            // ]);
 
             $specData = [];
             foreach ($items as $item) {
                 $specs = $item->specs;
                 if (is_string($item->specs)) {
                     $specs = json_decode($item->specs, true);
-                    Log::info('ProductService: Decoded string specs for item', [
-                        'item_id' => $item->id,
-                        'specs' => $specs
-                    ]);
+                    // Log::info('ProductService: Decoded string specs for item', [
+                    //     'item_id' => $item->id,
+                    //     'specs' => $specs
+                    // ]
+                // );
                 }
 
                 if ($specs && (is_array($specs) || is_object($specs)) && !empty($specs)) {
@@ -299,7 +300,7 @@ class ProductService
                 sort($specData[$key]);
             }
 
-            Log::info('ProductService: Spec keys and values', ['spec_data' => $specData]);
+            // Log::info('ProductService: Spec keys and values', ['spec_data' => $specData]);
 
             return [
                 'success' => true,

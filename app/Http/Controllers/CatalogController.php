@@ -45,24 +45,22 @@ class CatalogController extends Controller
         }
     }
 
-    // public function lastUpdated(Request $request)
-    // {
-    //     try {
-    //         $latestItem = Item::orderBy('updated_at', 'desc')->first();
-    //         $lastUpdated = $latestItem ? $latestItem->updated_at->toIso8601String() : null;
+    public function lastUpdated(Request $request)
+    {
+        try {
+            $latestItem = Item::orderBy('updated_at', 'desc')->first();
+            $lastUpdated = $latestItem ? $latestItem->updated_at->toIso8601String() : null;
 
-    //         Log::info('CatalogController: Время последнего обновления', ['last_updated' => $lastUpdated]);
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'last_updated' => $lastUpdated
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         Log::error('CatalogController: Ошибка получения времени обновления', ['error' => $e->getMessage()]);
-    //         return response()->json([
-    //             'success' => false,
-    //             'error' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
+            return response()->json([
+                'success' => true,
+                'last_updated' => $lastUpdated
+            ]);
+        } catch (\Exception $e) {
+            Log::error('CatalogController: Ошибка получения времени обновления', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
