@@ -3,6 +3,7 @@ import axios from 'axios';
 
 
 // Добавляем заголовки по умолчанию
+
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 

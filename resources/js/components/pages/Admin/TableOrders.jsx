@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useAuth } from '../../../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import "../../../../css/components/Table.css";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const TruncatedId = ({ id }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -35,6 +37,17 @@ const TableOrders = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [deliveryFilter, setDeliveryFilter] = useState('all');
+
+  const [createdDateRange, setCreatedDateRange] = useState({
+    start: null,
+    end: null
+  });
+  const [updatedDateRange, setUpdatedDateRange] = useState({
+    start: null,
+    end: null
+  });
 
   const statusOptions = [
     { value: 'pending', label: t('admin_orders.order_status.pending') },
@@ -48,6 +61,17 @@ const TableOrders = () => {
     { value: 'pickup', label: t('admin_orders.delivery_type.pickup') },
     { value: 'delivery', label: t('admin_orders.delivery_type.delivery') },
   ];
+
+  const statusFilterOptions = [
+    { value: 'all', label: t('admin_orders.all_statuses') },
+    ...statusOptions,
+  ];
+
+  const deliveryFilterOptions = [
+    { value: 'all', label: t('admin_orders.all_delivery_types') },
+    ...deliveryOptions,
+  ];
+
 
   useEffect(() => {
     if (user) {
@@ -66,6 +90,43 @@ const TableOrders = () => {
       fetchOrders();
     }
   }, [user, t]);
+
+  const exportToCSV = () => {
+    const dataToExport = filteredOrders.map(order => ({
+      'Order ID': order.id,
+      'User ID': order.user_id,
+      'Total Amount': `$${order.total_amount.toFixed(2)}`,
+      'Status': t(`admin_orders.order_status.${order.status}`),
+      'Phone': order.phone,
+      'Delivery Type': t(`admin_orders.delivery_type.${order.delivery_type}`),
+      'Address': order.address || 'N/A',
+      'Created At': new Date(order.created_at).toLocaleString(),
+      'Updated At': new Date(order.updated_at).toLocaleString(),
+      'Items': order.items.map(item => 
+        `${item.product.name} (x${item.quantity})`
+      ).join('; ')
+    }));
+
+    const headers = Object.keys(dataToExport[0]).join(',');
+    const rows = dataToExport.map(obj => 
+      Object.values(obj).map(value => 
+        `"${value.toString().replace(/"/g, '""')}"`
+      ).join(',')
+    ).join('\n');
+
+    const csvContent = `${headers}\n${rows}`;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `orders_export_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const toggleProducts = (orderId) => {
     setOpenOrderId(openOrderId === orderId ? null : orderId);
@@ -196,25 +257,83 @@ const TableOrders = () => {
     }
   };
 
+  const handleStatusFilterChange = (e) => {
+    setStatusFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleDeliveryFilterChange = (e) => {
+    setDeliveryFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
   const filteredOrders = orders.filter((order) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      order.id.toString().includes(query) ||
-      order.user_id.toString().includes(query) ||
-      order.total_amount.toString().includes(query) ||
-      order.status.toLowerCase().includes(query) ||
-      order.phone.toLowerCase().includes(query) ||
-      order.delivery_type.toLowerCase().includes(query) ||
-      (order.address || '').toLowerCase().includes(query) ||
-      new Date(order.created_at).toLocaleString().toLowerCase().includes(query) ||
+    // Фильтрация по поисковому запросу
+    const matchesSearch = !searchQuery || 
+      order.id.toString().includes(searchQuery.toLowerCase()) ||
+      order.user_id.toString().includes(searchQuery.toLowerCase()) ||
+      order.total_amount.toString().includes(searchQuery.toLowerCase()) ||
+      order.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.delivery_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (order.address || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      new Date(order.created_at).toLocaleString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+      new Date(order.updated_at).toLocaleString().toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.items.some(
         (item) =>
-          item.product.name.toLowerCase().includes(query) ||
-          item.quantity.toString().includes(query)
-      )
+          item.product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.quantity.toString().includes(searchQuery.toLowerCase())
+      );
+
+    // Фильтрация по статусу
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    
+    // Фильтрация по способу доставки
+    const matchesDelivery = deliveryFilter === 'all' || order.delivery_type === deliveryFilter;
+
+    // Фильтрация по дате создания
+    const createdDate = new Date(order.created_at);
+    const matchesCreatedDate = (
+      (!createdDateRange.start || createdDate >= createdDateRange.start) &&
+      (!createdDateRange.end || createdDate <= new Date(createdDateRange.end.setHours(23, 59, 59, 999)))
     );
+
+    // Фильтрация по дате обновления
+    const updatedDate = new Date(order.updated_at);
+    const matchesUpdatedDate = (
+      (!updatedDateRange.start || updatedDate >= updatedDateRange.start) &&
+      (!updatedDateRange.end || updatedDate <= new Date(updatedDateRange.end.setHours(23, 59, 59, 999)))
+    );
+
+    return matchesSearch && matchesStatus && matchesDelivery && matchesCreatedDate && matchesUpdatedDate;
   });
+
+  // Обработчики для изменения диапазонов дат
+  const handleCreatedStartDateChange = (date) => {
+    setCreatedDateRange({ ...createdDateRange, start: date });
+    setCurrentPage(1);
+  };
+
+  const handleCreatedEndDateChange = (date) => {
+    setCreatedDateRange({ ...createdDateRange, end: date });
+    setCurrentPage(1);
+  };
+
+  const handleUpdatedStartDateChange = (date) => {
+    setUpdatedDateRange({ ...updatedDateRange, start: date });
+    setCurrentPage(1);
+  };
+
+  const handleUpdatedEndDateChange = (date) => {
+    setUpdatedDateRange({ ...updatedDateRange, end: date });
+    setCurrentPage(1);
+  };
+
+  const clearDateFilters = () => {
+    setCreatedDateRange({ start: null, end: null });
+    setUpdatedDateRange({ start: null, end: null });
+    setCurrentPage(1);
+  };
 
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
   const paginatedOrders = filteredOrders.slice(
@@ -235,7 +354,7 @@ const TableOrders = () => {
     <div>
       <div className="table-header">
         <h2 className="text-2xl font-bold mb-4">Admin Orders</h2>
-        <div className="controls-container">
+        <div className='settings-table'>
           <div className="search-container">
             <input
               type="text"
@@ -245,7 +364,7 @@ const TableOrders = () => {
               className="search-input"
             />
           </div>
-          <div className="items-per-page-container">
+           <div className="items-per-page-container">
             <label>{t('admin_orders.items_per_page')}: </label>
             <input
               type="number"
@@ -255,6 +374,94 @@ const TableOrders = () => {
               className="items-per-page-input"
             />
           </div>
+          <button 
+            onClick={exportToCSV} 
+            className="export-btn"
+            disabled={filteredOrders.length === 0}
+          >
+            {t('admin_orders.export_csv')}
+          </button>
+        </div>
+        
+        <div className="controls-container">
+          
+          <div className="filter-container">
+            <select
+              value={statusFilter}
+              onChange={handleStatusFilterChange}
+              className="filter-select"
+            >
+              {statusFilterOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="filter-container">
+            <select
+              value={deliveryFilter}
+              onChange={handleDeliveryFilterChange}
+              className="filter-select"
+            >
+              {deliveryFilterOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+           <div className="date-filter-container">
+            <label>{t('admin_orders.created_at')}:</label>
+            <DatePicker
+              selected={createdDateRange.start}
+              onChange={handleCreatedStartDateChange}
+              selectsStart
+              startDate={createdDateRange.start}
+              endDate={createdDateRange.end}
+              placeholderText={t('admin_orders.from_date')}
+              className="date-picker-input"
+            />
+            <DatePicker
+              selected={createdDateRange.end}
+              onChange={handleCreatedEndDateChange}
+              selectsEnd
+              startDate={createdDateRange.start}
+              endDate={createdDateRange.end}
+              minDate={createdDateRange.start}
+              placeholderText={t('admin_orders.to_date')}
+              className="date-picker-input"
+            />
+          </div>
+          <div className="date-filter-container">
+            <label>{t('admin_orders.updated_at')}:</label>
+            <DatePicker
+              selected={updatedDateRange.start}
+              onChange={handleUpdatedStartDateChange}
+              selectsStart
+              startDate={updatedDateRange.start}
+              endDate={updatedDateRange.end}
+              placeholderText={t('admin_orders.from_date')}
+              className="date-picker-input"
+            />
+            <DatePicker
+              selected={updatedDateRange.end}
+              onChange={handleUpdatedEndDateChange}
+              selectsEnd
+              startDate={updatedDateRange.start}
+              endDate={updatedDateRange.end}
+              minDate={updatedDateRange.start}
+              placeholderText={t('admin_orders.to_date')}
+              className="date-picker-input"
+            />
+          </div>
+          <button 
+            onClick={clearDateFilters} 
+            className="clear-date-filters-btn"
+          >
+            {t('admin_orders.clear_dates')}
+          </button>
+         
         </div>
       </div>
       <table className="collection">
@@ -268,6 +475,7 @@ const TableOrders = () => {
             <th>Delivery Type</th>
             <th>Address</th>
             <th>Created At</th>
+            <th>Updated At</th>
             <th>Items</th>
             <th>Actions</th>
           </tr>
@@ -342,6 +550,7 @@ const TableOrders = () => {
                   )}
                 </td>
                 <td>{new Date(order.created_at).toLocaleString()}</td>
+                <td>{new Date(order.updated_at).toLocaleString()}</td>
                 <td>
                   <span
                     className="dropdown-toggle"
@@ -423,7 +632,7 @@ const TableOrders = () => {
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan="10">
+            <td colSpan="11">
               <div className="links">
                 <a
                   href="#"

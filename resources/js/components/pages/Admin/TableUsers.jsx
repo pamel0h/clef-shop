@@ -32,12 +32,18 @@ const TableUsers = () => {
   const [editedUser, setEditedUser] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const roleOptions = [
     { value: 'user', label: t('admin_users.role.user') },
     { value: 'admin', label: t('admin_users.role.admin') },
+  ];
+
+  const filterOptions = [
+    { value: 'all', label: t('admin_users.all_roles') },
+    ...roleOptions,
   ];
 
   useEffect(() => {
@@ -82,6 +88,11 @@ const TableUsers = () => {
     validateUser(newUser);
   };
 
+  const handleRoleChange = (e) => {
+    const newUser = { ...editedUser, role: e.target.value };
+    setEditedUser(newUser);
+  };
+
   const handleSave = async (userId) => {
     if (!validateUser(editedUser)) {
       setError(t('admin_users.validation_error'));
@@ -89,10 +100,8 @@ const TableUsers = () => {
     }
 
     try {
-      // Найти исходного пользователя
       const originalUser = users.find((u) => u.id === userId);
 
-      // Сформировать payload только с измененными полями
       const payload = {};
       const fields = ['name', 'email', 'phone', 'address', 'role', 'new_password'];
       fields.forEach((field) => {
@@ -105,10 +114,8 @@ const TableUsers = () => {
         }
       });
 
-      // Отправить запрос только с измененными полями
       await axios.put(`/api/admin/users/${userId}`, payload);
       
-      // Обновить локальное состояние
       setUsers(
         users.map((u) =>
           u.id === userId
@@ -150,6 +157,11 @@ const TableUsers = () => {
     setCurrentPage(1);
   };
 
+  const handleRoleFilterChange = (e) => {
+    setRoleFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
   const handleItemsPerPageChange = (e) => {
     const value = parseInt(e.target.value, 10);
     if (value > 0) {
@@ -159,16 +171,19 @@ const TableUsers = () => {
   };
 
   const filteredUsers = users.filter((user) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      user.id.toString().includes(query) ||
-      (user.name || '').toLowerCase().includes(query) ||
-      (user.email || '').toLowerCase().includes(query) ||
-      (user.phone || '').toLowerCase().includes(query) ||
-      (user.address || '').toLowerCase().includes(query) ||
-      (user.role || '').toLowerCase().includes(query)
-    );
+    // Фильтрация по поисковому запросу
+    const matchesSearch = !searchQuery || 
+      user.id.toString().includes(searchQuery.toLowerCase()) ||
+      (user.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.phone || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.address || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.role || '').toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Фильтрация по роли
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+
+    return matchesSearch && matchesRole;
   });
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -181,6 +196,41 @@ const TableUsers = () => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  const exportToCSV = () => {
+    // Подготовка данных для экспорта
+    const dataToExport = filteredUsers.map(user => ({
+      ID: user.id,
+      Name: user.name || 'N/A',
+      Email: user.email,
+      Phone: user.phone || 'N/A',
+      Address: user.address || 'N/A',
+      Role: roleOptions.find(r => r.value === user.role)?.label || user.role,
+    }));
+
+    // Создание CSV содержимого
+    const headers = Object.keys(dataToExport[0]).join(',');
+    const rows = dataToExport.map(obj => 
+      Object.values(obj).map(value => 
+        `"${value.toString().replace(/"/g, '""')}"`
+      ).join(',')
+    ).join('\n');
+
+    const csvContent = `${headers}\n${rows}`;
+
+    // Создание Blob и скачивание файла
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `users_export_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (loading || loadingUsers) return <div>Loading...</div>;
@@ -200,6 +250,19 @@ const TableUsers = () => {
               className="search-input"
             />
           </div>
+          <div className="filter-container">
+            <select
+              value={roleFilter}
+              onChange={handleRoleFilterChange}
+              className="role-filter-select"
+            >
+              {filterOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="items-per-page-container">
             <label>{t('admin_users.items_per_page')}: </label>
             <input
@@ -210,6 +273,13 @@ const TableUsers = () => {
               className="items-per-page-input"
             />
           </div>
+          <button 
+            onClick={exportToCSV} 
+            className="export-btn"
+            disabled={filteredUsers.length === 0}
+          >
+            {t('admin_users.export_csv')}
+          </button>
         </div>
       </div>
       <table className="collection">
@@ -220,7 +290,7 @@ const TableUsers = () => {
             <th>Email</th>
             <th>Phone</th>
             <th>Address</th>
-            {/* <th>Role</th> */}
+            <th>Role</th>
             <th>Password</th>
             <th>Actions</th>
           </tr>
@@ -282,11 +352,11 @@ const TableUsers = () => {
                   user_item.address || 'N/A'
                 )}
               </td>
-              {/* <td>
+              <td>
                 {editUserId === user_item.id ? (
                   <select
-                    value={editedUser.role || ''}
-                    onChange={(e) => handleInputChange(e, 'role')}
+                    value={editedUser.role || 'user'}
+                    onChange={handleRoleChange}
                     className="role-select"
                   >
                     {roleOptions.map((option) => (
@@ -296,9 +366,9 @@ const TableUsers = () => {
                     ))}
                   </select>
                 ) : (
-                  user_item.role
+                  roleOptions.find(r => r.value === user_item.role)?.label || user_item.role
                 )}
-              </td> */}
+              </td>
               <td>
                 {editUserId === user_item.id ? (
                   <div className="input-container">
@@ -354,6 +424,7 @@ const TableUsers = () => {
         <tfoot>
           <tr>
             <td colSpan="8">
+              
               <div className="links">
                 <a
                   href="#"

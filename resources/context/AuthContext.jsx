@@ -14,14 +14,17 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null); // Добавляем состояние для токена
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [showSubscriptionModal, setShowSubscriptionModal] = useState(false); // Добавляем состояние
 
-    // Настройка axios
+    // Настройка axios и проверка аутентификации при монтировании
     useEffect(() => {
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        const storedToken = localStorage.getItem('auth_token');
+        if (storedToken) {
+            setToken(storedToken); // Устанавливаем токен в состояние
+            axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
             checkAuth();
         } else {
             setLoading(false);
@@ -34,13 +37,18 @@ export const AuthProvider = ({ children }) => {
             setUser(response.data.user);
             setIsAuthenticated(true);
         } catch (error) {
-            localStorage.removeItem('auth_token');
-            delete axios.defaults.headers.common['Authorization'];
-            setUser(null);
-            setIsAuthenticated(false);
+            handleLogout();
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('auth_token');
+        delete axios.defaults.headers.common['Authorization'];
+        setUser(null);
+        setToken(null);
+        setIsAuthenticated(false);
     };
 
     const login = async (email, password) => {
@@ -50,13 +58,20 @@ export const AuthProvider = ({ children }) => {
                 password
             });
 
-            const { user, access_token } = response.data;
+            const { user, access_token, show_subscription } = response.data;
             
             localStorage.setItem('auth_token', access_token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
             
             setUser(user);
+            setToken(access_token); // Устанавливаем токен в состояние
             setIsAuthenticated(true);
+
+            // Показываем модалку, если сервер вернул флаг и она еще не показывалась
+            if (show_subscription && !sessionStorage.getItem('subscription_shown')) {
+                setShowSubscriptionModal(true);
+                sessionStorage.setItem('subscription_shown', 'true');
+            }
             
             return { success: true, user };
         } catch (error) {
@@ -76,13 +91,20 @@ export const AuthProvider = ({ children }) => {
                 password_confirmation: passwordConfirmation
             });
 
-            const { user, access_token } = response.data;
+            const { user, access_token, show_subscription } = response.data;
             
             localStorage.setItem('auth_token', access_token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
             
             setUser(user);
+            setToken(access_token); // Устанавливаем токен в состояние
             setIsAuthenticated(true);
+
+            // Показываем модалку, если сервер вернул флаг и она еще не показывалась
+            if (show_subscription && !sessionStorage.getItem('subscription_shown')) {
+                setShowSubscriptionModal(true);
+                sessionStorage.setItem('subscription_shown', 'true');
+            }
             
             return { success: true, user };
         } catch (error) {
@@ -99,32 +121,22 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('Logout error:', error);
         } finally {
-            localStorage.removeItem('auth_token');
-            delete axios.defaults.headers.common['Authorization'];
-            setUser(null);
-            setIsAuthenticated(false);
+            handleLogout();
         }
     };
 
+    const openSubscriptionModal = () => setShowSubscriptionModal(true);
+    const closeSubscriptionModal = () => setShowSubscriptionModal(false);
+
     // Методы для проверки ролей
-    const isAdmin = () => {
-        return user && (user.role === 'admin' || user.role === 'super_admin');
-    };
-
-    const isSuperAdmin = () => {
-        return user && user.role === 'super_admin';
-    };
-
-    const isUser = () => {
-        return user && user.role === 'user';
-    };
-
-    const hasRole = (role) => {
-        return user && user.role === role;
-    };
+    const isAdmin = () => user?.role === 'admin' || user?.role === 'super_admin';
+    const isSuperAdmin = () => user?.role === 'super_admin';
+    const isUser = () => user?.role === 'user';
+    const hasRole = (role) => user?.role === role;
 
     const value = {
         user,
+        token, // Теперь предоставляем токен в контексте
         isAuthenticated,
         loading,
         login,
@@ -133,12 +145,15 @@ export const AuthProvider = ({ children }) => {
         isAdmin,
         isSuperAdmin,
         isUser,
-        hasRole
+        hasRole,
+        showSubscriptionModal, // Добавляем это поле
+        openSubscriptionModal, // Методы для управления модалкой
+        closeSubscriptionModal
     };
 
     return (
         <AuthContext.Provider value={value}>
-            {children}
+            {!loading && children}
         </AuthContext.Provider>
     );
 };

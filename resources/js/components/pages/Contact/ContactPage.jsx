@@ -107,7 +107,7 @@ const ContactPage = () => {
             <li>Нет номеров телефонов</li>
           )}
         </ul>
-        <p>{content.aviable}</p>
+        <p dangerouslySetInnerHTML={{__html: sanitizeContent(content.aviable)}}></p>
       </div>
       <h2>{content.howTitle}</h2>
       <div className="cardShop">
