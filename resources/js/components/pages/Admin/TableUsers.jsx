@@ -220,7 +220,7 @@ const TableUsers = () => {
             <th>Email</th>
             <th>Phone</th>
             <th>Address</th>
-            <th>Role</th>
+            {/* <th>Role</th> */}
             <th>Password</th>
             <th>Actions</th>
           </tr>
@@ -282,7 +282,7 @@ const TableUsers = () => {
                   user_item.address || 'N/A'
                 )}
               </td>
-              <td>
+              {/* <td>
                 {editUserId === user_item.id ? (
                   <select
                     value={editedUser.role || ''}
@@ -296,9 +296,9 @@ const TableUsers = () => {
                     ))}
                   </select>
                 ) : (
-                  t(`admin_users.role.${user_item.role}`)
+                  user_item.role
                 )}
-              </td>
+              </td> */}
               <td>
                 {editUserId === user_item.id ? (
                   <div className="input-container">

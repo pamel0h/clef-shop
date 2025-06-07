@@ -11,68 +11,7 @@ use stdClass;
 
 class ProductService
 {
-    // public function saveTranslation($namespace, $key, $ru, $en, $parentCategory = null)
-    // {
-    //     try {
-    //         $ruPath = public_path('locales/ru/translation.json');
-    //         $enPath = public_path('locales/en/translation.json');
 
-    //         $ruTranslations = file_exists($ruPath) ? json_decode(file_get_contents($ruPath), true) : [];
-    //         $enTranslations = file_exists($enPath) ? json_decode(file_get_contents($enPath), true) : [];
-
-    //         if ($namespace === 'category') {
-    //             $ruTranslations['category'][$key] = $ru;
-    //             $enTranslations['category'][$key] = $en;
-    //         } elseif ($namespace === 'subcategory') {
-    //             if (!isset($ruTranslations['subcategory'])) {
-    //                 $ruTranslations['subcategory'] = [];
-    //             }
-    //             if (!isset($enTranslations['subcategory'])) {
-    //                 $enTranslations['subcategory'] = [];
-    //             }
-
-    //             if ($parentCategory) {
-    //                 if (!isset($ruTranslations['subcategory'][$parentCategory])) {
-    //                     $ruTranslations['subcategory'][$parentCategory] = [];
-    //                 }
-    //                 if (!isset($enTranslations['subcategory'][$parentCategory])) {
-    //                     $enTranslations['subcategory'][$parentCategory] = [];
-    //                 }
-
-    //                 $ruTranslations['subcategory'][$parentCategory][$key] = $ru;
-    //                 $enTranslations['subcategory'][$parentCategory][$key] = $en;
-    //             } else {
-    //                 $ruTranslations['subcategory'][$key] = $ru;
-    //                 $enTranslations['subcategory'][$key] = $en;
-    //             }
-    //         } else {
-    //             if (!isset($ruTranslations[$namespace])) {
-    //                 $ruTranslations[$namespace] = [];
-    //             }
-    //             if (!isset($enTranslations[$namespace])) {
-    //                 $enTranslations[$namespace] = [];
-    //             }
-    //             $ruTranslations[$namespace][$key] = $ru;
-    //             $enTranslations[$namespace][$key] = $en;
-    //         }
-
-    //         file_put_contents($ruPath, json_encode($ruTranslations, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-    //         file_put_contents($enPath, json_encode($enTranslations, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-
-    //         // Обновляем метку времени переводов в кэше
-    //         Cache::put('translations_last_updated', now()->toIso8601String());
-
-    //         Log::info('Translation saved successfully', [
-    //             'namespace' => $namespace,
-    //             'key' => $key,
-    //             'parent_category' => $parentCategory,
-    //             'translations_last_updated' => Cache::get('translations_last_updated')
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         Log::error('Error saving translation', ['error' => $e->getMessage()]);
-    //         throw $e;
-    //     }
-    // }
     private $translationService;
 
     public function __construct(TranslationService $translationService)
@@ -85,7 +24,7 @@ class ProductService
         try {
             Log::info('ProductService: Starting product creation', ['request_data' => $request->all()]);
     
-            // Handle new category translations
+            
             if ($request->input('is_new_category') && $request->has('new_category')) {
                 $newCategory = $request->input('new_category');
                 if (isset($newCategory['slug'], $newCategory['ru'], $newCategory['en'])) {
@@ -100,7 +39,7 @@ class ProductService
                 }
             }
     
-            // Handle new subcategory translations
+           
             if ($request->input('is_new_subcategory') && $request->has('new_subcategory')) {
                 $newSubcategory = $request->input('new_subcategory');
                 if (isset($newSubcategory['slug'], $newSubcategory['ru'], $newSubcategory['en'])) {
@@ -116,7 +55,7 @@ class ProductService
                 }
             }
     
-            // Handle images
+          
             $imagesPaths = [];
             if ($request->hasFile('images')) {
                 $images = $request->file('images');
@@ -127,7 +66,7 @@ class ProductService
                 Log::info('ProductService: Images processed', ['images' => $imagesPaths]);
             }
     
-            // Handle specs
+     
             $specs = new stdClass();
             $specsString = $request->input('specs_data');
             if (!empty($specsString)) {
@@ -156,7 +95,6 @@ class ProductService
             }
             Log::info('ProductService: Final specs object', ['specs' => $specs]);
     
-            // Create the item
             $item = Item::create([
                 'name' => $validated['name'],
                 'description' => [
@@ -201,7 +139,7 @@ class ProductService
     
             $item = Item::findOrFail($id);
     
-            // Handle new category translations
+
             if ($request->input('is_new_category') && $request->has('new_category')) {
                 $newCategory = $request->input('new_category');
                 if (isset($newCategory['slug'], $newCategory['ru'], $newCategory['en'])) {
@@ -216,7 +154,6 @@ class ProductService
                 }
             }
     
-            // Handle new subcategory translations
             if ($request->input('is_new_subcategory') && $request->has('new_subcategory')) {
                 $newSubcategory = $request->input('new_subcategory');
                 if (isset($newSubcategory['slug'], $newSubcategory['ru'], $newSubcategory['en'])) {
@@ -232,7 +169,7 @@ class ProductService
                 }
             }
     
-            // Handle images
+ 
             $imagesPaths = $item->images ?? [];
             if ($request->hasFile('images')) {
                 $imagesPaths = [];
@@ -244,7 +181,6 @@ class ProductService
                 Log::info('ProductService: New images processed', ['images' => $imagesPaths]);
             }
     
-            // Handle specs
             $specs = new stdClass();
             if ($request->has('specs') && is_array($request->specs)) {
                 foreach ($request->specs as $spec) {
@@ -264,7 +200,6 @@ class ProductService
                 Log::info('ProductService: Keeping existing specs', ['specs' => $specs]);
             }
     
-            // Handle specs_data for new specifications
             $specsString = $request->input('specs_data');
             if (!empty($specsString)) {
                 try {
@@ -283,7 +218,6 @@ class ProductService
                 }
             }
     
-            // Update the item
             $item->update([
                 'name' => $validated['name'],
                 'description' => [

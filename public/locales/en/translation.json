@@ -107,7 +107,7 @@
             "deleteWarning": "Upon deletion, all information about the product will be permanently erased.",
             "confirmDelete": "Delete product",
             "currentImage": "Current image",
-            "submit":"Submit"
+            "submit": "Submit"
         },
         "title": "Admin Panel",
         "main": "Panel editor",
@@ -223,7 +223,9 @@
         "oscillators": "Oscillators",
         "effects": "Effects",
         "hjhjhj": "hjhjhj8",
-        "dssdsdsdsds": "dsdsdsdsdsds"
+        "dssdsdsdsds": "dsdsdsdsdsds",
+        "kukusikig": "murueu",
+        "ggggg": "hhhhhhh"
     },
     "contacts": {
         "mainTitle": "Contacts",
@@ -303,8 +305,8 @@
         "drums": "Drums",
         "guitars": "Guitars",
         "keyboards": "Keyboards",
-        "lilalu": "Lilalulu",
-        "ghg": "tyhb"
+        "sdsdsd": "dfsdsds",
+        "gfgfg": "gfgfgf"
     },
     "subcategory": {
         "accessories": {
@@ -339,19 +341,11 @@
             "midi_controllers": "MIDI Controllers",
             "synthesizers": "Synthesizers"
         },
-        "lilalu": {
-            "laluli": "Lilalala",
-            "dadururu": "Daruru",
-            "trururu": "Trururu",
-            "kukusiki": "Kukuku",
-            "tralalelo": "srth",
-            "rerek": "Peperere",
-            "tralalelol": "Tralalelol",
-            "mamukis": "mamumukis",
-            "popolk": "popoluyly"
+        "sdsdsd": {
+            "gfgfgfgf": "fgfgfg"
         },
-        "ghg": {
-            "jnj": "hnkk"
+        "gfgfg": {
+            "hghgh": "hghghghg"
         }
     },
     "profile": {

@@ -110,7 +110,9 @@ const ContactPage = () => {
         <p>{content.aviable}</p>
       </div>
       <h2>{content.howTitle}</h2>
-      <div className="cardShop"></div>
+      <div className="cardShop">
+      <iframe src="https://yandex.ru/map-widget/v1/?ll=33.537301%2C44.597265&z=13.73" width="100%" height="100%" ></iframe>
+      </div>
       <div dangerouslySetInnerHTML={{ __html: sanitizeContent(content.howText) }} />
       <h2>{content.questionsTitle}</h2>
       <div dangerouslySetInnerHTML={{ __html: sanitizeContent(content.questionsText) }} />

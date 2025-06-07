@@ -107,7 +107,7 @@
             "deleteWarning": "При удалении вся информация о товаре будет безвозвратно стерта.",
             "confirmDelete": "Удаление товара",
             "currentImage": "Текущее изображение",
-            "submit":"Применить"
+            "submit": "Применить"
         },
         "title": "Админ-панель",
         "main": "Панель управления",
@@ -223,7 +223,9 @@
         "oscillators": "Осцилляторы",
         "effects": "Эффекты",
         "hjhjhj": "ророро",
-        "dssdsdsdsds": "вавававава"
+        "dssdsdsdsds": "вавававава",
+        "kukusikig": "масюсики",
+        "ggggg": "гггггг"
     },
     "contacts": {
         "mainTitle": "Контакты",
@@ -324,8 +326,8 @@
         "drums": "Ударные",
         "guitars": "Гитары",
         "keyboards": "Клавишные",
-        "lilalu": "Лилалулу",
-        "ghg": "Тралалело1"
+        "sdsdsd": "ваавававав",
+        "gfgfg": "папапа"
     },
     "subcategory": {
         "accessories": {
@@ -360,19 +362,11 @@
             "midi_controllers": "MIDI-контроллеры",
             "synthesizers": "Синтезаторы"
         },
-        "lilalu": {
-            "laluli": "Лалулили",
-            "dadururu": "Дадуру",
-            "trururu": "Труруру",
-            "kukusiki": "кукуку",
-            "tralalelo": "труруру",
-            "rerek": "Ререк",
-            "tralalelol": "Тралалелол",
-            "mamukis": "мамукис",
-            "popolk": "пополу"
+        "sdsdsd": {
+            "gfgfgfgf": "папа"
         },
-        "ghg": {
-            "jnj": "прпр"
+        "gfgfg": {
+            "hghgh": "рпрпрп"
         }
     },
     "admin_orders": {

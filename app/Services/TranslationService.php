@@ -4,46 +4,10 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
-// use Illuminate\Support\Facades\Validator;
-// use Illuminate\Validation\ValidationException;
 
 class TranslationService
 {
 
-    // public function storeTranslation(string $namespace, string $key, string $ruTranslation, string $enTranslation): void
-    // {
-    //     // Пути к файлам локализации
-    //     $ruPath = public_path('locales/ru/translation.json');
-    //     $enPath = public_path('locales/en/translation.json');
-
-    //     // Получение существующих переводов
-    //     $ruTranslations = File::exists($ruPath) ? json_decode(File::get($ruPath), true) : [];
-    //     $enTranslations = File::exists($enPath) ? json_decode(File::get($enPath), true) : [];
-
-    //     // Инициализация namespace, если он отсутствует
-    //     if (!isset($ruTranslations[$namespace])) {
-    //         $ruTranslations[$namespace] = [];
-    //     }
-    //     if (!isset($enTranslations[$namespace])) {
-    //         $enTranslations[$namespace] = [];
-    //     }
-
-    //     // Проверка уникальности ключа
-    //     if (isset($ruTranslations[$namespace][$key])) {
-    //         throw new \Exception("Key '$key' already exists in $namespace");
-    //     }
-
-    //     // Добавление новых переводов
-    //     $ruTranslations[$namespace][$key] = $ruTranslation;
-    //     $enTranslations[$namespace][$key] = $enTranslation;
-
-    //     // Запись в файлы
-    //     File::put($ruPath, json_encode($ruTranslations, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-    //     File::put($enPath, json_encode($enTranslations, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-
-    //     // Обновляем метку времени переводов в кэше
-    //     Cache::put('translations_last_updated', now()->toIso8601String());
-    // }
     
     public function storeTranslation(string $namespace, string $key, string $ruTranslation, string $enTranslation, ?string $parentCategory = null, bool $allowTemporary = false): void
     {

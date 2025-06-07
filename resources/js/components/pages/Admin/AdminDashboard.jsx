@@ -117,63 +117,7 @@ const AdminDashboard = () => {
         <span>Добро пожаловать, Администратор</span>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="admin-nav">
-        <Button 
-          onClick={() => setActiveTab('catalog')}
-          className={activeTab === 'catalog' ? 'active' : ''}
-        >
-          Каталог
-        </Button>
-        <Button 
-          onClick={() => setActiveTab('dashboard')}
-          className={activeTab === 'dashboard' ? 'active' : ''}
-        >
-          Статистика
-        </Button>
-        <Button 
-          onClick={() => setActiveTab('users')}
-          className={activeTab === 'users' ? 'active' : ''}
-        >
-          Пользователи
-        </Button>
-      </div>
-
-      {/* Content */}
-      <div className="admin-content">
-        {(() => {
-          switch (activeTab) {
-            case 'catalog':
-              return <AdminCatalogPage />;
-            
-            case 'dashboard':
-              return (
-                <div>
-                  <h2>Статистика</h2>
-                  {stats ? (
-                    <div>
-                      <p>Общая статистика</p>
-                      {/* Здесь выводить статистику */}
-                    </div>
-                  ) : (
-                    <p>Загрузка статистики...</p>
-                  )}
-                </div>
-              );
-            
-            case 'users':
-              return (
-                <div>
-                  <h2>Управление пользователями</h2>
-                  {/* Здесь код для управления пользователями */}
-                </div>
-              );
-            
-            default:
-              return <AdminCatalogPage />;
-          }
-        })()}
-      </div>
+      
     </div>
   );
 };

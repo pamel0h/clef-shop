@@ -108,7 +108,6 @@ const AdminCatalogPage = () => {
   const handleExport = async () => {
     try {
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-      const csrfToken = getCSRFToken();
 
       const headers = {
         'Content-Type': 'application/json',
@@ -117,10 +116,6 @@ const AdminCatalogPage = () => {
 
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      if (csrfToken) {
-        headers['X-CSRF-TOKEN'] = csrfToken;
       }
 
       const response = await fetch('/api/admin/catalog/export', {
@@ -155,7 +150,6 @@ const AdminCatalogPage = () => {
 
     try {
         const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-        const csrfToken = getCSRFToken();
 
         const headers = {
             'X-Requested-With': 'XMLHttpRequest',
@@ -163,10 +157,6 @@ const AdminCatalogPage = () => {
 
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        if (csrfToken) {
-            headers['X-CSRF-TOKEN'] = csrfToken;
         }
 
         const formData = new FormData();

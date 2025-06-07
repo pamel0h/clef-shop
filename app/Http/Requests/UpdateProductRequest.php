@@ -24,11 +24,11 @@ class UpdateProductRequest extends FormRequest
             'description_ru' => 'nullable|string',
             'images' => 'nullable|array|max:1',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'new_category' => 'nullable|array', // Изменено с json на array
+            'new_category' => 'nullable|array', 
             'new_category.slug' => 'required_if:is_new_category,1|string|min:1',
             'new_category.ru' => 'required_if:is_new_category,1|string|min:1',
             'new_category.en' => 'required_if:is_new_category,1|string|min:1',
-            'new_subcategory' => 'nullable|array', // Изменено с json на array
+            'new_subcategory' => 'nullable|array', 
             'new_subcategory.slug' => 'required_if:is_new_subcategory,1|string|min:1',
             'new_subcategory.ru' => 'required_if:is_new_subcategory,1|string|min:1',
             'new_subcategory.en' => 'required_if:is_new_subcategory,1|string|min:1',

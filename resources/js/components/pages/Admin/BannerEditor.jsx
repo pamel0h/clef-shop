@@ -181,7 +181,7 @@ const BannerEditor = ({ banners, onChange, currentLanguage }) => {
                     onClick={() => handleBannerChange(index, 'image', '')}
                     className="remove-image-btn"
                   >
-                    ✕ Удалить
+                    ✕
                   </button>
                 </div>
               )}
