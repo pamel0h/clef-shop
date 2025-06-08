@@ -544,31 +544,8 @@ class CatalogExportService
     
             // Проверяем, является ли это URL
             if (filter_var($imageData, FILTER_VALIDATE_URL)) {
-                // Загружаем изображение по URL
-                // $response = Http::withOptions([
-                //     'verify' => false, // Отключаем проверку SSL сертификата
-                // ])->get($imageData);
-                
-                // if ($response->successful()) {
-                //     $imageContent = $response->body();
-                //     $extension = $this->getExtensionFromUrl($imageData);
-                //     if (!$extension) {
-                //         throw new \Exception("Не удалось определить расширение изображения из URL");
-                //     }
-    
-                //     $fileName = Str::slug($itemName) . '_' . uniqid() . '.' . $extension;
-                //     Storage::disk('public')->put('product_images/' . $fileName, $imageContent);
-                //     Log::info("Изображение по URL сохранено", [
-                //         'row' => $rowIndex,
-                //         'fileName' => $fileName,
-                //         'url' => $imageData
-                //     ]);
-    
-                    // return $fileName; // Возвращаем имя сохраненного файла
                     return $imageData;
-                // } else {
-                //     throw new \Exception("Не удалось загрузить изображение по URL: HTTP {$response->status()}");
-                // }
+
             }
             Log::info("processImage результат", [
                 'row' => $rowIndex, 
