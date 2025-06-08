@@ -354,52 +354,32 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       const result = await response.json();
       console.log('Response from server:', result);
 
-      if (result.success) {
-        setFormData({
-          name: '',
-          description_en: '',
-          description_ru: '',
-          price: '',
-          category: '',
-          subcategory: '',
-          brand: '',
-          discount: '',
-          images: [],
-          specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
-          isNewCategory: false,
-          newCategory: { slug: '', ru: '', en: '' },
-          isNewSubcategory: false,
-          newSubcategory: { slug: '', ru: '', en: '' },
-        });
-        setImagePreviews([]);
-        setSelectedCategory('');
+   if (result.success) {
+  setFormData({
+    name: '',
+    description_en: '',
+    description_ru: '',
+    price: '',
+    category: '',
+    subcategory: '',
+    brand: '',
+    discount: '',
+    images: [],
+    specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+    isNewCategory: false,
+    newCategory: { slug: '', ru: '', en: '' },
+    isNewSubcategory: false,
+    newSubcategory: { slug: '', ru: '', en: '' },
+  });
+  setImagePreviews([]);
+  setSelectedCategory('');
 
-        // Перезагружаем переводы вручную
-        try {
-          i18n.services.backendConnector.backend.cache?.clear?.();
-          await i18n.reloadResources(i18n.language, 'translation');
-          console.log('Translations reloaded successfully after form submission');
-        } catch (reloadError) {
-          console.error('Failed to reload translations after form submission:', reloadError);
-        }
-
-        // Получаем актуальные last_updated и translations_last_updated
-        try {
-          const lastUpdatedResponse = await fetch('/api/catalog/last-updated');
-          const lastUpdatedData = await lastUpdatedResponse.json();
-          updateLastUpdated(lastUpdatedData.last_updated);
-          updateTranslationsLastUpdated(lastUpdatedData.translations_last_updated);
-          console.log('Updated last_updated and translations_last_updated:', lastUpdatedData);
-        } catch (error) {
-          console.error('Failed to fetch last-updated after form submission:', error);
-        }
-
-        // Обновляем данные admin_catalog 
-        await refetchAdminCatalog();
-
-        await onSubmit(result.data);
-        onClose();
-      } else {
+  // Обновляем данные и переводы одним вызовом
+  await refetchAdminCatalog(true); // true = обновить timestamps и переводы
+  
+  await onSubmit(result.data);
+  onClose();
+} else {
       //   const errorMessage = result.message || t('submit_error');
       //   const detailedErrors = result.errors
       //     ? Object.values(result.errors).flat().join(' ')

@@ -11,7 +11,7 @@ import '../../../../css/components/AdminCatalog.css';
 
 const AdminCatalogPage = () => {
   const { t } = useTranslation();
-  const { data: products, loading, error, refetch } = useCatalogData('admin_catalog');
+  const { data: products, loading, error, refetch, reloadTranslations } = useCatalogData('admin_catalog');
   const isAdminPage = true;
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -22,9 +22,13 @@ const AdminCatalogPage = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Сохраняем фильтры и сортировку
+  const [savedFilters, setSavedFilters] = useState(null);
+  const [savedSortOption, setSavedSortOption] = useState({ field: 'name', direction: 'asc' });
+
   const { filteredProducts, sortOption, handleFilterChange, handleSortChange } = useProductFilteringAndSorting(
     products || [],
-    { field: 'name', direction: 'asc' },
+    savedSortOption,
     isAdminPage
   );
 
@@ -34,11 +38,13 @@ const AdminCatalogPage = () => {
   };
 
   const handleAddProduct = async () => {
-    try {
-      await refetch();
-      console.log('Product added successfully');
-    } catch (error) {
-      console.error('Error refreshing data after adding product:', error);
+    console.log('Product added successfully');
+    await refetch(true);
+    if (savedFilters) {
+      setTimeout(() => handleFilterChange(savedFilters), 100);
+    }
+    if (savedSortOption) {
+      handleSortChange(savedSortOption.field, savedSortOption.direction);
     }
   };
 
@@ -48,11 +54,13 @@ const AdminCatalogPage = () => {
   };
 
   const handleUpdateProduct = async () => {
-    try {
-      await refetch();
-      console.log('Product updated successfully');
-    } catch (error) {
-      console.error('Error refreshing data after updating product:', error);
+    console.log('Product updated successfully');
+    await refetch(true);
+    if (savedFilters) {
+      setTimeout(() => handleFilterChange(savedFilters), 100);
+    }
+    if (savedSortOption) {
+      handleSortChange(savedSortOption.field, savedSortOption.direction);
     }
   };
 
@@ -67,7 +75,6 @@ const AdminCatalogPage = () => {
     setDeleteLoading(true);
     try {
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-      const csrfToken = getCSRFToken();
 
       const headers = {
         'Content-Type': 'application/json',
@@ -92,7 +99,16 @@ const AdminCatalogPage = () => {
       if (data.success) {
         setShowDeleteModal(false);
         setProductToDelete(null);
-        await refetch();
+        // Обновляем переводы и данные
+        await reloadTranslations();
+        await refetch(true);
+        // Восстанавливаем фильтры и сортировку
+        if (savedFilters) {
+          setTimeout(() => handleFilterChange(savedFilters), 100);
+        }
+        if (savedSortOption) {
+          handleSortChange(savedSortOption.field, savedSortOption.direction);
+        }
         console.log('Product deleted successfully');
       } else {
         throw new Error(data.error || 'Failed to delete product');
@@ -149,54 +165,70 @@ const AdminCatalogPage = () => {
     if (!files.length) return;
 
     try {
-        const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-        console.log('Token:', token); // Для отладки
-        const formData = new FormData();
-        const csvFile = Array.from(files).find(file => file.type === 'text/csv' || file.type === 'text/plain');
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+      const formData = new FormData();
+      const csvFile = Array.from(files).find(file => file.type === 'text/csv' || file.type === 'text/plain');
 
-        if (!csvFile) {
-            throw new Error(t('admin.catalog.noCsvFile'));
+      if (!csvFile) {
+        throw new Error(t('admin.catalog.noCsvFile'));
+      }
+
+      formData.append('csv', csvFile);
+
+      const response = await fetch('/api/admin/catalog/import', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        const errorMessage = data.errors
+          ? Object.values(data.errors).flat().join(', ')
+          : data.error || `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
+      }
+
+      if (data.success) {
+        await reloadTranslations();
+        await refetch(true);
+        if (savedFilters) {
+          setTimeout(() => handleFilterChange(savedFilters), 100);
         }
-
-        formData.append('csv', csvFile);
-        console.log('FormData:', formData.get('csv')); // Для отладки
-
-        const response = await fetch('/api/admin/catalog/import', {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                ...(token && { 'Authorization': `Bearer ${token}` }),
-            },
-            body: formData,
-        });
-
-        const data = await response.json();
-        console.log('Server Response:', data); // Для отладки
-        if (!response.ok) {
-            const errorMessage = data.errors
-                ? Object.values(data.errors).flat().join(', ')
-                : data.error || `HTTP error! status: ${response.status}`;
-            throw new Error(errorMessage);
+        if (savedSortOption) {
+          handleSortChange(savedSortOption.field, savedSortOption.direction);
         }
-
-        if (data.success) {
-            await refetch();
-            alert(t('admin.catalog.importSuccess', { count: data.imported }));
-            if (data.errors && data.errors.length > 0) {
-                alert(t('admin.catalog.importErrors', { errors: data.errors.join('; ') }));
-            }
-        } else {
-            throw new Error(data.error || 'Не удалось импортировать товары');
+        alert(t('admin.catalog.importSuccess', { count: data.imported }));
+        if (data.errors && data.errors.length > 0) {
+          alert(t('admin.catalog.importErrors', { errors: data.errors.join('; ') }));
         }
+      } else {
+        throw new Error(data.error || 'Не удалось импортировать товары');
+      }
     } catch (error) {
-        console.error('Ошибка импорта CSV:', error);
-        alert(t('admin.catalog.uploadError') + ': ' + error.message);
+      console.error('Ошибка импорта CSV:', error);
+      alert(t('admin.catalog.uploadError') + ': ' + error.message);
     } finally {
-        event.target.value = '';
+      event.target.value = '';
     }
-};
+  };
 
-  if (loading) return <div className="loading">`</div>;
+  // Сохраняем фильтры и сортировку
+  const handleFilterChangeWithSave = (newFilters) => {
+    setSavedFilters(newFilters);
+    handleFilterChange(newFilters);
+  };
+
+  const handleSortChangeWithSave = (field, direction) => {
+    const newSortOption = { field, direction };
+    setSavedSortOption(newSortOption);
+    handleSortChange(field, direction);
+  };
+
+  if (loading) return <div className="loading">{t('Loading')}</div>;
   if (error) return <div>{t('Error')}: {error.message}</div>;
   if (!products || products.length === 0) return <div>{t('admin.catalog.noProducts')}</div>;
 
@@ -209,8 +241,8 @@ const AdminCatalogPage = () => {
             initialProducts={products}
             filteredByMainFilters={products}
             filteredProducts={filteredProducts}
-            onFilterChange={handleFilterChange}
-            onSortChange={handleSortChange}
+            onFilterChange={handleFilterChangeWithSave}
+            onSortChange={handleSortChangeWithSave}
             sortOption={sortOption}
             isAdminPage={isAdminPage}
           />

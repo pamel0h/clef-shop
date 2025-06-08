@@ -108,8 +108,8 @@
             "confirmDelete": "Delete product",
             "currentImage": "Current image",
             "submit": "Submit",
-            "export":"Export to CSV",
-            "import":"Import from CSV"
+            "export": "Export to CSV",
+            "import": "Import from CSV"
         },
         "title": "Admin Panel",
         "main": "Panel editor",
@@ -308,7 +308,10 @@
         "guitars": "Guitars",
         "keyboards": "Keyboards",
         "sdsdsd": "dfsdsds",
-        "gfgfg": "gfgfgf"
+        "gfgfg": "gfgfgf",
+        "myneww": "Newneww",
+        "kukusiki": "Kusiki",
+        "rere": "Rerek"
     },
     "subcategory": {
         "accessories": {
@@ -348,6 +351,15 @@
         },
         "gfgfg": {
             "hghgh": "hghghghg"
+        },
+        "myneww": {
+            "mynewsubcat": "Newnewsubbs"
+        },
+        "kukusiki": {
+            "kusiki": "Kukusiki"
+        },
+        "rere": {
+            "meme": "Memek"
         }
     },
     "profile": {

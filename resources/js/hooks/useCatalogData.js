@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import i18n from '../i18n';
 import { useCatalogDataContext } from '../../context/CatalogDataContext';
 
@@ -8,6 +7,7 @@ export default function useCatalogData(type, options = {}, skip = false) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isPollingPaused, setIsPollingPaused] = useState(false);
+  const [isManualUpdate, setIsManualUpdate] = useState(false);
 
   const {
     lastUpdatedMap,
@@ -18,21 +18,21 @@ export default function useCatalogData(type, options = {}, skip = false) {
 
   const lastUpdated = lastUpdatedMap[type] || null;
   const translationsLastUpdated = translationsLastUpdatedMap[type] || null;
+  const intervalRef = useRef(null);
 
   const getAuthToken = () => {
     return localStorage.getItem('auth_token') || localStorage.getItem('token') || '';
   };
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (silent = false) => {
     if (skip || isPollingPaused) {
       setData(type === 'product_details' ? {} : []);
       return;
     }
 
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError(null);
-      setData(type === 'product_details' ? {} : []);
 
       let url;
       const headers = {
@@ -110,48 +110,72 @@ export default function useCatalogData(type, options = {}, skip = false) {
       setError(err.message);
       setData(type === 'product_details' ? {} : []);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [type, options.category, options.subcategory, options.id, options.query, skip, isPollingPaused]);
 
+  // Отдельная функция для обновления переводов
+  const reloadTranslations = useCallback(async () => {
+    try {
+      console.log('Reloading translations for language:', i18n.language);
+      i18n.services.backendConnector.backend.cache?.clear?.();
+      await i18n.reloadResources(i18n.language, 'translation');
+      console.log('Translations reloaded successfully');
+    } catch (reloadError) {
+      console.error('Failed to reload translations:', reloadError);
+    }
+  }, []);
+
+  // Поллинг с улучшенной логикой
   useEffect(() => {
     if (type === 'brands' || type === 'spec_keys_values') return;
 
-    const interval = setInterval(async () => {
-      if (isPollingPaused) return;
+    const startPolling = () => {
+      intervalRef.current = setInterval(async () => {
+        if (isPollingPaused || isManualUpdate) return;
 
-      try {
-        const response = await fetch('/api/catalog/last-updated');
-        const data = await response.json();
+        try {
+          const response = await fetch('/api/catalog/last-updated');
+          const pollingData = await response.json();
 
-        if (data.last_updated !== lastUpdated && lastUpdated !== null) {
-          updateLastUpdated(type, data.last_updated);
-          await fetchData();
-        } else if (lastUpdated === null) {
-          updateLastUpdated(type, data.last_updated);
-        }
+          let needsDataRefresh = false;
+          let needsTranslationRefresh = false;
 
-        if (data.translations_last_updated !== translationsLastUpdated && translationsLastUpdated !== null) {
-          console.log('Translations updated, reloading resources for language:', i18n.language);
-          updateTranslationsLastUpdated(type, data.translations_last_updated);
-          try {
-            i18n.services.backendConnector.backend.cache?.clear?.();
-            await i18n.reloadResources(i18n.language, 'translation');
-            console.log('Translations reloaded successfully');
-            await fetchData();
-          } catch (reloadError) {
-            console.error('Failed to reload translations:', reloadError);
+          if (pollingData.last_updated !== lastUpdated && lastUpdated !== null) {
+            updateLastUpdated(type, pollingData.last_updated);
+            needsDataRefresh = true;
+          } else if (lastUpdated === null) {
+            updateLastUpdated(type, pollingData.last_updated);
           }
-        } else if (translationsLastUpdated === null) {
-          updateTranslationsLastUpdated(type, data.translations_last_updated);
-        }
-      } catch (error) {
-        console.error('Polling error:', error.message);
-      }
-    }, 4000);
 
-    return () => clearInterval(interval);
-  }, [lastUpdated, translationsLastUpdated, fetchData, type, isPollingPaused]);
+          if (pollingData.translations_last_updated !== translationsLastUpdated && translationsLastUpdated !== null) {
+            updateTranslationsLastUpdated(type, pollingData.translations_last_updated);
+            needsTranslationRefresh = true;
+          } else if (translationsLastUpdated === null) {
+            updateTranslationsLastUpdated(type, pollingData.translations_last_updated);
+          }
+
+          // Обновляем переводы сначала, потом данные
+          if (needsTranslationRefresh) {
+            await reloadTranslations();
+          }
+          
+          if (needsDataRefresh) {
+            await fetchData(true); // silent = true для поллинга
+          }
+        } catch (error) {
+          console.error('Polling error:', error.message);
+        }
+      }, 4000);
+    };
+
+    startPolling();
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [lastUpdated, translationsLastUpdated, fetchData, type, isPollingPaused, isManualUpdate, reloadTranslations]);
 
   useEffect(() => {
     fetchData();
@@ -160,13 +184,37 @@ export default function useCatalogData(type, options = {}, skip = false) {
   const pausePolling = useCallback(() => setIsPollingPaused(true), []);
   const resumePolling = useCallback(() => setIsPollingPaused(false), []);
 
+  // Улучшенная функция refetch с поддержкой обновлений
+  const refetch = useCallback(async (updateTimestamps = false) => {
+    setIsManualUpdate(true);
+    
+    try {
+      if (updateTimestamps) {
+        // Получаем актуальные timestamps
+        const response = await fetch('/api/catalog/last-updated');
+        const timestampData = await response.json();
+        updateLastUpdated(type, timestampData.last_updated);
+        updateTranslationsLastUpdated(type, timestampData.translations_last_updated);
+        
+        // Обновляем переводы
+        await reloadTranslations();
+      }
+      
+      // Обновляем данные
+      await fetchData();
+    } finally {
+      setIsManualUpdate(false);
+    }
+  }, [fetchData, type, updateLastUpdated, updateTranslationsLastUpdated, reloadTranslations]);
+
   return {
     data,
     loading,
     error,
-    refetch: fetchData,
+    refetch,
     pausePolling,
     resumePolling,
+    reloadTranslations,
     updateLastUpdated: (value) => updateLastUpdated(type, value),
     updateTranslationsLastUpdated: (value) => updateTranslationsLastUpdated(type, value),
   };

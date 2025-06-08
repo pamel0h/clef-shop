@@ -108,8 +108,8 @@
             "confirmDelete": "Удаление товара",
             "currentImage": "Текущее изображение",
             "submit": "Применить",
-            "export":"Экспорт в CSV",
-            "import":"Импорт из CSV"
+            "export": "Экспорт в CSV",
+            "import": "Импорт из CSV"
         },
         "title": "Админ-панель",
         "main": "Панель управления",
@@ -329,7 +329,10 @@
         "guitars": "Гитары",
         "keyboards": "Клавишные",
         "sdsdsd": "ваавававав",
-        "gfgfg": "папапа"
+        "gfgfg": "папапа",
+        "myneww": "Новая новая",
+        "kukusiki": "Кусики",
+        "rere": "Рекфек"
     },
     "subcategory": {
         "accessories": {
@@ -369,6 +372,15 @@
         },
         "gfgfg": {
             "hghgh": "рпрпрп"
+        },
+        "myneww": {
+            "mynewsubcat": "Новаяноваяподкатегория"
+        },
+        "kukusiki": {
+            "kusiki": "Кукусики"
+        },
+        "rere": {
+            "meme": "Мемек"
         }
     },
     "admin_orders": {

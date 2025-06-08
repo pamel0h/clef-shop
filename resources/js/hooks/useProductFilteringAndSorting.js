@@ -1,91 +1,62 @@
 import { useState, useEffect } from 'react';
 
-const useProductFilteringAndSorting = (
-  initialProducts = [],
-  initialSortOption = { field: 'name', direction: 'asc' },
-  isSearchPage = false,
-  isAdminPage = false
-) => {
-  const [filteredProducts, setFilteredProducts] = useState([]);
+const useProductFilteringAndSorting = (products, initialSortOption, isAdminPage) => {
+  const [filteredProducts, setFilteredProducts] = useState(products);
   const [sortOption, setSortOption] = useState(initialSortOption);
+  const [filters, setFilters] = useState(null);
 
-  const sortProducts = (products) => {
-    return [...products].sort((a, b) => {
-      let valueA, valueB;
-      if (sortOption.field === 'price') {
-        valueA = a.discount ? a.price * (1 - a.discount / 100) : a.price;
-        valueB = b.discount ? b.price * (1 - b.discount / 100) : b.price;
-      } else {
-        valueA = a.name.toLowerCase();
-        valueB = b.name.toLowerCase();
+  useEffect(() => {
+    console.log('useProductFilteringAndSorting: Products changed:', products);
+    console.log('useProductFilteringAndSorting: Filters:', filters);
+    console.log('useProductFilteringAndSorting: Sort option:', sortOption);
+
+    // Применяем фильтры и сортировку
+    let result = [...products];
+
+    if (filters) {
+      // Пример фильтрации
+      result = result.filter(product => {
+        const matchesSearch = filters.searchQuery
+          ? product.name.toLowerCase().includes(filters.searchQuery.toLowerCase())
+          : true;
+        const matchesCategory = filters.category && filters.category !== 'all'
+          ? product.category === filters.category
+          : true;
+        const matchesSubcategory = filters.subcategory && filters.subcategory !== 'all'
+          ? product.subcategory === filters.subcategory
+          : true;
+        const matchesBrand = filters.brand && filters.brand !== 'all'
+          ? product.brand === filters.brand
+          : true;
+        const matchesPrice = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
+        return matchesSearch && matchesCategory && matchesSubcategory && matchesBrand && matchesPrice;
+      });
+    }
+
+    // Применяем сортировку
+    result.sort((a, b) => {
+      const field = sortOption.field;
+      const direction = sortOption.direction === 'asc' ? 1 : -1;
+      if (field === 'name') {
+        return a.name.localeCompare(b.name) * direction;
+      } else if (field === 'price') {
+        return (a.price - b.price) * direction;
       }
-      if (valueA < valueB) return sortOption.direction === 'asc' ? -1 : 1;
-      if (valueA > valueB) return sortOption.direction === 'asc' ? 1 : -1;
       return 0;
     });
-  };
 
-    const handleFilterChange = (newFilters) => {
-      let filtered = initialProducts.filter((product) => {
-        const price = Number(product.price);
-        const discountPrice = product.discount ? price * (1 - product.discount / 100) : price;
-        if (newFilters.priceRange && (discountPrice < newFilters.priceRange[0] || discountPrice > newFilters.priceRange[1])) {
-          return false;
-        }
-        if (newFilters.brand !== 'all' && product.brand !== newFilters.brand) {
-          return false;
-        }
-        if ((isSearchPage || isAdminPage) && newFilters.category !== 'all' && product.category !== newFilters.category) {
-          return false;
-        }
-        if ((isSearchPage || isAdminPage) && newFilters.subcategory !== 'all' && product.subcategory !== newFilters.subcategory) {
-          return false;
-        }
-        if (newFilters.searchQuery && !product.name.toLowerCase().includes(newFilters.searchQuery.toLowerCase())) {
-          return false;
-        }
-        if (product.specs && typeof product.specs === 'object' && product.specs !== null) {
-          for (const [specKey, specFilter] of Object.entries(newFilters.selectedSpecs)) {
-            const productValue = product.specs[specKey];
-            if (productValue !== undefined) {
-              const strValue = String(productValue);
-              if (specFilter[strValue] === false) {
-                return false;
-              }
-            }
-          }
-        }
-        return true;
-      });
-  
-      filtered = sortProducts(filtered);
-      setFilteredProducts(filtered);
-    };
+    setFilteredProducts(result);
+  }, [products, filters, sortOption]);
+
+  const handleFilterChange = (newFilters) => {
+    console.log('useProductFilteringAndSorting: Applying filters:', newFilters);
+    setFilters(newFilters);
+  };
 
   const handleSortChange = (field, direction) => {
+    console.log('useProductFilteringAndSorting: Applying sort:', { field, direction });
     setSortOption({ field, direction });
   };
-
-useEffect(() => {
-  if (initialProducts && initialProducts.length > 0) {
-    // Применяем фильтры по умолчанию (все товары показываем)
-    const defaultFilters = {
-      priceRange: [0, Infinity],
-      brand: 'all',
-      category: 'all', 
-      subcategory: 'all',
-      selectedSpecs: {}
-    };
-    handleFilterChange(defaultFilters);
-  }
-}, [initialProducts]);
-
-useEffect(() => {
-  if (filteredProducts.length > 0) {
-    const sorted = sortProducts(filteredProducts);
-    setFilteredProducts(sorted);
-  }
-}, [sortOption]);
 
   return {
     filteredProducts,
