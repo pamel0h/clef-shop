@@ -3,6 +3,7 @@
 namespace App\Formatters;
 
 use App\Models\Item;
+use Illuminate\Support\Facades\Log;
 
 class ProductFormatter
 {
@@ -22,26 +23,20 @@ class ProductFormatter
         ];
     }
 
-    // public function getFirstImageUrl(?array $images): string
-    // {
-    //     return $images && count($images) > 0 
-    //         ? asset('storage/product_images/' . $images[0])
-    //         : asset('storage/product_images/no-image.png');
-    // }
     public function getFirstImageUrl(?array $images): string
     {
         if (!$images || count($images) == 0) {
             return asset('images/no-image.png');
         }
-        
+
         $firstImage = $images[0];
-        
+
         // Если это полный URL (http/https)
         if (filter_var($firstImage, FILTER_VALIDATE_URL)) {
+           
             return $firstImage;
         }
-        
-        // Если это base64
+
         if (preg_match('/^data:image\/(jpeg|png|gif|webp);base64,/', $firstImage)) {
             return $firstImage;
         }
