@@ -11,6 +11,7 @@ const useProductFilter = (initialProducts = [], filteredByMainFilters = []) => {
     subcategories: [],
     specs: {},
     selectedSpecs: {},
+    searchQuery: '',
   });
 
   useEffect(() => {

@@ -22,8 +22,21 @@ export const ProductFilter = ({
   const [showSpecs, setShowSpecs] = useState(false);
   const [expandedSpecs, setExpandedSpecs] = useState({});
   const [showMoreSpecs, setShowMoreSpecs] = useState(false); // Для ограничения характеристик
+  const [searchQuery, setSearchQuery] = useState('');
   const SPECS_LIMIT = 5;
   const VALUES_LIMIT = 5;
+
+  const handleSearchChange = (value) => {
+    setSearchQuery(value);
+    
+    const newFilters = {
+      ...filters,
+      searchQuery: value,
+    };
+    
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
 
   const handleSpecChange = (specKey, specValue, checked) => {
     const newSelectedSpecs = {
@@ -123,6 +136,7 @@ export const ProductFilter = ({
     setFilters(newFilters);
     onFilterChange(newFilters);
     setExpandedSpecs({});
+    setSearchQuery('');
     setShowSpecs(false); //  характеристики после сброса
     setShowMoreSpecs(false); // Сбрасываем раскрытие характеристик
   };
@@ -152,6 +166,17 @@ export const ProductFilter = ({
 
   return (
     <div className="filters">
+      <div className="filter-block">
+        <h3>{t('filters.search')}</h3>
+        <input
+          type="text"
+          placeholder={t('filters.searchPlaceholder')}
+          value={searchQuery}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          className="search-input"
+        />
+      </div>
+
       <div className="filter-block">
         <h3>{t('sort.mainTitle')}</h3>
         <div className="filter-group">
