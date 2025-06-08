@@ -20,6 +20,7 @@ const AdminCatalogPage = () => {
   const [productToEdit, setProductToEdit] = useState(null);
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   // Сохраняем фильтры и сортировку
@@ -31,11 +32,6 @@ const AdminCatalogPage = () => {
     savedSortOption,
     isAdminPage
   );
-
-  const getCSRFToken = () => {
-    const metaTag = document.querySelector('meta[name="csrf-token"]');
-    return metaTag ? metaTag.getAttribute('content') : null;
-  };
 
   const handleAddProduct = async () => {
     console.log('Product added successfully');
@@ -163,6 +159,7 @@ const AdminCatalogPage = () => {
   const handleImportCSV = async (event) => {
     const files = event.target.files;
     if (!files.length) return;
+    setImportLoading(true);
 
     try {
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
@@ -196,7 +193,7 @@ const AdminCatalogPage = () => {
         await reloadTranslations();
         await refetch(true);
         if (savedFilters) {
-          setTimeout(() => handleFilterChange(savedFilters), 100);
+          handleFilterChange(savedFilters);
         }
         if (savedSortOption) {
           handleSortChange(savedSortOption.field, savedSortOption.direction);
@@ -213,6 +210,7 @@ const AdminCatalogPage = () => {
       alert(t('admin.catalog.uploadError') + ': ' + error.message);
     } finally {
       event.target.value = '';
+      setImportLoading(false);
     }
   };
 
@@ -228,7 +226,7 @@ const AdminCatalogPage = () => {
     handleSortChange(field, direction);
   };
 
-  if (loading) return <div className="loading">{t('Loading')}</div>;
+  if (loading || importLoading) return <div className="loading"></div>;
   if (error) return <div>{t('Error')}: {error.message}</div>;
   if (!products || products.length === 0) return <div>{t('admin.catalog.noProducts')}</div>;
 
@@ -272,7 +270,7 @@ const AdminCatalogPage = () => {
             type="file"
             ref={fileInputRef}
             style={{ display: 'none' }}
-            accept=".csv,image/jpeg,image/png"
+            accept=".csv"
             multiple
             onChange={handleImportCSV}
           />
