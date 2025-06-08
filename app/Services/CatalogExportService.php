@@ -464,19 +464,27 @@ class CatalogExportService
                     Log::info("Подготовленные данные для строки $rowIndex", ['itemData' => $itemData]);
 
                     // Если указан ID, проверяем существование товара
-                    if (!empty($data['id'])) {
-                        $existingItem = Item::find($data['id']);
-                        if ($existingItem) {
-                            $existingItem->update($itemData);
-                            Log::info("Обновлен товар с ID {$data['id']} в строке $rowIndex");
-                        } else {
-                            $itemData['_id'] = $data['id'];
-                            Item::create($itemData);
-                            Log::info("Создан товар с ID {$data['id']} в строке $rowIndex");
-                        }
+                    // if (!empty($data['id'])) {
+                    //     $existingItem = Item::find($data['id']);
+                    //     if ($existingItem) {
+                    //         $existingItem->update($itemData);
+                    //         Log::info("Обновлен товар с ID {$data['id']} в строке $rowIndex");
+                    //     } else {
+                    //         $itemData['_id'] = $data['id'];
+                    //         Item::create($itemData);
+                    //         Log::info("Создан товар с ID {$data['id']} в строке $rowIndex");
+                    //     }
+                    // } else {
+                    //     Item::create($itemData);
+                    //     Log::info("Создан новый товар в строке $rowIndex");
+                    // }
+                    $existingItem = Item::where('name', $data['name'])->first();
+                    if ($existingItem) {
+                        $existingItem->update($itemData);
+                        Log::info("Обновлен товар с именем {$data['name']} в строке $rowIndex");
                     } else {
                         Item::create($itemData);
-                        Log::info("Создан новый товар в строке $rowIndex");
+                        Log::info("Создан новый товар с именем {$data['name']} в строке $rowIndex");
                     }
 
                     $imported++;
@@ -574,4 +582,5 @@ class CatalogExportService
         }
         return 'jpg'; // Значение по умолчанию
     }
+
 }
