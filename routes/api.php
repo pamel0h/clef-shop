@@ -62,7 +62,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/users', [AdminController::class, 'createUser']);
     Route::put('/users/{id}', [AdminController::class, 'updateUser']);
     Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
-
+    Route::post('/catalog/import', [AdminCatalogController::class, 'import'])->name('admin.catalog.import');
         Route::get('/catalog/data', [AdminCatalogController::class, 'fetchData'])->name('admin.catalog.data');
         Route::post('/catalog', [AdminCatalogController::class, 'store'])->name('admin.catalog.store');
         Route::put('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update');
@@ -72,7 +72,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
         Route::get('/catalog/brands', [AdminCatalogController::class, 'getBrands'])->name('admin.catalog.brands');
         Route::post('/catalog/translations', [TranslationController::class, 'store'])->name('admin.catalog.translation');
         Route::get('/catalog/export', [AdminCatalogController::class, 'export'])->name('admin.catalog.export');
-        Route::post('/catalog/import', [AdminCatalogController::class, 'import'])->name('admin.catalog.import');
+ 
   
 
     Route::get('/pages', [PageController::class, 'index']);

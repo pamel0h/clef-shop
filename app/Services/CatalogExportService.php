@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Item;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Log;
 
 class CatalogExportService
 {
@@ -72,5 +73,171 @@ class CatalogExportService
             // Закрываем поток
             fclose($handle);
         }, 200, $headers);
+    }
+    public function importCatalog($csvFile)
+    {
+        Log::info('CatalogExportService: Начало импорта', [
+            'file' => $csvFile->getClientOriginalName(),
+            'size' => $csvFile->getSize()
+        ]);
+
+        try {
+            $handle = fopen($csvFile->getRealPath(), 'r');
+            if ($handle === false) {
+                throw new \Exception('Не удалось открыть CSV файл');
+            }
+
+            // Пропускаем BOM если есть
+            $bom = fread($handle, 3);
+            if ($bom !== "\xEF\xBB\xBF") {
+                rewind($handle);
+            }
+
+            // Читаем заголовки
+            $headers = fgetcsv($handle);
+            Log::info('CSV заголовки:', ['headers' => $headers]);
+
+            $expectedHeaders = [
+                'id', 'name', 'description', 'price', 'category',
+                'subcategory', 'brand', 'images', 'specs', 'discount',
+                'created_at', 'updated_at'
+            ];
+
+            if ($headers !== $expectedHeaders) {
+                fclose($handle);
+                Log::error('Неверные заголовки CSV', [
+                    'expected' => $expectedHeaders,
+                    'received' => $headers
+                ]);
+                throw new \Exception('Неверный формат CSV файла. Ожидаются заголовки: ' . implode(', ', $expectedHeaders));
+            }
+
+            $imported = 0;
+            $errors = [];
+            $rowIndex = 1;
+
+            while (($row = fgetcsv($handle)) !== false) {
+                $rowIndex++;
+                Log::info("Обработка строки $rowIndex", ['row' => $row]);
+
+                try {
+                    // Пропускаем пустые строки
+                    if (empty(array_filter($row))) {
+                        Log::info("Пропуск пустой строки $rowIndex");
+                        continue;
+                    }
+
+                    $data = array_combine($headers, $row);
+                    Log::info("Данные строки $rowIndex", ['data' => $data]);
+
+                    // Валидация обязательных полей
+                    if (empty($data['name']) || empty($data['price']) || empty($data['category'])) {
+                        $error = "Строка $rowIndex: Отсутствуют обязательные поля (name, price, category)";
+                        $errors[] = $error;
+                        Log::warning($error);
+                        continue;
+                    }
+
+                    // Очистка JSON-строк от лишнего экранирования
+                    $cleanJsonString = function ($jsonString) {
+                        // Удаляем лишние обратные слэши перед кавычками
+                        $jsonString = str_replace('\"', '"', $jsonString);
+                        // Удаляем лишние обратные слэши
+                        $jsonString = str_replace('\\\\', '\\', $jsonString);
+                        return $jsonString;
+                    };
+
+                    // Парсинг JSON-полей
+                    $description = [];
+                    if (!empty($data['description'])) {
+                        $cleanedDescription = $cleanJsonString($data['description']);
+                        $description = json_decode($cleanedDescription, true);
+                        if (json_last_error() !== JSON_ERROR_NONE) {
+                            $error = "Строка $rowIndex: Неверный формат JSON в поле description: " . json_last_error_msg();
+                            $errors[] = $error;
+                            Log::warning($error, ['raw' => $data['description'], 'cleaned' => $cleanedDescription]);
+                            continue;
+                        }
+                    }
+
+                    $specs = [];
+                    if (!empty($data['specs'])) {
+                        $cleanedSpecs = $cleanJsonString($data['specs']);
+                        $specs = json_decode($cleanedSpecs, true);
+                        if (json_last_error() !== JSON_ERROR_NONE) {
+                            $error = "Строка $rowIndex: Неверный формат JSON в поле specs: " . json_last_error_msg();
+                            $errors[] = $error;
+                            Log::warning($error, ['raw' => $data['specs'], 'cleaned' => $cleanedSpecs]);
+                            continue;
+                        }
+                    }
+
+                    // Подготовка данных для модели
+                    $itemData = [
+                        'name' => $data['name'],
+                        'description' => $description,
+                        'price' => floatval($data['price']),
+                        'category' => $data['category'],
+                        'subcategory' => $data['subcategory'] ?? null,
+                        'brand' => $data['brand'] ?? null,
+                        'images' => !empty($data['images']) ? explode(',', $data['images']) : [],
+                        'specs' => $specs,
+                        'discount' => !empty($data['discount']) ? floatval($data['discount']) : 0,
+                    ];
+
+                    Log::info("Подготовленные данные для строки $rowIndex", ['itemData' => $itemData]);
+
+                    // Если указан ID, проверяем существование товара
+                    if (!empty($data['id'])) {
+                        $existingItem = Item::find($data['id']);
+                        if ($existingItem) {
+                            $existingItem->update($itemData);
+                            Log::info("Обновлен товар с ID {$data['id']} в строке $rowIndex");
+                        } else {
+                            $itemData['_id'] = $data['id'];
+                            Item::create($itemData);
+                            Log::info("Создан товар с ID {$data['id']} в строке $rowIndex");
+                        }
+                    } else {
+                        Item::create($itemData);
+                        Log::info("Создан новый товар в строке $rowIndex");
+                    }
+
+                    $imported++;
+                } catch (\Exception $e) {
+                    $error = "Строка $rowIndex: Ошибка - {$e->getMessage()}";
+                    $errors[] = $error;
+                    Log::error("Ошибка импорта в строке $rowIndex", [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                }
+            }
+
+            fclose($handle);
+
+            Log::info('Импорт завершен', [
+                'imported' => $imported,
+                'errors_count' => count($errors)
+            ]);
+
+            return [
+                'success' => true,
+                'imported' => $imported,
+                'errors' => $errors,
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Ошибка импорта каталога', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'imported' => 0,
+                'errors' => [],
+            ];
+        }
     }
 }

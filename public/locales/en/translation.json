@@ -107,7 +107,9 @@
             "deleteWarning": "Upon deletion, all information about the product will be permanently erased.",
             "confirmDelete": "Delete product",
             "currentImage": "Current image",
-            "submit": "Submit"
+            "submit": "Submit",
+            "export":"Export to CSV",
+            "import":"Import from CSV"
         },
         "title": "Admin Panel",
         "main": "Panel editor",

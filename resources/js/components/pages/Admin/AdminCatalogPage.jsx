@@ -144,73 +144,56 @@ const AdminCatalogPage = () => {
     }
   };
 
-  const handleUploadCSV = async (event) => {
+  const handleImportCSV = async (event) => {
     const files = event.target.files;
     if (!files.length) return;
 
     try {
         const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-
-        const headers = {
-            'X-Requested-With': 'XMLHttpRequest',
-        };
-
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
+        console.log('Token:', token); // Для отладки
         const formData = new FormData();
-        let csvFile = null;
-        const imageFiles = [];
-
-        for (const file of files) {
-            const mime = file.type;
-            if (mime === 'text/csv' || mime === 'text/plain') {
-                csvFile = file;
-            } else if (['image/jpeg', 'image/png'].includes(mime)) {
-                imageFiles.push(file);
-            }
-        }
+        const csvFile = Array.from(files).find(file => file.type === 'text/csv' || file.type === 'text/plain');
 
         if (!csvFile) {
             throw new Error(t('admin.catalog.noCsvFile'));
         }
 
         formData.append('csv', csvFile);
-        imageFiles.forEach((file, index) => {
-            formData.append(`images[${index}]`, file);
-        });
+        console.log('FormData:', formData.get('csv')); // Для отладки
 
         const response = await fetch('/api/admin/catalog/import', {
             method: 'POST',
-            headers,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+            },
             body: formData,
         });
 
         const data = await response.json();
+        console.log('Server Response:', data); // Для отладки
         if (!response.ok) {
-            console.error('Server error:', data);
             const errorMessage = data.errors
                 ? Object.values(data.errors).flat().join(', ')
-                : data.message || `HTTP error! status: ${response.status}`;
+                : data.error || `HTTP error! status: ${response.status}`;
             throw new Error(errorMessage);
         }
 
         if (data.success) {
             await refetch();
-            console.log(`Imported ${data.imported} products`);
             alert(t('admin.catalog.importSuccess', { count: data.imported }));
             if (data.errors && data.errors.length > 0) {
                 alert(t('admin.catalog.importErrors', { errors: data.errors.join('; ') }));
             }
         } else {
-            throw new Error(data.error || 'Failed to import products');
+            throw new Error(data.error || 'Не удалось импортировать товары');
         }
     } catch (error) {
-        console.error('Error importing CSV:', error);
+        console.error('Ошибка импорта CSV:', error);
         alert(t('admin.catalog.uploadError') + ': ' + error.message);
+    } finally {
+        event.target.value = '';
     }
-    event.target.value = '';
 };
 
   if (loading) return <div className="loading">`</div>;
@@ -247,9 +230,9 @@ const AdminCatalogPage = () => {
           </Button>
           <Button
             onClick={() => fileInputRef.current.click()}
-            className="upload-csv-btn"
+            className="import-csv-btn"
           >
-            {t('admin.catalog.upload')}
+            {t('admin.catalog.import')}
           </Button>
           <input
             type="file"
@@ -257,7 +240,7 @@ const AdminCatalogPage = () => {
             style={{ display: 'none' }}
             accept=".csv,image/jpeg,image/png"
             multiple
-            onChange={handleUploadCSV}
+            onChange={handleImportCSV}
           />
           <table className="admin-products-table">
             <thead>

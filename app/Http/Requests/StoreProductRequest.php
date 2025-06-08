@@ -24,8 +24,6 @@ class StoreProductRequest extends FormRequest
             'discount' => 'nullable|numeric|min:0|max:100',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'specs_data' => 'nullable|string',
-            // 'new_category' => 'nullable|string',
-            // 'new_subcategory' => 'nullable|string',
         ];
     }
 }
