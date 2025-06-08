@@ -1,4 +1,4 @@
-@import '../../../css/_variables.css';
+@import '../_variables.css';
 
 .inactivity-modal-overlay {
    position: fixed;

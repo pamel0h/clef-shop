@@ -19,6 +19,7 @@ const ProfilePage = () => {
     const [loadingOrders, setLoadingOrders] = useState(false);
     const [loadingMessages, setLoadingMessages] = useState(false);
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         if (user) {
@@ -59,6 +60,27 @@ const ProfilePage = () => {
         await logout();
         navigate('/');
     };
+    
+    const handleButton = async (e) => {
+        e.preventDefault();
+    
+        setError('');
+        
+
+        try {
+            await axios.post('/api/messages', {
+                userId: user.id,
+                message,
+                createdAt: new Date(),
+            });
+            setMessage('');
+        } catch (err) {
+            setError(t('contactForm.error'));
+        } finally {
+           
+        }
+    };
+
 
     if (loading) {
         return (
@@ -158,6 +180,8 @@ const ProfilePage = () => {
                                 <Message key={message.id} message={message} />
                             ))
                         )}
+                        <input type='text' onChange={(e) => setMessage(e.target.value)}></input>
+                        <button onClick={handleButton}>Отправить</button>
                     </div>
                 )}
             </div>

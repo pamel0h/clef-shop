@@ -1,5 +1,5 @@
 // src/components/UI/InactivityModal.jsx
-import './InactivityModal.css';
+import '../../../css/components/InactivityModal.css';
 
 const InactivityModal = ({ userName, onContinue, onLogout }) => {
     return (

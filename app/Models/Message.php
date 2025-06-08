@@ -10,7 +10,7 @@ class Message extends Model
 {
     protected $connection = 'mongodb'; // Подключение к MongoDB
     protected $collection = 'messages'; // Имя коллекции в MongoDB
-    protected $fillable = ['user_id', 'message', 'created_at', 'updated_at'];
+    protected $fillable = ['user_id', 'message', 'created_at'];
     
     public function user()
     {
