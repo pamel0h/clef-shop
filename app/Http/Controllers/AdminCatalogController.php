@@ -131,7 +131,7 @@ class AdminCatalogController extends Controller
         ]);
 
         try {
-            // Валидируем файл ЗДЕСЬ, а не через Request класс
+            // Валидируем файл
             if (!$request->hasFile('csv')) {
                 Log::warning('AdminCatalogController: CSV файл не предоставлен');
                 return response()->json([
@@ -141,7 +141,7 @@ class AdminCatalogController extends Controller
             }
 
             $csvFile = $request->file('csv');
-            
+
             if (!$csvFile->isValid()) {
                 Log::warning('AdminCatalogController: Неверный файл', [
                     'error' => $csvFile->getError(),
@@ -177,7 +177,7 @@ class AdminCatalogController extends Controller
             ]);
 
             $result = $this->catalogExportService->importCatalog($csvFile);
-            
+
             Log::info('AdminCatalogController: Результат импорта', $result);
 
             return response()->json($result, $result['success'] ? 200 : 500);
@@ -195,174 +195,4 @@ class AdminCatalogController extends Controller
             ], 500);
         }
     }
-
-    // public function import(Request $request)
-    // {
-    //     Log::info('AdminCatalogController: Import started', [
-    //         'files' => array_keys($request->allFiles()),
-    //         'headers' => $request->headers->all(),
-    //         'input' => $request->all()
-    //     ]);
-
-    //     try {
-    //         // Проверяем наличие CSV файла
-    //         if (!$request->hasFile('csv')) {
-    //             Log::error('AdminCatalogController: No CSV file provided');
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'error' => 'CSV файл не предоставлен'
-    //             ], 400);
-    //         }
-
-    //         $csvFile = $request->file('csv');
-    //         $imageFiles = $request->file('images') ?? [];
-    //         Log::info('AdminCatalogController: Files received', [
-    //             'csv' => $csvFile->getClientOriginalName(),
-    //             'images' => array_map(fn($file) => $file->getClientOriginalName(), $imageFiles)
-    //         ]);
-
-    //         // Открываем CSV файл
-    //         $handle = fopen($csvFile->getRealPath(), 'r');
-    //         $header = fgetcsv($handle);
-    //         $expectedHeaders = [
-    //             'id', 'name', 'description', 'price', 'category', 'subcategory', 
-    //             'brand', 'images', 'specs', 'discount', 'created_at', 'updated_at'
-    //         ];
-
-    //         if ($header !== $expectedHeaders) {
-    //             fclose($handle);
-    //             Log::error('AdminCatalogController: Invalid CSV headers', ['header' => $header]);
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'error' => 'Неверный формат CSV файла. Ожидаются заголовки: ' . implode(',', $expectedHeaders)
-    //             ], 400);
-    //         }
-
-    //         $importedCount = 0;
-    //         $errors = [];
-
-    //         // Правила валидации
-    //         $rules = [
-    //             'name' => 'required|string|max:255',
-    //             'description' => 'required|string',
-    //             'price' => 'required|numeric|min:0',
-    //             'category' => 'required|string',
-    //             'subcategory' => 'required|string',
-    //             'brand' => 'required|string',
-    //             'discount' => 'nullable|numeric|min:0|max:100',
-    //             'images' => 'nullable|string',
-    //             'specs' => 'required|string',
-    //             'created_at' => 'nullable|date',
-    //             'updated_at' => 'nullable|date',
-    //         ];
-
-    //         while (($row = fgetcsv($handle)) !== false) {
-    //             try {
-    //                 $data = array_combine($header, $row);
-    //                 Log::info('AdminCatalogController: Processing row', ['data' => $data]);
-
-    //                 // Валидация
-    //                 $validator = Validator::make($data, $rules);
-    //                 if ($validator->fails()) {
-    //                     Log::error('AdminCatalogController: Validation failed', [
-    //                         'data' => $data,
-    //                         'errors' => $validator->errors()->all()
-    //                     ]);
-    //                     $errors[] = "Ошибка валидации для ID {$data['id']}: " . implode(', ', $validator->errors()->all());
-    //                     continue;
-    //                 }
-
-    //                 // Проверяем ID
-    //                 if (!preg_match('/^[0-9a-fA-F]{24}$/', $data['id'])) {
-    //                     $errors[] = "Неверный формат ID в строке с ID {$data['id']}";
-    //                     continue;
-    //                 }
-
-    //                 // Проверяем существование товара
-    //                 if (Item::find($data['id'])) {
-    //                     $errors[] = "Товар с ID {$data['id']} уже существует";
-    //                     continue;
-    //                 }
-
-    //                 // Декодируем JSON
-    //                 $description = json_decode($data['description'], true);
-    //                 $specs = json_decode($data['specs'], true);
-    //                 if (json_last_error() !== JSON_ERROR_NONE || !is_array($description) || !is_array($specs)) {
-    //                     $errors[] = "Ошибка JSON в строке с ID {$data['id']}";
-    //                     continue;
-    //                 }
-
-    //                 if (!isset($description['en']) || !isset($description['ru'])) {
-    //                     $errors[] = "Поля description.en или description.ru отсутствуют для ID {$data['id']}";
-    //                     continue;
-    //                 }
-
-    //                 // Обрабатываем изображение
-    //                 $imagePath = null;
-    //                 if (!empty($data['images'])) {
-    //                     foreach ($imageFiles as $image) {
-    //                         if (basename($image->getClientOriginalName()) === basename($data['images'])) {
-    //                             $imagePath = $image->store('product_images', 'public');
-    //                             break;
-    //                         }
-    //                     }
-    //                 }
-
-    //                 // Создаем товар
-    //                 $item = Item::create([
-    //                     '_id' => $data['id'],
-    //                     'name' => $data['name'],
-    //                     'description' => [
-    //                         'en' => $description['en'],
-    //                         'ru' => $description['ru']
-    //                     ],
-    //                     'price' => (float)$data['price'],
-    //                     'category' => $data['category'],
-    //                     'subcategory' => $data['subcategory'],
-    //                     'brand' => $data['brand'],
-    //                     'images' => $imagePath ? [$imagePath] : [],
-    //                     'specs' => $specs,
-    //                     'discount' => (float)$data['discount'],
-    //                     'created_at' => $data['created_at'] ? new \DateTime($data['created_at']) : now(),
-    //                     'updated_at' => $data['updated_at'] ? new \DateTime($data['updated_at']) : now(),
-    //                 ]);
-
-    //                 // Сохраняем переводы
-    //                 $this->productService->saveTranslation('category', $data['category'], $data['category'], $data['category']);
-    //                 $this->productService->saveTranslation('subcategory', $data['subcategory'], $data['subcategory'], $data['subcategory'], $data['category']);
-    //                 foreach ($specs as $key => $value) {
-    //                     $this->productService->saveTranslation('specs', $key, $key, $key);
-    //                 }
-
-    //                 $importedCount++;
-    //             } catch (\Exception $e) {
-    //                 Log::error('AdminCatalogController: Error processing row', [
-    //                     'id' => $data['id'] ?? 'unknown',
-    //                     'error' => $e->getMessage()
-    //                 ]);
-    //                 $errors[] = "Ошибка при импорте товара с ID {$data['id']}: {$e->getMessage()}";
-    //             }
-    //         }
-
-    //         fclose($handle);
-
-    //         Log::info('AdminCatalogController: Import completed', [
-    //             'imported' => $importedCount,
-    //             'errors' => $errors
-    //         ]);
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'imported' => $importedCount,
-    //             'errors' => $errors
-    //         ]);
-
-    //     } catch (\Exception $e) {
-    //         Log::error('AdminCatalogController: Error importing CSV', ['error' => $e->getMessage()]);
-    //         return response()->json([
-    //             'success' => false,
-    //             'error' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
 }
