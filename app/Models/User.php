@@ -57,6 +57,26 @@ class User extends Model implements AuthenticatableContract
         return $this->role === $role;
     }
 
+
+     public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'user_id');
+    }
+
+     public function adminMessages()
+    {
+        return $this->hasMany(Message::class, 'admin_id');
+    }
+
+
+    public function messages()
+    {
+        return Message::where(function($query) {
+            $query->where('user_id', $this->id)
+                  ->orWhere('admin_id', $this->id);
+        });
+    }
+
     // Метод для получения всех доступных ролей
     public static function getRoles(): array
     {

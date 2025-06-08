@@ -6,7 +6,6 @@ import axios from 'axios';
 import "../../../../css/components/ProfilePage.css";
 import Order from './Order';
 import ProfileForm from './ProfileForm';
-import Message from './Message'; // Новый компонент для отображения сообщений
 import Button from '../../UI/Button';
 
 const ProfilePage = () => {
@@ -19,68 +18,76 @@ const ProfilePage = () => {
     const [loadingOrders, setLoadingOrders] = useState(false);
     const [loadingMessages, setLoadingMessages] = useState(false);
     const [error, setError] = useState('');
-    const [message, setMessage] = useState('');
+    const [messageText, setMessageText] = useState('');
+
+    const fetchMessages = async (lastMessageId = null) => {
+    if (activeContainer === 'messages') {
+        setLoadingMessages(true);
+        try {
+            const url = lastMessageId 
+                ? `/api/messages?since=${lastMessageId}`
+                : '/api/messages';
+            
+            const response = await axios.get(url);
+            
+            if (lastMessageId && response.data.length > 0) {
+                setMessages(prev => [...prev, ...response.data]);
+            } else if (!lastMessageId) {
+                setMessages(response.data);
+            }
+        } catch (err) {
+            setError(t('profile.messages_error'));
+        } finally {
+            setLoadingMessages(false);
+        }
+    }
+};
 
     useEffect(() => {
         if (user) {
-            const fetchOrders = async () => {
-                setLoadingOrders(true);
-                setError('');
-                try {
-                    const response = await axios.get('/api/order');
-                    setOrders(response.data.orders);
-                } catch (err) {
-                    setError(t('profile.orders_error'));
-                } finally {
-                    setLoadingOrders(false);
-                }
-            };
-
-            const fetchMessages = async () => {
-                setLoadingMessages(true);
-                setError('');
-                try {
-                    const response = await axios.get('/api/messages', {
-                        params: { userId: user.id },
-                    });
-                    setMessages(response.data.messages);
-                } catch (err) {
-                    setError(t('profile.messages_error'));
-                } finally {
-                    setLoadingMessages(false);
-                }
-            };
-
+            const fetchOrders = async () => { /* ... */ };
+            
             fetchOrders();
             fetchMessages();
         }
-    }, [user, t]);
+    }, [user, t, activeContainer]);
+
+    useEffect(() => {
+    if (activeContainer === 'messages' && user) {
+        fetchMessages(); 
+        
+        const lastMessageId = messages.length > 0 
+            ? messages[messages.length - 1].id 
+            : null;
+            
+        const interval = setInterval(() => {
+            fetchMessages(lastMessageId);
+        }, 30000); 
+
+        return () => clearInterval(interval);
+    }
+}, [activeContainer, user, t, messages.length]); 
+
+    const handleSendMessage = async (e) => {
+        e.preventDefault();
+        setError('');
+        
+        try {
+            const response = await axios.post('/api/messages', {
+                message: messageText
+            });
+            
+            setMessages(prev => [...prev, response.data]);
+            setMessageText('');
+        } catch (err) {
+            setError(t('profile.message_send_error'));
+        }
+    };
 
     const handleLogout = async () => {
         await logout();
         navigate('/');
     };
-    
-    const handleButton = async (e) => {
-        e.preventDefault();
-    
-        setError('');
-        
-
-        try {
-            await axios.post('/api/messages', {
-                userId: user.id,
-                message,
-                createdAt: new Date(),
-            });
-            setMessage('');
-        } catch (err) {
-            setError(t('contactForm.error'));
-        } finally {
-           
-        }
-    };
-
 
     if (loading) {
         return (
@@ -90,7 +97,7 @@ const ProfilePage = () => {
         );
     }
 
-    // Разделяем заказы на текущие и завершенные
+
     const currentOrders = orders.filter(order => order.status !== 'completed');
     const completedOrders = orders.filter(order => order.status === 'completed');
 
@@ -176,12 +183,32 @@ const ProfilePage = () => {
                         ) : messages.length === 0 ? (
                             <p>{t('profile.no_messages')}</p>
                         ) : (
-                            messages.map(message => (
-                                <Message key={message.id} message={message} />
-                            ))
+                            <div className="messages-list">
+                                {messages.map((msg, index) => (
+                                    <div 
+                                        key={index} 
+                                        className={`message ${msg.is_admin ? 'admin-message' : 'user-message'}`}
+                                    >
+                                        <div className="message-content">
+                                            {msg.message}
+                                        </div>
+                                        <div className="message-time">
+                                            {new Date(msg.created_at).toLocaleString()}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         )}
-                        <input type='text' onChange={(e) => setMessage(e.target.value)}></input>
-                        <button onClick={handleButton}>Отправить</button>
+                        <form onSubmit={handleSendMessage} className="message-form">
+                            <input 
+                                type="text" 
+                                value={messageText}
+                                onChange={(e) => setMessageText(e.target.value)}
+                                placeholder={t('profile.type_message')}
+                                required
+                            />
+                            <button type="submit">{t('profile.send')}</button>
+                        </form>
                     </div>
                 )}
             </div>

@@ -9,6 +9,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\AdminMessageController;
+
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PageController;
@@ -42,8 +44,16 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    // Для пользователя
     Route::get('/messages', [MessageController::class, 'index']);
     Route::post('/messages', [MessageController::class, 'store']);
+    
+    // Для администратора
+    Route::prefix('admin')->middleware('admin')->group(function () {
+        Route::get('/conversations', [AdminMessageController::class, 'index']);
+        Route::get('/conversations/{user}', [AdminMessageController::class, 'show']);
+        Route::post('/conversations/{user}', [AdminMessageController::class, 'store']);
+    });
 });
 
 Route::get('/search', [SearchController::class, 'search'])
