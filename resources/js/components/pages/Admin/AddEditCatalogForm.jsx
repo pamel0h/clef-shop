@@ -70,6 +70,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       });
       console.log(initialData.image);
       if (initialData.image) {
+        console.log('initial data img', initialData.image);
         const imagePath = [initialData.image];
         setImagePreviews(imagePath);
       } else {

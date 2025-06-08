@@ -231,84 +231,54 @@ class CatalogExportService
     protected function processImage($imageData, $itemName, $rowIndex, &$errors)
     {
         try {
-            $storagePath = 'product_images'; // Директория в storage
-
-            // Вариант 1: Относительный путь
-            // Если это не URL и не Base64, возвращаем путь без изменений
-            if (!filter_var($imageData, FILTER_VALIDATE_URL) && !preg_match('/^data:image\/(jpeg|png|gif);base64,/', $imageData)) {
-                Log::info("Строка $rowIndex: Используется указанный относительный путь", ['path' => $imageData]);
+            // Относительный путь - возвращаем как есть
+            if (!filter_var($imageData, FILTER_VALIDATE_URL) && !preg_match('/^data:image\/(jpeg|png|gif|webp);base64,/', $imageData)) {
                 return $imageData;
             }
-
-            // Вариант 2: Внешний URL
+            
+            // URL - возвращаем как есть
             if (filter_var($imageData, FILTER_VALIDATE_URL)) {
-                $response = Http::timeout(10)->withOptions(['verify' => false])->get($imageData);
-                if ($response->successful()) {
-                    $imageContent = $response->body();
-                    $mimeType = $response->header('Content-Type');
-                    $extension = $this->getExtensionFromMimeType($mimeType);
-
-                    if ($extension && in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
-                        $filename = Str::slug($itemName) . '_' . uniqid() . '.' . $extension;
-                        $relativePath = "$storagePath/$filename";
-                        Storage::disk('public')->put($relativePath, $imageContent);
-                        Log::info("Строка $rowIndex: Изображение загружено из URL", ['url' => $imageData, 'saved_path' => $relativePath]);
-                        return $relativePath;
-                    } else {
-                        $error = "Строка $rowIndex: Неверный формат изображения по URL: $imageData";
-                        $errors[] = $error;
-                        Log::warning($error);
-                        return null;
-                    }
-                } else {
-                    $error = "Строка $rowIndex: Ошибка загрузки изображения по URL: $imageData";
-                    $errors[] = $error;
-                    Log::warning($error);
-                    return null;
-                }
+                return $imageData;
             }
-
-            // Вариант 3: Base64
-            if (preg_match('/^data:image\/(jpeg|png|gif);base64,/', $imageData, $matches)) {
-                $imageType = $matches[1];
-                $base64String = preg_replace('/^data:image\/\w+;base64,/', '', $imageData);
-                $imageContent = base64_decode($base64String);
-
-                if ($imageContent !== false) {
-                    $filename = Str::slug($itemName) . '_' . uniqid() . '.' . $imageType;
-                    $relativePath = "$storagePath/$filename";
-                    Storage::disk('public')->put($relativePath, $imageContent);
-                    Log::info("Строка $rowIndex: Изображение сохранено из Base64", ['saved_path' => $relativePath]);
-                    return $relativePath;
-                } else {
-                    $error = "Строка $rowIndex: Неверный формат Base64 данных";
-                    $errors[] = $error;
-                    Log::warning($error);
-                    return null;
-                }
+            
+            // Base64 - возвращаем как есть
+            if (preg_match('/^data:image\/(jpeg|png|gif|webp);base64,/', $imageData)) {
+                return $imageData;
             }
-
-            // Если формат не распознан (не должно произойти, так как уже проверили все случаи)
-            $error = "Строка $rowIndex: Неверный формат данных изображения";
-            $errors[] = $error;
-            Log::warning($error, ['imageData' => $imageData]);
+            
             return null;
+            
         } catch (\Exception $e) {
-            $error = "Строка $rowIndex: Ошибка обработки изображения: {$e->getMessage()}";
-            $errors[] = $error;
-            Log::error($error, ['trace' => $e->getTraceAsString()]);
+            $errors[] = "Строка $rowIndex: Ошибка обработки изображения: {$e->getMessage()}";
             return null;
         }
     }
-
+    
     protected function getExtensionFromMimeType($mimeType)
     {
         $mimeToExtension = [
             'image/jpeg' => 'jpg',
+            'image/jpg' => 'jpg',
             'image/png' => 'png',
             'image/gif' => 'gif',
+            'image/webp' => 'webp',
         ];
-
-        return $mimeToExtension[$mimeType] ?? null;
+    
+        return $mimeToExtension[strtolower($mimeType)] ?? null;
+    }
+    
+    /**
+     * Попытка определить расширение файла из URL
+     */
+    protected function getExtensionFromUrl($url)
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+        if ($path) {
+            $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                return $extension === 'jpeg' ? 'jpg' : $extension;
+            }
+        }
+        return null;
     }
 }
