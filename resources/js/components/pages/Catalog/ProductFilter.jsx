@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Добавляем useEffect
 import { useLocation } from 'react-router-dom';
 import useProductFilter from '../../../hooks/useProductFilter';
 import '../../../../css/components/Filter.css';
@@ -15,25 +15,40 @@ export const ProductFilter = ({
   sortOption = { field: 'name', direction: 'asc' },
   isSearchPage = false,
   isAdminPage = false,
+  savedFilters, // Новый пропс
+  savedSortOption, // Новый пропс
 }) => {
   const { t } = useTranslation();
   const { filters, setFilters } = useProductFilter(initialProducts, filteredByMainFilters);
   const location = useLocation();
   const [showSpecs, setShowSpecs] = useState(false);
   const [expandedSpecs, setExpandedSpecs] = useState({});
-  const [showMoreSpecs, setShowMoreSpecs] = useState(false); // Для ограничения характеристик
+  const [showMoreSpecs, setShowMoreSpecs] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const SPECS_LIMIT = 5;
   const VALUES_LIMIT = 5;
 
+  // Синхронизация filters и searchQuery с savedFilters
+  useEffect(() => {
+    if (savedFilters) {
+      setFilters(savedFilters);
+      setSearchQuery(savedFilters.searchQuery || '');
+    }
+  }, [savedFilters, setFilters]);
+
+  // Синхронизация sortOption с savedSortOption
+  useEffect(() => {
+    if (savedSortOption && (savedSortOption.field !== sortOption.field || savedSortOption.direction !== sortOption.direction)) {
+      onSortChange(savedSortOption.field, savedSortOption.direction);
+    }
+  }, [savedSortOption, sortOption, onSortChange]);
+
   const handleSearchChange = (value) => {
     setSearchQuery(value);
-    
     const newFilters = {
       ...filters,
       searchQuery: value,
     };
-    
     setFilters(newFilters);
     onFilterChange(newFilters);
   };
@@ -123,7 +138,7 @@ export const ProductFilter = ({
       brands: filters.brands,
       categories: filters.categories,
       subcategories: filters.subcategories,
-      specs: filters.specs, // Сохраняем текущие specs
+      specs: filters.specs,
       selectedSpecs: Object.keys(filters.specs).reduce((acc, key) => {
         acc[key] = Object.keys(filters.specs[key]).reduce((valAcc, val) => {
           valAcc[val] = true;
@@ -131,14 +146,15 @@ export const ProductFilter = ({
         }, {});
         return acc;
       }, {}),
+      searchQuery: '', // Сбрасываем поиск
     };
 
     setFilters(newFilters);
     onFilterChange(newFilters);
     setExpandedSpecs({});
     setSearchQuery('');
-    setShowSpecs(false); //  характеристики после сброса
-    setShowMoreSpecs(false); // Сбрасываем раскрытие характеристик
+    setShowSpecs(false);
+    setShowMoreSpecs(false);
   };
 
   const toggleExpandSpecs = (specKey) => {
@@ -232,7 +248,6 @@ export const ProductFilter = ({
               onFilterChange(newFilters);
             }}
             value={filters.brand}
-            // disabled={filters.brands.length === 0}
           >
             {filters.brands.length > 0 ? (
               <>
@@ -247,9 +262,8 @@ export const ProductFilter = ({
               <option value="all">{t('filters.all')}</option>
             )}
           </select>
-
         </div>
-        {(isSearchPage || isAdminPage ) && (
+        {(isSearchPage || isAdminPage) && (
           <>
             <div className="filter-group">
               <label>{t('filters.category')}:</label>
@@ -275,19 +289,19 @@ export const ProductFilter = ({
                 value={filters.subcategory}
                 disabled={filters.category === 'all' || availableSubcategories.length === 0}
               >
-              {availableSubcategories.length > 0 ? (
-                <>
+                {availableSubcategories.length > 0 ? (
+                  <>
+                    <option value="all">{t('filters.all')}</option>
+                    {availableSubcategories.map((subcategory) => (
+                      <option key={subcategory} value={subcategory}>
+                        {t(`subcategory.${filters.category}.${subcategory}`)}
+                      </option>
+                    ))}
+                  </>
+                ) : (
                   <option value="all">{t('filters.all')}</option>
-                  {availableSubcategories.map((subcategory) => (
-                    <option key={subcategory} value={subcategory}>
-                      {t(`subcategory.${filters.category}.${subcategory}`)}
-                    </option>
-                  ))}
-                </>
-              ) : (
-                <option value="all">{t('filters.all')}</option>
-              )}
-            </select>
+                )}
+              </select>
             </div>
           </>
         )}

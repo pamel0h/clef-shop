@@ -59,7 +59,9 @@
         "specifications": "Характеристики",
         "showMore": "Показать больше",
         "showLess": "Показать меньше",
-        "noSpecs": "Нет характеристик"
+        "noSpecs": "Нет характеристик",
+        "search":"Поиск",
+        "searchPlaceholder":"Искать по названию"
     },
     "sort": {
         "mainTitle": "Сортировка",
@@ -109,7 +111,8 @@
             "currentImage": "Текущее изображение",
             "submit": "Применить",
             "export": "Экспорт в CSV",
-            "import": "Импорт из CSV"
+            "import": "Импорт из CSV",
+            "noFilteredProducts": "Товары не найдены"
         },
         "title": "Админ-панель",
         "main": "Панель управления",

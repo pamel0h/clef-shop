@@ -41,7 +41,7 @@ const AdminCatalogPage = () => {
     console.log('Product added successfully');
     await refetch(true);
     if (savedFilters) {
-      setTimeout(() => handleFilterChange(savedFilters), 100);
+      handleFilterChange(savedFilters);
     }
     if (savedSortOption) {
       handleSortChange(savedSortOption.field, savedSortOption.direction);
@@ -57,7 +57,7 @@ const AdminCatalogPage = () => {
     console.log('Product updated successfully');
     await refetch(true);
     if (savedFilters) {
-      setTimeout(() => handleFilterChange(savedFilters), 100);
+      handleFilterChange(savedFilters);
     }
     if (savedSortOption) {
       handleSortChange(savedSortOption.field, savedSortOption.direction);
@@ -104,7 +104,7 @@ const AdminCatalogPage = () => {
         await refetch(true);
         // Восстанавливаем фильтры и сортировку
         if (savedFilters) {
-          setTimeout(() => handleFilterChange(savedFilters), 100);
+          handleFilterChange(savedFilters);
         }
         if (savedSortOption) {
           handleSortChange(savedSortOption.field, savedSortOption.direction);
@@ -245,6 +245,8 @@ const AdminCatalogPage = () => {
             onSortChange={handleSortChangeWithSave}
             sortOption={sortOption}
             isAdminPage={isAdminPage}
+            savedFilters={savedFilters} 
+            savedSortOption={savedSortOption}
           />
         </div>
         <div className="table-column">
