@@ -23,6 +23,29 @@ class ProductFormatter
         ];
     }
 
+     /**
+     * Форматировать элементы корзины
+     */
+    public function formatCartItems(array $items): array
+    {
+        $cartItems = collect($items)->map(function ($item) {
+            $product = Item::find($item['product_id']);
+            if (!$product) {
+                Log::warning('Product not found for product_id: ' . $item['product_id']);
+                return null;
+            }
+            return [
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'attributes' => $item['attributes'] ?? [],
+                'product' => $this->formatProduct($product),
+            ];
+        })->filter()->values()->toArray();
+
+        return ['items' => $cartItems];
+    }
+
+    
     public function getFirstImageUrl(?array $images): string
     {
         if (!$images || count($images) == 0) {

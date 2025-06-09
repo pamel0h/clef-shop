@@ -30,11 +30,11 @@ const CartItem = ({ item }) => {
 
     const itemPrice = item.product?.price * (1 - (item.product?.discount || 0) / 100);
     const totalPrice = itemPrice * item.quantity;
-
+console.log(item.product.image);
     return (
         <div className='cartItem'>
             <img 
-                src={item.product?.image_url} 
+                src={item.product?.image} 
                 alt={item.product?.name} 
                 width="50" 
                 style={{ marginRight: '10px' }} 

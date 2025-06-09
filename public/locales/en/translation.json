@@ -60,8 +60,8 @@
         "showMore": "Show more",
         "showLess": "Show less",
         "noSpecs": "No specifications",
-        "search":"Search",
-        "searchPlaceholder":"Search by name"
+        "search": "Search",
+        "searchPlaceholder": "Search by name"
     },
     "sort": {
         "mainTitle": "Sorting",
@@ -113,15 +113,15 @@
             "export": "Export to CSV",
             "import": "Import from CSV",
             "noFilteredProducts": "No filtered products",
-            "saving":"Saving",
+            "saving": "Saving",
             "items_per_page": "Items per page",
-            "importSuccess":"Import success!",
-            "yes":"Yes",
-            "no":"No",
-            "uploadError":"Import Error",
-            "noCsvFile":"No CSV file",
-            "imagePreview":"Image Preview",
-            "clear":"Clear"
+            "importSuccess": "Import success!",
+            "yes": "Yes",
+            "no": "No",
+            "uploadError": "Import Error",
+            "noCsvFile": "No CSV file",
+            "imagePreview": "Image Preview",
+            "clear": "Clear"
         },
         "title": "Admin Panel",
         "main": "Panel editor",
@@ -239,7 +239,8 @@
         "hjhjhj": "hjhjhj8",
         "dssdsdsdsds": "dsdsdsdsdsds",
         "kukusikig": "murueu",
-        "ggggg": "hhhhhhh"
+        "ggggg": "hhhhhhh",
+        "ddd": "ddd"
     },
     "contacts": {
         "mainTitle": "Contacts",

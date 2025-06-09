@@ -60,8 +60,8 @@
         "showMore": "Показать больше",
         "showLess": "Показать меньше",
         "noSpecs": "Нет характеристик",
-        "search":"Поиск",
-        "searchPlaceholder":"Искать по названию"
+        "search": "Поиск",
+        "searchPlaceholder": "Искать по названию"
     },
     "sort": {
         "mainTitle": "Сортировка",
@@ -113,15 +113,15 @@
             "export": "Экспорт в CSV",
             "import": "Импорт из CSV",
             "noFilteredProducts": "Товары не найдены",
-            "saving":"Сохранение",
+            "saving": "Сохранение",
             "items_per_page": "Записей на странице",
-            "importSuccess":"Товары успешно импортированы!",
-            "yes":"Да",
-            "no":"Нет",
-            "uploadError":"Ошибка импорта",
-            "noCsvFile":"CSV файл не найден",
-            "imagePreview":"Превью изображения",
-            "clear":"Очистить"
+            "importSuccess": "Товары успешно импортированы!",
+            "yes": "Да",
+            "no": "Нет",
+            "uploadError": "Ошибка импорта",
+            "noCsvFile": "CSV файл не найден",
+            "imagePreview": "Превью изображения",
+            "clear": "Очистить"
         },
         "title": "Админ-панель",
         "main": "Панель управления",
@@ -239,7 +239,8 @@
         "hjhjhj": "ророро",
         "dssdsdsdsds": "вавававава",
         "kukusikig": "масюсики",
-        "ggggg": "гггггг"
+        "ggggg": "гггггг",
+        "ddd": "ввв"
     },
     "contacts": {
         "mainTitle": "Контакты",
