@@ -113,7 +113,11 @@
             "export": "Export to CSV",
             "import": "Import from CSV",
             "noFilteredProducts": "No filtered products",
-            "saving":"Saving"
+            "saving":"Saving",
+            "items_per_page": "Items per page",
+            "importSuccess":"Import success!",
+            "yes":"Yes",
+            "no":"No"
         },
         "title": "Admin Panel",
         "main": "Panel editor",

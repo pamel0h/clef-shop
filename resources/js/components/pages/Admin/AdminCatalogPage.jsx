@@ -8,6 +8,7 @@ import AddProductModal from './AddProductModal';
 import EditProductModal from './EditProductModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import '../../../../css/components/AdminCatalog.css';
+import "../../../../css/components/Table.css";
 
 const AdminCatalogPage = () => {
   const { t } = useTranslation();
@@ -23,6 +24,10 @@ const AdminCatalogPage = () => {
   const [importLoading, setImportLoading] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Состояние для пагинации
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   // Сохраняем фильтры и сортировку
   const [savedFilters, setSavedFilters] = useState(null);
   const [savedSortOption, setSavedSortOption] = useState({ field: 'name', direction: 'asc' });
@@ -33,6 +38,29 @@ const AdminCatalogPage = () => {
     isAdminPage
   );
 
+  // Пагинация: вычисляем общее количество страниц и товары для текущей страницы
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Обработчик смены страницы
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  // Обработчик изменения количества элементов на странице
+  const handleItemsPerPageChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (value > 0) {
+      setItemsPerPage(value);
+      setCurrentPage(1); // Сбрасываем на первую страницу при изменении количества
+    }
+  };
+
   const handleAddProduct = async () => {
     console.log('Product added successfully');
     await refetch(true);
@@ -42,6 +70,7 @@ const AdminCatalogPage = () => {
     if (savedSortOption) {
       handleSortChange(savedSortOption.field, savedSortOption.direction);
     }
+    setCurrentPage(1); // Сбрасываем на первую страницу после добавления
   };
 
   const handleEditProduct = (product) => {
@@ -58,6 +87,7 @@ const AdminCatalogPage = () => {
     if (savedSortOption) {
       handleSortChange(savedSortOption.field, savedSortOption.direction);
     }
+    setCurrentPage(1); // Сбрасываем на первую страницу после обновления
   };
 
   const handleDeleteProduct = (product) => {
@@ -104,6 +134,10 @@ const AdminCatalogPage = () => {
         }
         if (savedSortOption) {
           handleSortChange(savedSortOption.field, savedSortOption.direction);
+        }
+        // Если текущая страница стала пустой, переходим на предыдущую
+        if (filteredProducts.length <= 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
         }
         console.log('Product deleted successfully');
       } else {
@@ -198,6 +232,7 @@ const AdminCatalogPage = () => {
         if (savedSortOption) {
           handleSortChange(savedSortOption.field, savedSortOption.direction);
         }
+        setCurrentPage(1); // Сбрасываем на первую страницу после импорта
         alert(t('admin.catalog.importSuccess', { count: data.imported }));
         if (data.errors && data.errors.length > 0) {
           alert(t('admin.catalog.importErrors', { errors: data.errors.join('; ') }));
@@ -218,12 +253,14 @@ const AdminCatalogPage = () => {
   const handleFilterChangeWithSave = (newFilters) => {
     setSavedFilters(newFilters);
     handleFilterChange(newFilters);
+    setCurrentPage(1); // Сбрасываем на первую страницу при изменении фильтров
   };
 
   const handleSortChangeWithSave = (field, direction) => {
     const newSortOption = { field, direction };
     setSavedSortOption(newSortOption);
     handleSortChange(field, direction);
+    setCurrentPage(1); // Сбрасываем на первую страницу при изменении сортировки
   };
 
   if (loading || importLoading) return <div className="loading"></div>;
@@ -243,37 +280,49 @@ const AdminCatalogPage = () => {
             onSortChange={handleSortChangeWithSave}
             sortOption={sortOption}
             isAdminPage={isAdminPage}
-            savedFilters={savedFilters} 
+            savedFilters={savedFilters}
             savedSortOption={savedSortOption}
           />
         </div>
         <div className="table-column">
-          <Button
-            onClick={() => setShowAddModal(true)}
-            className="add-product-btn"
-          >
-            + {t('admin.catalog.add')}
-          </Button>
-          <Button
-            onClick={handleExport}
-            className="export-csv-btn"
-          >
-            {t('admin.catalog.export')}
-          </Button>
-          <Button
-            onClick={() => fileInputRef.current.click()}
-            className="import-csv-btn"
-          >
-            {t('admin.catalog.import')}
-          </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            accept=".csv"
-            multiple
-            onChange={handleImportCSV}
-          />
+          <div className="controls-container">
+            <Button
+              onClick={() => setShowAddModal(true)}
+              className="add-product-btn"
+            >
+              + {t('admin.catalog.add')}
+            </Button>
+            <Button
+              onClick={handleExport}
+              className="export-csv-btn"
+            >
+              {t('admin.catalog.export')}
+            </Button>
+            <Button
+              onClick={() => fileInputRef.current.click()}
+              className="import-csv-btn"
+            >
+              {t('admin.catalog.import')}
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              accept=".csv"
+              multiple
+              onChange={handleImportCSV}
+            />
+            <div className="items-per-page-container">
+              <label>{t('admin.catalog.items_per_page')}: </label>
+              <input
+                type="number"
+                min="1"
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+                className="items-per-page-input"
+              />
+            </div>
+          </div>
           <table className="admin-products-table">
             <thead>
               <tr>
@@ -288,10 +337,10 @@ const AdminCatalogPage = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((product, index) => (
+              {paginatedProducts.length > 0 ? (
+                paginatedProducts.map((product, index) => (
                   <tr key={product.id}>
-                    <td>{index + 1}</td>
+                    <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                     <td>{product.name || '-'}</td>
                     <td>{product.price ? `${product.price} ₽` : '-'}</td>
                     <td>{product.discount ? `${product.discount}%` : '-'}</td>
@@ -322,6 +371,47 @@ const AdminCatalogPage = () => {
                 </tr>
               )}
             </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="8">
+                  <div className="links">
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(currentPage - 1);
+                      }}
+                      className={currentPage === 1 ? 'disabled' : ''}
+                    >
+                      «
+                    </a>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                      <a
+                        key={index + 1}
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(index + 1);
+                        }}
+                        className={currentPage === index + 1 ? 'active' : ''}
+                      >
+                        {index + 1}
+                      </a>
+                    ))}
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(currentPage + 1);
+                      }}
+                      className={currentPage === totalPages ? 'disabled' : ''}
+                    >
+                      »
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </div>

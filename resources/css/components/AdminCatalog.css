@@ -54,7 +54,8 @@
  */
  .admin-products-table {
   width: 100%;
-  text-align: left;
+  text-align: center;
+  margin-top: 20px;
   border-collapse: separate;
   border-spacing: 0 8px;
 }
@@ -89,6 +90,35 @@
 .admin-catalog-layout{
   font-family: var(--font-main);
 }
+
+
+.admin-products-table tfoot {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffffff;
+  background: var(--color-dark-gray);
+  border-top: 3px solid #444444;
+}
+
+.admin-products-table tfoot td {
+  font-size: 1rem;
+  
+}
+
+.admin-products-table tfoot .links {
+  text-align: right;
+}
+
+.admin-products-table tfoot .links a {
+  display: inline-block;
+  background: var(--color-white);
+  color: var(--color-primary);
+  padding: 2px 8px;
+  border-radius: 5px;
+  margin: 2px;
+  text-decoration: none;
+}
+
 
   @media (max-width: 768px) {
     .admin-catalog-layout {

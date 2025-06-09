@@ -19,7 +19,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, productName, loading }
             className="cancel-btn"
             disabled={loading}
           >
-            {t('No')}
+            {t('admin.catalog.no')}
           </Button>
           <Button 
             type="button" 
@@ -27,7 +27,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, productName, loading }
             className="delete-btn"
             disabled={loading}
           >
-            {loading ? t('Loading') : t('Yes')}
+            {loading ? t('admin.catalog.saving') : t('admin.catalog.yes')}
           </Button>
         </div>
       </div>
