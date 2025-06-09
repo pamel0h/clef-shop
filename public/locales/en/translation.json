@@ -112,7 +112,8 @@
             "submit": "Submit",
             "export": "Export to CSV",
             "import": "Import from CSV",
-            "noFilteredProducts": "No filtered products"
+            "noFilteredProducts": "No filtered products",
+            "saving":"Saving"
         },
         "title": "Admin Panel",
         "main": "Panel editor",

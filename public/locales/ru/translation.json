@@ -112,7 +112,8 @@
             "submit": "Применить",
             "export": "Экспорт в CSV",
             "import": "Импорт из CSV",
-            "noFilteredProducts": "Товары не найдены"
+            "noFilteredProducts": "Товары не найдены",
+            "saving":"Сохранение"
         },
         "title": "Админ-панель",
         "main": "Панель управления",

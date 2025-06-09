@@ -41,10 +41,10 @@ const useProductFilter = (initialProducts = [], filteredByMainFilters = [], save
   }, [initialProducts]);
 
   useEffect(() => {
-    // Формируем specs из товаров, отфильтрованных основными фильтрами
+    // Формируем specs из товаров, отфильтрованных основными фильтрами и поисковым запросом
     const allSpecs = {};
     const mainFilteredProducts = initialProducts.filter((product) => {
-      const price = Number(product.price);
+      const price = Number(product.price) || 0;
       const discountPrice = product.discount ? price * (1 - product.discount / 100) : price;
 
       // Фильтр по цене
@@ -64,6 +64,11 @@ const useProductFilter = (initialProducts = [], filteredByMainFilters = [], save
 
       // Фильтр по подкатегории
       if (filters.subcategory !== 'all' && product.subcategory !== filters.subcategory) {
+        return false;
+      }
+
+      // Фильтр по поисковому запросу
+      if (filters.searchQuery && !product.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
         return false;
       }
 
@@ -98,7 +103,7 @@ const useProductFilter = (initialProducts = [], filteredByMainFilters = [], save
       specs: allSpecs,
       selectedSpecs: newSelectedSpecs,
     }));
-  }, [initialProducts, filters.priceRange, filters.brand, filters.category, filters.subcategory]);
+  }, [initialProducts, filters.priceRange, filters.brand, filters.category, filters.subcategory, filters.searchQuery]);
 
   return { filters, setFilters };
 };
