@@ -10,7 +10,7 @@ use App\Formatters\ProductFormatter;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
-use App\Services\CatalogExportService;
+use App\Services\CatalogExportImportService;
 
 class AdminCatalogController extends Controller
 {
@@ -18,7 +18,7 @@ class AdminCatalogController extends Controller
     private $productFormatter;
     private $catalogExportService;
 
-    public function __construct(ProductService $productService, ProductFormatter $productFormatter, CatalogExportService $catalogExportService)
+    public function __construct(ProductService $productService, ProductFormatter $productFormatter, CatalogExportImportService $catalogExportService)
     {
         $this->productService = $productService;
         $this->productFormatter = $productFormatter;
