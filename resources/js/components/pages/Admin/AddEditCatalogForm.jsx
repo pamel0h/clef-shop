@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import useCatalogData from '../../../hooks/useCatalogData';
 import Button from '../../UI/Button';
@@ -29,6 +29,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const modalContentRef = useRef(null); // Референс для modal-content
 
   const { data: categories, loading: categoriesLoading, pausePolling, resumePolling } = useCatalogData('categories');
   const { data: subcategories, loading: subcategoriesLoading } = useCatalogData('subcategories', { category: selectedCategory }, !selectedCategory);
@@ -402,10 +403,18 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
             ${detailedErrors ? `<ul>${detailedErrors}</ul>` : ''}
           </div>`
         );
+        // Прокрутка к началу modal-content
+        if (modalContentRef.current) {
+          modalContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
     } catch (err) {
       console.error('Error submitting form:', err);
       setError(t('network_error', { message: err.message }));
+      // Прокрутка к началу modal-content
+      if (modalContentRef.current) {
+        modalContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } finally {
       setLoading(false);
       resumePolling();
@@ -416,12 +425,11 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" ref={modalContentRef} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{title}</h2>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
-
         <form onSubmit={handleSubmit} className="add-product-form">
           {error && (
             <div
@@ -429,7 +437,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               dangerouslySetInnerHTML={{ __html: error }}
             />
           )}
-
           <div className="form-group">
             <label>{t('admin.catalog.name')}*</label>
             <input
@@ -439,7 +446,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               onChange={handleInputChange}
             />
           </div>
-
           <div className="form-row">
             <div className="form-group">
               <label>{t('admin.catalog.price')}*</label>
@@ -467,7 +473,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               />
             </div>
           </div>
-
           <div className="form-row">
             <div className="form-group">
               <label>{t('admin.catalog.category')}*</label>
@@ -575,7 +580,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               )}
             </div>
           </div>
-
           <div className="form-group">
             <label>{t('admin.catalog.brand')}*</label>
             <input
@@ -591,7 +595,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               ))}
             </datalist>
           </div>
-
           <div className="form-group">
             <label>{t('admin.catalog.descriptionEn')}</label>
             <textarea
@@ -601,7 +604,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               rows="3"
             />
           </div>
-
           <div className="form-group">
             <label>{t('admin.catalog.descriptionRu')}</label>
             <textarea
@@ -611,7 +613,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               rows="3"
             />
           </div>
-
           <div className="form-group">
             <label>{t('admin.catalog.image')}</label>
             {imagePreviews.length > 0 && (
@@ -647,7 +648,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               </small>
             )}
           </div>
-
           <div className="form-group specs-group">
             <label className="specs-label">{t('specs.mainTitle')}</label>
             <datalist id="spec-keys">
@@ -737,7 +737,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               + {t('admin.catalog.addSpec')}
             </button>
           </div>
-
           <div className="modal-actions">
             <Button type="button" onClick={onClose} className="cancel-button">
               {t('admin.catalog.cancel')}
