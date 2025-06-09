@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\RequiredFieldsGroup;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProductRequest extends FormRequest
 {
     public function authorize()
     {
-        return true; 
+        return true;
     }
 
     public function rules()
@@ -16,40 +18,88 @@ class UpdateProductRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'category' => 'required|string',
-            'subcategory' => 'required|string',
+            'category' => [
+                Rule::requiredIf(function () {
+                    return !$this->input('is_new_category');
+                }),
+                'nullable',
+                'string',
+            ],
+            'subcategory' => [
+                Rule::requiredIf(function () {
+                    return !$this->input('is_new_subcategory');
+                }),
+                'nullable',
+                'string',
+            ],
             'brand' => 'required|string',
             'discount' => 'nullable|numeric|min:0|max:100',
             'description_en' => 'nullable|string',
             'description_ru' => 'nullable|string',
             'images' => 'nullable|array|max:1',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'new_category' => 'nullable|array', 
-            'new_category.slug' => 'required_if:is_new_category,1|string|min:1',
-            'new_category.ru' => 'required_if:is_new_category,1|string|min:1',
-            'new_category.en' => 'required_if:is_new_category,1|string|min:1',
-            'new_subcategory' => 'nullable|array', 
-            'new_subcategory.slug' => 'required_if:is_new_subcategory,1|string|min:1',
-            'new_subcategory.ru' => 'required_if:is_new_subcategory,1|string|min:1',
-            'new_subcategory.en' => 'required_if:is_new_subcategory,1|string|min:1',
-            'specs' => 'nullable|array',
-            'specs.*.key' => 'required_with:specs|string',
-            'specs.*.value' => 'required_with:specs|string',
-            'specs_data' => 'nullable|json',
             'is_new_category' => 'nullable|boolean',
             'is_new_subcategory' => 'nullable|boolean',
+            'new_category' => [
+                Rule::requiredIf(function () {
+                    return $this->input('is_new_category') == 1;
+                }),
+                new RequiredFieldsGroup(
+                    ['slug', 'ru', 'en'],
+                    'Все поля новой категории (slug, русский, английский) должны быть заполнены.'
+                ),
+            ],
+            'new_subcategory' => [
+                Rule::requiredIf(function () {
+                    return $this->input('is_new_subcategory') == 1;
+                }),
+                new RequiredFieldsGroup(
+                    ['slug', 'ru', 'en'],
+                    'Все поля новой подкатегории (slug, русский, английский) должны быть заполнены.'
+                ),
+            ],
+            'specs' => 'nullable|array',
+            'specs.*.key' => [
+                Rule::requiredIf(function () {
+                    $index = $this->getValidationIndex('specs.*.key');
+                    return !$this->input("specs.$index.isNewSpec");
+                }),
+                'string',
+            ],
+            'specs.*.value' => [
+                Rule::requiredIf(function () {
+                    $index = $this->getValidationIndex('specs.*.value');
+                    return $this->input("specs.$index.key") || $this->input("specs.$index.newSpec.slug");
+                }),
+                'string',
+            ],
+            'specs.*.newSpec' => [
+                Rule::requiredIf(function () {
+                    $index = $this->getValidationIndex('specs.*.newSpec');
+                    return $this->input("specs.$index.isNewSpec");
+                }),
+                new RequiredFieldsGroup(
+                    ['slug', 'ru', 'en'],
+                    'Все поля новой характеристики (slug, русский, английский, значение) должны быть заполнены.'
+                ),
+            ],
+            'specs_data' => 'nullable|json',
         ];
     }
 
     public function messages()
     {
         return [
-            'new_category.slug.required_if' => 'The new category slug is required when creating a new category.',
-            'new_category.ru.required_if' => 'The new category Russian translation is required when creating a new category.',
-            'new_category.en.required_if' => 'The new category English translation is required when creating a new category.',
-            'new_subcategory.slug.required_if' => 'The new subcategory slug is required when creating a new subcategory.',
-            'new_subcategory.ru.required_if' => 'The new subcategory Russian translation is required when creating a new subcategory.',
-            'new_subcategory.en.required_if' => 'The new subcategory English translation is required when creating a new subcategory.',
+            'category.required' => 'Категория должна быть выбрана, если не создается новая категория.',
+            'subcategory.required' => 'Подкатегория должна быть выбрана, если не создается новая подкатегория.',
+            'specs.*.key.required' => 'Ключ характеристики обязателен, если не создается новая характеристика.',
+            'specs.*.value.required' => 'Значение характеристики обязательно, если указан ключ или новая характеристика.',
         ];
+    }
+
+    protected function getValidationIndex($field)
+    {
+        preg_match('/specs\.(\d+)\./', $field, $matches);
+        return $matches[1] ?? 0;
     }
 }

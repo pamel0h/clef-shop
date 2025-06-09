@@ -272,36 +272,28 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    setError('');
+  
     pausePolling();
-
+  
     try {
       const formDataToSend = new FormData();
       const authToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
-
+  
       if (!authToken) {
         throw new Error(t('auth_token_missing'));
       }
-
+  
       if (initialData) {
         formDataToSend.append('_method', 'PUT');
       }
-
+  
       const fields = ['name', 'description_en', 'description_ru', 'price', 'discount', 'brand'];
       fields.forEach((key) => {
-        formDataToSend.append(key, formData[key] || '');
+        formDataToSend.append(key, formData[key]?.trim() || '');
       });
-
-      console.log('FormData before sending:', {
-        formData,
-        isNewCategory: formData.isNewCategory,
-        newCategory: formData.newCategory,
-        isNewSubcategory: formData.isNewSubcategory,
-        newSubcategory: formData.newSubcategory,
-        specs: formData.specs,
-      });
-
-      formDataToSend.append('is_new_category', formData.isNewCategory ? '1' : '0');
+  
+      formDataToSend.append('is_new_category', formData.isNewCategory ? 1 : 0);
       if (
         formData.isNewCategory &&
         formData.newCategory.slug?.trim() &&
@@ -313,10 +305,10 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         formDataToSend.append('new_category[ru]', formData.newCategory.ru.trim());
         formDataToSend.append('new_category[en]', formData.newCategory.en.trim());
       } else {
-        formDataToSend.append('category', formData.category || '');
+        formDataToSend.append('category', formData.category?.trim() || '');
       }
-
-      formDataToSend.append('is_new_subcategory', formData.isNewSubcategory ? '1' : '0');
+  
+      formDataToSend.append('is_new_subcategory', formData.isNewSubcategory ? 1 : 0);
       if (
         formData.isNewSubcategory &&
         formData.newSubcategory.slug?.trim() &&
@@ -328,13 +320,13 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         formDataToSend.append('new_subcategory[ru]', formData.newSubcategory.ru.trim());
         formDataToSend.append('new_subcategory[en]', formData.newSubcategory.en.trim());
       } else {
-        formDataToSend.append('subcategory', formData.subcategory || '');
+        formDataToSend.append('subcategory', formData.subcategory?.trim() || '');
       }
-
+  
       if (Array.isArray(formData.images) && formData.images.length > 0) {
         formDataToSend.append('images[]', formData.images[0]);
       }
-
+  
       const specsObject = formData.specs.reduce((obj, spec, index) => {
         if (
           spec.isNewSpec &&
@@ -353,19 +345,13 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         }
         return obj;
       }, {});
-
+  
       if (Object.keys(specsObject).length > 0) {
         formDataToSend.append('specs_data', JSON.stringify(specsObject));
       }
-
-      const formDataEntries = {};
-      for (let [key, value] of formDataToSend.entries()) {
-        formDataEntries[key] = value;
-      }
-      console.log('FormData entries:', formDataEntries);
-
+  
       const url = initialData ? `/api/admin/catalog/${initialData.id}` : '/api/admin/catalog';
-
+  
       const response = await fetch(url, {
         method: 'POST',
         body: formDataToSend,
@@ -374,44 +360,42 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
           'X-Requested-With': 'XMLHttpRequest',
         },
       });
-
+  
       const result = await response.json();
       console.log('Response from server:', result);
-
+  
       if (result.success) {
         await refetchAdminCatalog(true);
         await onSubmit(result.data);
         onClose();
       } else {
-        const errorCount = result.errors ? Object.keys(result.errors).length : 0;
         const detailedErrors = result.errors
           ? Object.entries(result.errors)
               .map(([field, messages]) => {
                 const formattedMessages = Array.isArray(messages)
-                  ? messages.map((msg) => `<li>${msg}</li>`).join('')
-                  : `<li>${messages}</li>`;
-                return `<li><strong>${t(`admin.catalog.${field}`)}:</strong> ${
-                  Array.isArray(messages) && messages.length > 1
-                    ? `<ul>${formattedMessages}</ul>`
-                    : formattedMessages
-                }</li>`;
+                  ? messages.join(', ')
+                  : messages;
+                // Переводим имя поля, если есть перевод, иначе используем само поле
+                return `<li>${t(`admin.catalog.${field}`, field)}: ${formattedMessages}</li>`;
               })
               .join('')
-          : '';
+          : `<li>${result.error || t('network_error', { message: 'Произошла ошибка при отправке формы' })}</li>`;
         setError(
           `<div class="error-container">
-            ${detailedErrors ? `<ul>${detailedErrors}</ul>` : ''}
+            <ul>${detailedErrors}</ul>
           </div>`
         );
-        // Прокрутка к началу modal-content
         if (modalContentRef.current) {
           modalContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
         }
       }
     } catch (err) {
       console.error('Error submitting form:', err);
-      setError(t('network_error', { message: err.message }));
-      // Прокрутка к началу modal-content
+      setError(
+        `<div class="error-container">
+          <ul><li>${t('network_error', { message: err.message })}</li></ul>
+        </div>`
+      );
       if (modalContentRef.current) {
         modalContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       }
