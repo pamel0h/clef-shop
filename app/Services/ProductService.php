@@ -23,8 +23,8 @@ class ProductService
     {
         try {
             Log::info('ProductService: Starting product creation', ['request_data' => $request->all()]);
-    
-            
+
+            // Обработка новой категории
             if ($request->input('is_new_category') && $request->has('new_category')) {
                 $newCategory = $request->input('new_category');
                 if (isset($newCategory['slug'], $newCategory['ru'], $newCategory['en'])) {
@@ -38,8 +38,8 @@ class ProductService
                     Log::info('ProductService: Added temporary translation for category', ['category' => $category]);
                 }
             }
-    
-           
+
+            // Обработка новой подкатегории
             if ($request->input('is_new_subcategory') && $request->has('new_subcategory')) {
                 $newSubcategory = $request->input('new_subcategory');
                 if (isset($newSubcategory['slug'], $newSubcategory['ru'], $newSubcategory['en'])) {
@@ -54,8 +54,8 @@ class ProductService
                     Log::info('ProductService: Added temporary translation for subcategory', ['subcategory' => $subcategory, 'category' => $category]);
                 }
             }
-    
-          
+
+            // Обработка изображений
             $imagesPaths = [];
             if ($request->hasFile('images')) {
                 $images = $request->file('images');
@@ -65,9 +65,29 @@ class ProductService
                 }
                 Log::info('ProductService: Images processed', ['images' => $imagesPaths]);
             }
-    
-     
+
+            // Обработка характеристик
             $specs = new stdClass();
+
+            // 1. Обработка существующих характеристик из массива specs
+            if ($request->has('specs') && is_array($request->input('specs'))) {
+                foreach ($request->input('specs') as $spec) {
+                    if (!empty($spec['key']) && !empty($spec['value'])) {
+                        $specKey = trim($spec['key']);
+                        $specValue = trim($spec['value']);
+                        $specs->{$specKey} = $specValue;
+                        if (!$this->translationService->translationExists('specs', $specKey)) {
+                            $this->translationService->storeTranslation('specs', $specKey, $specKey, $specKey, null, true);
+                            Log::info('ProductService: Added temporary translation for spec', ['spec_key' => $specKey]);
+                        }
+                        Log::info('ProductService: Processed existing spec', ['key' => $specKey, 'value' => $specValue]);
+                    }
+                }
+            } else {
+                Log::info('ProductService: No existing specs provided in request', ['specs' => $request->input('specs')]);
+            }
+
+            // 2. Обработка новых характеристик из specs_data
             $specsString = $request->input('specs_data');
             if (!empty($specsString)) {
                 try {
@@ -93,8 +113,9 @@ class ProductService
                     Log::error('ProductService: Error parsing specs JSON', ['error' => $e->getMessage()]);
                 }
             }
-            Log::info('ProductService: Final specs object', ['specs' => $specs]);
-    
+            Log::info('ProductService: Final specs object', ['specs' => (array) $specs]);
+
+            // Создание товара
             $item = Item::create([
                 'name' => $validated['name'],
                 'description' => [
@@ -109,9 +130,9 @@ class ProductService
                 'images' => $imagesPaths,
                 'specs' => $specs
             ]);
-    
+
             Log::info('ProductService: Product created successfully', ['item_id' => $item->id]);
-    
+
             return [
                 'success' => true,
                 'data' => $productFormatter->formatProduct($item),

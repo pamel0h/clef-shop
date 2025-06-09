@@ -117,7 +117,10 @@
             "items_per_page": "Items per page",
             "importSuccess":"Import success!",
             "yes":"Yes",
-            "no":"No"
+            "no":"No",
+            "uploadError":"Import Error",
+            "noCsvFile":"No CSV file",
+            "imagePreview":"Image Preview"
         },
         "title": "Admin Panel",
         "main": "Panel editor",
