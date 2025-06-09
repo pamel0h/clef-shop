@@ -42,8 +42,8 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
   useEffect(() => {
     if (initialData) {
+      // Для редактирования: заполняем форму данными товара
       setSelectedCategory(initialData.category || '');
-      console.log(initialData);
       setFormData({
         id: initialData.id || '',
         name: initialData.name || '',
@@ -54,7 +54,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         subcategory: initialData.subcategory || '',
         brand: initialData.brand || '',
         discount: initialData.discount || '',
-        image: [],
+        images: [],
         specs: initialData.specs
           ? Object.entries(initialData.specs).map(([key, value]) => ({
               key,
@@ -68,15 +68,14 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         isNewSubcategory: false,
         newSubcategory: { slug: '', ru: '', en: '' },
       });
-      console.log(initialData.image);
       if (initialData.image) {
-        console.log('initial data img', initialData.image);
         const imagePath = [initialData.image];
         setImagePreviews(imagePath);
       } else {
         setImagePreviews([]);
       }
     } else {
+      // Для добавления: очищаем форму
       setSelectedCategory('');
       setFormData({
         name: '',
@@ -96,6 +95,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       });
       setImagePreviews([]);
     }
+    setError(''); // Сбрасываем ошибку при открытии формы
   }, [initialData]);
 
   useEffect(() => {
@@ -246,10 +246,31 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     }));
   };
 
+  const handleClearForm = () => {
+    setFormData({
+      name: '',
+      description_en: '',
+      description_ru: '',
+      price: '',
+      category: '',
+      subcategory: '',
+      brand: '',
+      discount: '',
+      images: [],
+      specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+      isNewCategory: false,
+      newCategory: { slug: '', ru: '', en: '' },
+      isNewSubcategory: false,
+      newSubcategory: { slug: '', ru: '', en: '' },
+    });
+    setImagePreviews([]);
+    setSelectedCategory('');
+    setError('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     pausePolling();
 
@@ -276,6 +297,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         newCategory: formData.newCategory,
         isNewSubcategory: formData.isNewSubcategory,
         newSubcategory: formData.newSubcategory,
+        specs: formData.specs,
       });
 
       formDataToSend.append('is_new_category', formData.isNewCategory ? '1' : '0');
@@ -355,60 +377,32 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       const result = await response.json();
       console.log('Response from server:', result);
 
-   if (result.success) {
-  setFormData({
-    name: '',
-    description_en: '',
-    description_ru: '',
-    price: '',
-    category: '',
-    subcategory: '',
-    brand: '',
-    discount: '',
-    images: [],
-    specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
-    isNewCategory: false,
-    newCategory: { slug: '', ru: '', en: '' },
-    isNewSubcategory: false,
-    newSubcategory: { slug: '', ru: '', en: '' },
-  });
-  setImagePreviews([]);
-  setSelectedCategory('');
-
-  // Обновляем данные и переводы одним вызовом
-  await refetchAdminCatalog(true); // true = обновить timestamps и переводы
-  
-  await onSubmit(result.data);
-  onClose();
-} else {
-      //   const errorMessage = result.message || t('submit_error');
-      //   const detailedErrors = result.errors
-      //     ? Object.values(result.errors).flat().join(' ')
-      //     : '';
-      //   setError(`${errorMessage} ${detailedErrors}`);
-      // }
-      const errorCount = result.errors ? Object.keys(result.errors).length : 0;
-      // const errorMessage = t('submit_error_with_count', { count: errorCount });
-      const detailedErrors = result.errors
-        ? Object.entries(result.errors)
-            .map(([field, messages]) => {
-              const formattedMessages = Array.isArray(messages)
-                ? messages.map((msg) => `<li>${msg}</li>`).join('')
-                : `<li>${messages}</li>`;
-              return `<li><strong>${t(`admin.catalog.${field}`)}:</strong> ${
-                Array.isArray(messages) && messages.length > 1
-                  ? `<ul>${formattedMessages}</ul>`
-                  : formattedMessages
-              }</li>`;
-            })
-            .join('')
-        : '';
-      setError(
-        `<div class="error-container">
-          ${detailedErrors ? `<ul>${detailedErrors}</ul>` : ''}
-        </div>`
-      );
-    }
+      if (result.success) {
+        await refetchAdminCatalog(true);
+        await onSubmit(result.data);
+        onClose();
+      } else {
+        const errorCount = result.errors ? Object.keys(result.errors).length : 0;
+        const detailedErrors = result.errors
+          ? Object.entries(result.errors)
+              .map(([field, messages]) => {
+                const formattedMessages = Array.isArray(messages)
+                  ? messages.map((msg) => `<li>${msg}</li>`).join('')
+                  : `<li>${messages}</li>`;
+                return `<li><strong>${t(`admin.catalog.${field}`)}:</strong> ${
+                  Array.isArray(messages) && messages.length > 1
+                    ? `<ul>${formattedMessages}</ul>`
+                    : formattedMessages
+                }</li>`;
+              })
+              .join('')
+          : '';
+        setError(
+          `<div class="error-container">
+            ${detailedErrors ? `<ul>${detailedErrors}</ul>` : ''}
+          </div>`
+        );
+      }
     } catch (err) {
       console.error('Error submitting form:', err);
       setError(t('network_error', { message: err.message }));
@@ -429,15 +423,15 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         </div>
 
         <form onSubmit={handleSubmit} className="add-product-form">
-        {error && (
-          <div
-            className="error-message"
-            dangerouslySetInnerHTML={{ __html: error }}
-          />
-        )}
+          {error && (
+            <div
+              className="error-message"
+              dangerouslySetInnerHTML={{ __html: error }}
+            />
+          )}
 
           <div className="form-group">
-            <label>{t('admin.catalog.name')}</label>
+            <label>{t('admin.catalog.name')}*</label>
             <input
               type="text"
               name="name"
@@ -448,7 +442,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
           <div className="form-row">
             <div className="form-group">
-              <label>{t('admin.catalog.price')}</label>
+              <label>{t('admin.catalog.price')}*</label>
               <input
                 type="text"
                 name="price"
@@ -476,7 +470,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
           <div className="form-row">
             <div className="form-group">
-              <label>{t('admin.catalog.category')}</label>
+              <label>{t('admin.catalog.category')}*</label>
               <label style={{ marginBottom: '10px', display: 'block' }}>
                 <input
                   type="checkbox"
@@ -518,7 +512,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   onChange={handleInputChange}
                   disabled={categoriesLoading}
                 >
-                  <option value="">{categoriesLoading ? t('loading') : t('admin.catalog.selectCategory')}</option>
+                  <option value="">{t('admin.catalog.selectCategory')}</option>
                   {categories?.map((category) => (
                     <option key={category} value={category}>
                       {t(`category.${category}`)}
@@ -528,7 +522,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               )}
             </div>
             <div className="form-group">
-              <label>{t('admin.catalog.subcategory')}</label>
+              <label>{t('admin.catalog.subcategory')}*</label>
               <label style={{ marginBottom: '10px', display: 'block' }}>
                 <input
                   type="checkbox"
@@ -571,7 +565,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                   onChange={handleInputChange}
                   disabled={subcategoriesLoading || (!formData.category && !formData.isNewCategory)}
                 >
-                  <option value="">{subcategoriesLoading ? t('loading') : t('admin.catalog.selectSubcategory')}</option>
+                  <option value="">{t('admin.catalog.selectSubcategory')}</option>
                   {subcategories?.map((subcategory) => (
                     <option key={subcategory} value={subcategory}>
                       {t(`subcategory.${formData.category}.${subcategory}`) || subcategory}
@@ -583,7 +577,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
           </div>
 
           <div className="form-group">
-            <label>{t('admin.catalog.brand')}</label>
+            <label>{t('admin.catalog.brand')}*</label>
             <input
               type="text"
               name="brand"
@@ -747,6 +741,9 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
           <div className="modal-actions">
             <Button type="button" onClick={onClose} className="cancel-button">
               {t('admin.catalog.cancel')}
+            </Button>
+            <Button type="button" onClick={handleClearForm} className="cancel-button">
+              {t('admin.catalog.clear')}
             </Button>
             <Button
               type="submit"

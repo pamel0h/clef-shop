@@ -120,7 +120,8 @@
             "no":"No",
             "uploadError":"Import Error",
             "noCsvFile":"No CSV file",
-            "imagePreview":"Image Preview"
+            "imagePreview":"Image Preview",
+            "clear":"Clear"
         },
         "title": "Admin Panel",
         "main": "Panel editor",
