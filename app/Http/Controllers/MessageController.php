@@ -8,12 +8,22 @@ use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $messages = Message::where('user_id', Auth::id())
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $query = Message::where('user_id', Auth::id())
+            ->orderBy('created_at', 'asc');
             
+        if ($request->has('since') && $request->since) {
+            try {
+                $sinceId = new \MongoDB\BSON\ObjectId($request->since);
+                $query->where('_id', '>', $sinceId);
+            } catch (\Exception $e) {
+                return response()->json([]);
+            }
+        }
+            
+        $messages = $query->get();
+        
         return response()->json($messages);
     }
 

@@ -12,7 +12,6 @@ class AdminMessageController extends Controller
 {
     public function index(Request $request)
     {
-
         $allMessages = Message::all();
         Log::info('All messages count: ' . $allMessages->count());
 
@@ -54,16 +53,37 @@ class AdminMessageController extends Controller
         return response()->json($conversations);
     }
 
-    public function show(User $user)
+    public function show(Request $request, User $user)
     {
-        $messages = Message::where('user_id', $user->id)
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $query = Message::where('user_id', $user->id)
+            ->orderBy('created_at', 'asc');
+            
+        if ($request->has('since') && $request->since) {
+            try {
+                $sinceId = new \MongoDB\BSON\ObjectId($request->since);
+                $query->where('_id', '>', $sinceId);
+                
+                Log::info('Fetching messages since ID: ' . $request->since . ' for user: ' . $user->id);
+            } catch (\Exception $e) {
+                Log::error('Invalid ObjectId format: ' . $request->since);
+                return response()->json([
+                    'user' => $user,
+                    'messages' => [],
+                ]);
+            }
+        }
+        
+        $messages = $query->get();
+        
+        Log::info('Found messages count: ' . $messages->count() . ' for user: ' . $user->id . 
+                 ($request->has('since') ? ' (incremental)' : ' (full)'));
 
-        Message::where('user_id', $user->id)
-            ->where('is_admin', false)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
+        if (!$request->has('since')) {
+            Message::where('user_id', $user->id)
+                ->where('is_admin', false)
+                ->whereNull('read_at')
+                ->update(['read_at' => now()]);
+        }
 
         return response()->json([
             'user' => $user,
@@ -85,5 +105,32 @@ class AdminMessageController extends Controller
         ]);
 
         return response()->json($message, 201);
+    }
+
+    public function markRead(Request $request, User $user)
+    {
+        $request->validate([
+            'message_ids' => 'required|array',
+            'message_ids.*' => 'string',
+        ]);
+
+        try {
+            $messageIds = array_map(function ($id) {
+                return new \MongoDB\BSON\ObjectId($id);
+            }, $request->message_ids);
+
+            Message::where('user_id', $user->id)
+                ->whereIn('_id', $messageIds)
+                ->where('is_admin', false)
+                ->whereNull('read_at')
+                ->update(['read_at' => now()]);
+
+            Log::info('Marked messages as read for user: ' . $user->id, ['message_ids' => $request->message_ids]);
+
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            Log::error('Error marking messages as read: ' . $e->getMessage());
+            return response()->json(['error' => 'Invalid message IDs'], 400);
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../../context/AuthContext';
@@ -22,54 +22,100 @@ const ProfilePage = () => {
     const [loadingMessages, setLoadingMessages] = useState(false);
     const [error, setError] = useState('');
     const [messageText, setMessageText] = useState('');
+    
+    // Ref для отслеживания последнего ID сообщения
+    const lastMessageIdRef = useRef(null);
+    const pollingIntervalRef = useRef(null);
+    const messagesEndRef = useRef(null); // Ref for the messages container
 
-    const fetchMessages = async (lastMessageId = null) => {
-    if (activeContainer === 'messages') {
+    // Функция для получения всех сообщений (при первой загрузке)
+    const fetchAllMessages = async () => {
         setLoadingMessages(true);
         try {
-            const url = lastMessageId 
-                ? `/api/messages?since=${lastMessageId}`
-                : '/api/messages';
+            const response = await axios.get('/api/messages');
+            setMessages(response.data);
             
-            const response = await axios.get(url);
-            
-            if (lastMessageId && response.data.length > 0) {
-                setMessages(prev => [...prev, ...response.data]);
-            } else if (!lastMessageId) {
-                setMessages(response.data);
+            // Обновляем последний ID сообщения
+            if (response.data.length > 0) {
+                lastMessageIdRef.current = response.data[response.data.length - 1].id;
             }
         } catch (err) {
             setError(t('profile.messages_error'));
         } finally {
             setLoadingMessages(false);
         }
-    }
-};
+    };
 
+    // Функция для получения только новых сообщений
+    const fetchNewMessages = async () => {
+        if (!lastMessageIdRef.current) return;
+        
+        try {
+            const response = await axios.get(`/api/messages?since=${lastMessageIdRef.current}`);
+            
+            if (response.data.length > 0) {
+                setMessages(prev => [...prev, ...response.data]);
+                // Обновляем последний ID
+                lastMessageIdRef.current = response.data[response.data.length - 1].id;
+            }
+        } catch (err) {
+            console.error('Error fetching new messages:', err);
+        }
+    };
+
+    // Загрузка заказов
+    const fetchOrders = async () => {
+        setLoadingOrders(true);
+        try {
+            const response = await axios.get('/api/order');
+            setOrders(response.data);
+        } catch (err) {
+            setError(t('profile.orders_error'));
+        } finally {
+            setLoadingOrders(false);
+        }
+    };
+
+    // Первоначальная загрузка данных при смене контейнера
     useEffect(() => {
         if (user) {
-            const fetchOrders = async () => { /* ... */ };
-            
-            fetchOrders();
-            fetchMessages();
+            if (activeContainer === 'orders' || activeContainer === 'purchases') {
+                fetchOrders();
+            } else if (activeContainer === 'messages') {
+                fetchAllMessages();
+            }
         }
-    }, [user, t, activeContainer]);
+    }, [user, activeContainer, t]);
 
+    // Настройка polling только для сообщений
     useEffect(() => {
-    if (activeContainer === 'messages' && user) {
-        fetchMessages(); 
-        
-        const lastMessageId = messages.length > 0 
-            ? messages[messages.length - 1].id 
-            : null;
-            
-        const interval = setInterval(() => {
-            fetchMessages(lastMessageId);
-        }, 30000); 
+        // Очищаем предыдущий интервал
+        if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+        }
 
-        return () => clearInterval(interval);
-    }
-}, [activeContainer, user, t, messages.length]); 
+        if (activeContainer === 'messages' && user && messages.length > 0) {
+            // Запускаем polling только для новых сообщений
+            pollingIntervalRef.current = setInterval(() => {
+                fetchNewMessages();
+            }, 5000); // Проверяем каждые 5 секунд
+        }
+
+        return () => {
+            if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+            }
+        };
+    }, [activeContainer, user, messages.length]);
+
+    // Scroll to the bottom of the messages list when messages or activeContainer changes
+    useEffect(() => {
+        if (activeContainer === 'messages' && messagesEndRef.current) {
+            messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+        }
+    }, [messages, activeContainer]);
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
@@ -80,28 +126,41 @@ const ProfilePage = () => {
                 message: messageText
             });
             
+            // Добавляем новое сообщение к существующим
             setMessages(prev => [...prev, response.data]);
+            // Обновляем последний ID сообщения
+            lastMessageIdRef.current = response.data.id;
             setMessageText('');
         } catch (err) {
             setError(t('profile.message_send_error'));
         }
     };
 
-    // Обработчик изменения значения в Input
     const handleMessageChange = (e) => {
         setMessageText(e.target.value);
     };
 
-
     const handleLogout = async () => {
+        // Очищаем интервал при выходе
+        if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+        }
         await logout();
         navigate('/');
     };
 
+    // Очистка при размонтировании компонента
+    useEffect(() => {
+        return () => {
+            if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+            }
+        };
+    }, []);
+
     if (loading) {
         return <div className="loading"></div>;
     }
-
 
     const currentOrders = orders.filter(order => order.status !== 'completed');
     const completedOrders = orders.filter(order => order.status === 'completed');
@@ -188,10 +247,10 @@ const ProfilePage = () => {
                     ) : messages.length === 0 ? (
                         <p>{t('profile.no_messages')}</p>
                     ) : (
-                        <div className="messages-list">
+                        <div className="messages-list" ref={messagesEndRef} style={{ overflowY: 'auto', maxHeight: '400px' }}>
                             {messages.map((msg, index) => (
                                 <div 
-                                    key={index} 
+                                    key={msg.id || index} 
                                     className={`message ${msg.is_admin ? 'admin-message' : 'user-message'}`}
                                 >
                                     <div className="message-content">
@@ -204,7 +263,7 @@ const ProfilePage = () => {
                             ))}
                         </div>
                     )}
-                        <form onSubmit={handleSendMessage} className="message-form">
+                    <form onSubmit={handleSendMessage} className="message-form">
                         <Input 
                             type="text"
                             value={messageText}
@@ -214,7 +273,7 @@ const ProfilePage = () => {
                         />
                         <Button variant='icon' type="submit"><SendIcon/></Button>
                     </form>
-                    </div>
+                </div>
                 )}
             </div>
         </div>

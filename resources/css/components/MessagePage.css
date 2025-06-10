@@ -1,14 +1,24 @@
 @import '../_variables.css';
 
+
+.page--admin-messages{
+    height: 100%;
+}
+
+.page--admin-messages h1{
+   margin-bottom: 30px!important;
+   font-size:2.5rem;
+}
+
 .admin-messages-container {
     display: flex;
     gap: 20px;
-    height: calc(100vh - 200px);
+    height: 90%;
 }
 
 .conversations-list {
     width: 300px;
-    border-right: 1px solid #eee;
+    border-right: 1px solid var(--color-light-gray);
     overflow-y: auto;
 }
 
@@ -20,8 +30,11 @@
 
 .conversations-list li {
     padding: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-light-gray);
     cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .conversations-list li:hover {
@@ -29,19 +42,30 @@
 }
 
 .conversations-list li.active {
-    background-color: #e3f2fd;
+    background-color:var(--color-light-gray);
 }
 
 .user-info {
     margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
 }
+
+.user-info strong{
+    font-size: 1.4rem;
+}
+
 
 .user-info span {
     display: block;
     font-size: 0.8em;
     color: #666;
 }
-
+.last-message{
+    display: flex;
+    gap: 10px;
+}
 .last-message p {
     margin: 0;
     white-space: nowrap;
@@ -49,8 +73,9 @@
     text-overflow: ellipsis;
 }
 
-.last-message small {
+.last-data {
     color: #999;
+    font-size: 0.6rem;
 }
 
 .unread-count {
@@ -72,6 +97,7 @@
     flex-direction: column;
     justify-content: space-between;
     min-height: 300px;
+    max-height: 500px;
 }
 
 .select-conversation {
@@ -91,6 +117,7 @@
     border: 1px solid #eee;
     border-radius: 5px;
     min-height: 300px;
+    max-height: 400px;
 }
 
 .message {
@@ -115,11 +142,6 @@
     font-size: 0.8em;
     color:var(--color-gray);
     margin-top: 5px;
-}
-
-.read-status {
-    margin-left: 5px;
-    color: #4caf50;
 }
 
 .message-form {

@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/conversations', [AdminMessageController::class, 'index']);
         Route::get('/conversations/{user}', [AdminMessageController::class, 'show']);
         Route::post('/conversations/{user}', [AdminMessageController::class, 'store']);
+        Route::post('/conversations/{user}/mark-read', [AdminMessageController::class, 'markRead']);
     });
 });
 

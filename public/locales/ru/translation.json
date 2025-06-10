@@ -109,6 +109,14 @@
             "currentImage": "Текущее изображение",
             "submit": "Применить"
         },
+        "messages":{
+            "title":"Сообщения",
+            "conversations":"Чаты",
+            "select_conversation":"Выберите чат",
+            "type_message":"Ввведите сообщение...",
+            "chat_with":"Чат с "
+
+        },
         "title": "Админ-панель",
         "main": "Панель управления",
         "pages": "Страницы",

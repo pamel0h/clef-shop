@@ -109,6 +109,14 @@
             "currentImage": "Current image",
             "submit": "Submit"
         },
+        "messages":{
+            "title":"Messages",
+            "conversations":"Conversation",
+            "select_conversation":"Select conversation",
+            "type_message":"Type message",
+            "chat_with":"Chat with "
+
+        },
         "title": "Admin Panel",
         "main": "Panel editor",
         "pages": "Pages",

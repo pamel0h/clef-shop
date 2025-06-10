@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import "../../../../css/components/MessagePage.css";
+import Button from '../../UI/Button';
+import '../../../../css/components/Loading.css';
+import Input from '../../UI/Input';
+import SendIcon from '../../icons/SendIcon';
 
 const MessagesPage = () => {
     const { t } = useTranslation();
@@ -14,37 +18,94 @@ const MessagesPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    const conversationsIntervalRef = useRef(null);
+    const messagesIntervalRef = useRef(null);
+    const lastMessageIdRef = useRef(null);
+    const lastConversationUpdateRef = useRef(null);
+    const messagesEndRef = useRef(null); 
+
     const fetchConversations = async () => {
-        setLoading(true);
         try {
             const response = await axios.get('/api/admin/conversations');
-            console.log('Conversations data:', response.data);
-            setConversations(response.data);
-
-            if (selectedUser) {
-                const userInResponse = response.data.find(u => u.id === selectedUser.id);
-                if (userInResponse && userInResponse.unread_count > 0) {
-                    fetchMessages(selectedUser.id);
-                }
+            const currentDataString = JSON.stringify(response.data);
+            if (lastConversationUpdateRef.current !== currentDataString) {
+                setConversations(response.data);
+                lastConversationUpdateRef.current = currentDataString;
             }
         } catch (err) {
             console.error('Error fetching conversations:', err);
+            if (!conversations.length) {
+                setError(t('admin.messages.load_error'));
+            }
+        }
+    };
+
+    const fetchAllMessages = async (userId) => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await axios.get(`/api/admin/conversations/${userId}`);
+            setSelectedUser(response.data.user);
+            setMessages(response.data.messages);
+            
+            if (response.data.messages.length > 0) {
+                const lastMessage = response.data.messages[response.data.messages.length - 1];
+                lastMessageIdRef.current = lastMessage.id;
+            }
+        } catch (err) {
+            console.error('Error fetching all messages:', err);
             setError(t('admin.messages.load_error'));
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchMessages = async (userId) => {
-        setLoading(true);
+    const markMessagesAsRead = async (userId, messageIds) => {
         try {
-            const response = await axios.get(`/api/admin/conversations/${userId}`);
-            setSelectedUser(response.data.user);
-            setMessages(response.data.messages);
+            await axios.post(`/api/admin/conversations/${userId}/mark-read`, {
+                message_ids: messageIds,
+            });
+            await fetchConversations();
         } catch (err) {
-            setError(t('admin.messages.load_error'));
-        } finally {
-            setLoading(false);
+            console.error('Error marking messages as read:', err);
+        }
+    };
+
+    const fetchNewMessages = async (userId) => {
+        if (!lastMessageIdRef.current) {
+            console.log('No last message ID, skipping new messages fetch');
+            return;
+        }
+        
+        try {
+            console.log('Fetching new messages for user:', userId, 'since:', lastMessageIdRef.current);
+            const response = await axios.get(`/api/admin/conversations/${userId}?since=${lastMessageIdRef.current}`);
+            
+            if (response.data.messages && response.data.messages.length > 0) {
+                console.log('Found new messages:', response.data.messages.length);
+                const newMessages = response.data.messages;
+                setMessages(prev => [...prev, ...newMessages]);
+                
+                const lastMessage = newMessages[newMessages.length - 1];
+                lastMessageIdRef.current = lastMessage.id;
+                
+                if (selectedUser && selectedUser.id === userId) {
+                    const messageIds = newMessages
+                        .filter(msg => !msg.is_admin && !msg.read_at)
+                        .map(msg => msg.id);
+                    if (messageIds.length > 0) {
+                        await markMessagesAsRead(userId, messageIds);
+                    }
+                }
+                
+                if (response.data.user) {
+                    setSelectedUser(response.data.user);
+                }
+            } else {
+                console.log('No new messages found');
+            }
+        } catch (err) {
+            console.error('Error fetching new messages:', err);
         }
     };
 
@@ -58,6 +119,7 @@ const MessagesPage = () => {
             });
             
             setMessages(prev => [...prev, response.data]);
+            lastMessageIdRef.current = response.data.id;
             setMessageText('');
             
             await fetchConversations();
@@ -66,38 +128,80 @@ const MessagesPage = () => {
         }
     };
 
+    const handleMessageChange = (e) => {
+        setMessageText(e.target.value);
+    };
+
+    const handleSelectUser = (userId) => {
+        if (messagesIntervalRef.current) {
+            clearInterval(messagesIntervalRef.current);
+            messagesIntervalRef.current = null;
+        }
+        
+        lastMessageIdRef.current = null;
+        fetchAllMessages(userId);
+    };
+
+   
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+        }
+    }, [messages, selectedUser]);
 
     useEffect(() => {
-        fetchConversations();
-        const interval = setInterval(() => {
+        setLoading(true);
+        fetchConversations().finally(() => setLoading(false));
+        
+        conversationsIntervalRef.current = setInterval(() => {
             fetchConversations();
-        }, 10000); 
+        }, 10000);
 
-
-        return () => clearInterval(interval);
+        return () => {
+            if (conversationsIntervalRef.current) {
+                clearInterval(conversationsIntervalRef.current);
+            }
+        };
     }, [t]);
 
+    useEffect(() => {
+        if (messagesIntervalRef.current) {
+            clearInterval(messagesIntervalRef.current);
+            messagesIntervalRef.current = null;
+        }
+
+        if (selectedUser && messages.length > 0) {
+            messagesIntervalRef.current = setInterval(() => {
+                fetchNewMessages(selectedUser.id);
+            }, 3000);
+        }
+
+        return () => {
+            if (messagesIntervalRef.current) {
+                clearInterval(messagesIntervalRef.current);
+            }
+        };
+    }, [selectedUser, messages.length]);
 
     useEffect(() => {
-        if (selectedUser) {
-            fetchMessages(selectedUser.id); 
-            const messageInterval = setInterval(() => {
-                fetchMessages(selectedUser.id);
-            }, 10000); 
-
-            return () => clearInterval(messageInterval);
-        }
-    }, [selectedUser]);
+        return () => {
+            if (conversationsIntervalRef.current) {
+                clearInterval(conversationsIntervalRef.current);
+            }
+            if (messagesIntervalRef.current) {
+                clearInterval(messagesIntervalRef.current);
+            }
+        };
+    }, []);
 
     return (
-        <div className="page--admin page">
+        <div className="page--admin-messages">
             <h1>{t('admin.messages.title')}</h1>
             
             <div className="admin-messages-container">
                 <div className="conversations-list">
-                    <h2>{t('admin.messages.conversations')}</h2>
                     {loading && !selectedUser ? (
-                        <p>{t('admin.loading')}</p>
+                        <div className="loading"></div>
                     ) : error ? (
                         <p className="error">{error}</p>
                     ) : conversations.length === 0 ? (
@@ -108,21 +212,20 @@ const MessagesPage = () => {
                                 <li 
                                     key={conv.id}
                                     className={selectedUser?.id === conv.id ? 'active' : ''}
-                                    onClick={() => fetchMessages(conv.id)}
+                                    onClick={() => handleSelectUser(conv.id)}
                                 >
                                     <div className="user-info">
                                         <strong>{conv.name}</strong>
-                                        <span>{conv.email}</span>
-                                    </div>
-                                    <div className="last-message">
-                                        <p>{conv.last_message}</p>
-                                        <small>
+                                        <small className='last-data'>
                                             {new Date(conv.last_message_time).toLocaleString()}
                                         </small>
                                     </div>
-                                    {conv.unread_count > 0 && (
-                                        <span className="unread-count">{conv.unread_count}</span>
-                                    )}
+                                    <div className="last-message">
+                                        <p>{conv.last_message}</p>
+                                        {conv.unread_count > 0 && (
+                                            <span className="unread-count">{conv.unread_count}</span>
+                                        )}
+                                    </div>
                                 </li>
                             ))}
                         </ul>
@@ -133,17 +236,17 @@ const MessagesPage = () => {
                     {selectedUser ? (
                         <>
                             <h2>{t('admin.messages.chat_with')} {selectedUser.name}</h2>
-                            {loading ? (
-                                <p>{t('admin.loading')}</p>
+                            {loading && messages.length === 0 ? (
+                                <div className="loading"></div>
                             ) : error ? (
                                 <p className="error">{error}</p>
                             ) : messages.length === 0 ? (
                                 <p>{t('admin.messages.no_messages')}</p>
                             ) : (
-                                <div className="messages-list">
+                                <div className="messages-list" ref={messagesEndRef} style={{ overflowY: 'auto', maxHeight: '400px' }}>
                                     {messages.map((msg, index) => (
                                         <div 
-                                            key={index} 
+                                            key={msg.id || index} 
                                             className={`message ${msg.is_admin ? 'admin-message' : 'user-message'}`}
                                         >
                                             <div className="message-content">
@@ -151,23 +254,20 @@ const MessagesPage = () => {
                                             </div>
                                             <div className="message-time">
                                                 {new Date(msg.created_at).toLocaleString()}
-                                                {!msg.is_admin && msg.read_at && (
-                                                    <span className="read-status">✓ Прочитано</span>
-                                                )}
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
                             <form onSubmit={handleSendMessage} className="message-form">
-                                <input 
-                                    type="text" 
+                                <Input 
+                                    type="text"
                                     value={messageText}
-                                    onChange={(e) => setMessageText(e.target.value)}
+                                    onChange={handleMessageChange}
                                     placeholder={t('admin.messages.type_message')}
                                     required
                                 />
-                                <button type="submit">{t('admin.messages.send')}</button>
+                                <Button variant='icon' type="submit"><SendIcon/></Button>
                             </form>
                         </>
                     ) : (
