@@ -37,11 +37,10 @@ const ProductDetailsPage = () => {
 
   return (
     <div className="product-details-container">
-      {/* <Breadcrumbs /> */}
       <div className="product-details-grid">
         <ProductImage src={product.image} alt={product.name || 'Товар'} variant="main" />
         <ProductInfo
-        id ={productId}
+          id ={productId}
           name={product.name}
           price={product.price}
           discount={product.discount}

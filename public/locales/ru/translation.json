@@ -40,7 +40,11 @@
     "catalog": {
         "mainTitle": "Каталог",
         "categories": "Все категории",
-        "noProducts": "Товаров нет"
+        "noProducts": "Товаров нет",
+        "description":"Описание товара",
+        "brand":"Бренд",
+        "no_brand":"Бренд отсутствует",
+        "no_name":"Название отсутствует"
     },
     "search": {
         "mainTitle": "Поиск",

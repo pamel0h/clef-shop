@@ -40,7 +40,12 @@
     "catalog": {
         "mainTitle": "Catalog",
         "categories": "All categories",
-        "noProducts": "No products"
+        "noProducts": "No products",
+        "description":"Product description",
+        "brand":"Brand",
+        "no_brand":"No brand",
+        "no_name":"No name"
+
     },
     "search": {
         "mainTitle": "Search",

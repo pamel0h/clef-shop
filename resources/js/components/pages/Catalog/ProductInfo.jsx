@@ -20,20 +20,23 @@ const ProductInfo =
 
   return (
     <div className="product-info">
-      <h1 className="product-name">{name || t('no_name')}</h1>
+      <h1 className="product-name">{name || t('catalog.no_name')}</h1>
       <ProductPrice price={price} discount={discount} />
       <Button onClick={handleAddToCart}>
                 {t('cart.add_to_cart')}
       </Button>
       <div className="product-description">
         <p>
-          {/* <strong>{t('description')}:</strong>  */}
+          <strong>{t('catalog.description')}: </strong> 
           {currentDescription}
         </p>
       </div>
-      <p className="product-brand">
-        {t('brand')}: {brand || t('no_brand')}
-      </p>
+      <div className="product-brand">
+        <p>
+        <strong>{t('catalog.brand')}: </strong>  
+        {brand || t('catalog.no_brand')}
+        </p>
+      </div>
     </div>
   );
 };
