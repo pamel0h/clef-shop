@@ -51,7 +51,7 @@ class UserService
         } catch (\Exception $e) {
             Log::error('Error fetching user: ' . $e->getMessage());
             throw ValidationException::withMessages([
-                'error' => __('admin_users.user_not_found'),
+               'error' => 'Failed to fetch users.',
             ]);
         }
     }
@@ -82,7 +82,7 @@ class UserService
         } catch (\Exception $e) {
             Log::error('Error creating user: ' . $e->getMessage());
             throw ValidationException::withMessages([
-                'error' => __('admin_users.create_error'),
+                'error' => 'Failed to create user.',
             ]);
         }
     }
@@ -120,7 +120,7 @@ class UserService
         } catch (\Exception $e) {
             Log::error('Error updating user: ' . $e->getMessage());
             throw ValidationException::withMessages([
-                'error' => __('admin_users.update_error'),
+                'error' => 'Failed to update user.',
             ]);
         }
     }
@@ -132,7 +132,7 @@ class UserService
             $currentUserId = auth()->id();
             if ($currentUserId == $id) {
                 throw ValidationException::withMessages([
-                    'error' => __('admin_users.self_delete_error'),
+                    'error' => 'You cannot delete yourself!',
                 ]);
             }
             $user = User::findOrFail($id);
@@ -140,7 +140,7 @@ class UserService
         } catch (\Exception $e) {
             Log::error('Error deleting user: ' . $e->getMessage());
             throw ValidationException::withMessages([
-                'error' => __('admin_users.delete_error'),
+                'error' => 'Failed to delete user.',
             ]);
         }
     }

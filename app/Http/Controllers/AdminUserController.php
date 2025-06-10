@@ -43,6 +43,6 @@ class AdminUserController extends Controller
     public function deleteUser(string $id)
     {
         $this->userService->deleteUser($id);
-        return response()->json(['message' => __('admin_users.delete_success')]);
+        return response()->json(['message' => 'User deleted successfully.']);
     }
 }
