@@ -2,51 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\UploadImageRequest;
+use App\Http\Requests\DeleteImageRequest;
+use App\Http\Requests\GetImagesRequest;
+use App\Services\ImageUploadService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ImageUploadController extends Controller
 {
+    public function __construct(
+        private ImageUploadService $imageService
+    ) {}
 
-    public function uploadImage(Request $request): JsonResponse
+    public function uploadImage(UploadImageRequest $request): JsonResponse
     {
-        // Проверяем права администратора
-        if (!$request->user() || !$request->user()->isAdmin()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
-
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // максимум 5MB
-            'folder' => 'sometimes|string|max:50'
-        ]);
-
         try {
-            $image = $request->file('image');
-            $folder = $request->input('folder', 'pages');
-            
-            // Генерируем уникальное имя файла
-            $fileName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-            
-            // Определяем путь для сохранения
-            $path = "images/{$folder}";
-            
-            // Сохраняем файл в public диск
-            $savedPath = $image->storeAs($path, $fileName, 'public');
-            
-            // Возвращаем путь, доступный для браузера
-            $publicPath = '/storage/' . $savedPath;
+            $result = $this->imageService->uploadImage(
+                $request->file('image'),
+                $request->input('folder', 'pages')
+            );
 
             return response()->json([
                 'success' => true,
-                'path' => $publicPath,
-                'filename' => $fileName,
-                'size' => $image->getSize(),
-                'mime_type' => $image->getMimeType()
+                ...$result
             ]);
 
         } catch (\Exception $e) {
@@ -57,39 +35,22 @@ class ImageUploadController extends Controller
         }
     }
 
-    public function deleteImage(Request $request): JsonResponse
+    public function deleteImage(DeleteImageRequest $request): JsonResponse
     {
-        // Проверяем права администратора
-        if (!$request->user() || !$request->user()->isAdmin()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
-
-        $request->validate([
-            'path' => 'required|string'
-        ]);
-
         try {
-            $path = $request->input('path');
+            $deleted = $this->imageService->deleteImage($request->input('path'));
             
-            // Убираем /storage/ из пути для работы с Storage
-            $storagePath = str_replace('/storage/', '', $path);
-            
-            if (Storage::disk('public')->exists($storagePath)) {
-                Storage::disk('public')->delete($storagePath);
-                
+            if ($deleted) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Файл успешно удален'
                 ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Файл не найден'
-                ], 404);
             }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Файл не найден'
+            ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -99,32 +60,12 @@ class ImageUploadController extends Controller
         }
     }
 
-
-    public function getImages(Request $request): JsonResponse
+    public function getImages(GetImagesRequest $request): JsonResponse
     {
-        // Проверяем права администратора
-        if (!$request->user() || !$request->user()->isAdmin()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
-
         try {
-            $folder = $request->query('folder', 'pages');
-            $path = "images/{$folder}";
-            
-            $files = Storage::disk('public')->files($path);
-            $images = [];
-            
-            foreach ($files as $file) {
-                $images[] = [
-                    'path' => '/storage/' . $file,
-                    'name' => basename($file),
-                    'size' => Storage::disk('public')->size($file),
-                    'modified' => Storage::disk('public')->lastModified($file)
-                ];
-            }
+            $images = $this->imageService->getImages(
+                $request->query('folder', 'pages')
+            );
             
             return response()->json([
                 'success' => true,
