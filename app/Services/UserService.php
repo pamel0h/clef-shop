@@ -3,60 +3,39 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Formatters\UserFormatter;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 
 class UserService
 {
-    
-    public function getUsers(): array
+    private function handleException(\Exception $e, string $message, array $context = []): void
+    {
+        Log::error($message . ': ' . $e->getMessage(), $context);
+        throw ValidationException::withMessages(['error' => $message]);
+    }
+
+ public function getUsers(): array
     {
         try {
-            $users = User::all()->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'address' => $user->address,
-                    'role' => $user->role,
-                ];
-            })->toArray();
-
-            return ['users' => $users];
+            $users = User::all();
+            return ['users' => UserFormatter::formatCollection($users)];
         } catch (\Exception $e) {
-            Log::error('Error fetching users: ' . $e->getMessage());
-            throw ValidationException::withMessages([
-                'error' => __('admin_users.users_error'),
-            ]);
+            $this->handleException($e,'Failed to fetch users');
         }
     }
 
-    
     public function getUser(string $id): array
     {
         try {
             $user = User::findOrFail($id);
-            return [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'address' => $user->address,
-                    'role' => $user->role,
-                ],
-            ];
+            return ['user' => UserFormatter::format($user)];
         } catch (\Exception $e) {
-            Log::error('Error fetching user: ' . $e->getMessage());
-            throw ValidationException::withMessages([
-               'error' => 'Failed to fetch users.',
-            ]);
+            $this->handleException($e, 'Failed to fetch user', ['user_id' => $id]);
         }
     }
 
-    
     public function createUser(array $data): array
     {
         try {
@@ -69,25 +48,12 @@ class UserService
                 'role' => $data['role'] ?? 'user',
             ]);
 
-            return [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'address' => $user->address,
-                    'role' => $user->role,
-                ],
-            ];
+            return ['user' => UserFormatter::format($user)];
         } catch (\Exception $e) {
-            Log::error('Error creating user: ' . $e->getMessage());
-            throw ValidationException::withMessages([
-                'error' => 'Failed to create user.',
-            ]);
+            $this->handleException($e, 'Failed to create user', ['data' => $data]);
         }
     }
 
-    
     public function updateUser(string $id, array $data): array
     {
         try {
@@ -107,25 +73,12 @@ class UserService
 
             $user->update($updateData);
 
-            return [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'address' => $user->address,
-                    'role' => $user->role,
-                ],
-            ];
+            return ['user' => UserFormatter::format($user)];
         } catch (\Exception $e) {
-            Log::error('Error updating user: ' . $e->getMessage());
-            throw ValidationException::withMessages([
-                'error' => 'Failed to update user.',
-            ]);
+            $this->handleException($e, 'Failed to update user', ['user_id' => $id, 'data' => $data]);
         }
     }
 
-    
     public function deleteUser(string $id): void
     {
         try {
@@ -141,10 +94,7 @@ class UserService
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
-            Log::error('Error deleting user: ' . $e->getMessage(), ['user_id' => $id]);
-            throw ValidationException::withMessages([
-                'error' => 'Failed to delete user.',
-            ]);
+            $this->handleException($e, 'Failed to delete user', ['user_id' => $id]);
         }
     }
 }
