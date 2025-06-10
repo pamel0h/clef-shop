@@ -9,9 +9,7 @@ use Illuminate\Support\Str;
 
 class ImageUploadController extends Controller
 {
-    /**
-     * Загрузка изображения
-     */
+
     public function uploadImage(Request $request): JsonResponse
     {
         // Проверяем права администратора
@@ -59,9 +57,6 @@ class ImageUploadController extends Controller
         }
     }
 
-    /**
-     * Удаление изображения
-     */
     public function deleteImage(Request $request): JsonResponse
     {
         // Проверяем права администратора
@@ -104,9 +99,7 @@ class ImageUploadController extends Controller
         }
     }
 
-    /**
-     * Получение списка загруженных изображений
-     */
+
     public function getImages(Request $request): JsonResponse
     {
         // Проверяем права администратора

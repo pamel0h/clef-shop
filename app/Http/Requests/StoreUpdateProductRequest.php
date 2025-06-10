@@ -21,7 +21,7 @@ class StoreUpdateProductRequest extends FormRequest
             'required',
             'string',
             'max:255',
-            Rule::unique('items')->ignore($id), // Игнорируем текущий товар при обновлении
+            Rule::unique('items')->ignore($id), 
         ],
             'description_en' => 'nullable|string',
             'description_ru' => 'nullable|string',
