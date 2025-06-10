@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUpdateProductRequest;
-// use App\Http\Requests\StoreUpdateProductRequest;
+use App\Http\Requests\ImportCatalogRequest;
 use App\Models\Item;
 use App\Services\ProductService;
 use App\Formatters\ProductFormatter;
@@ -122,71 +122,13 @@ class AdminCatalogController extends Controller
         return $this->catalogExportService->exportCatalog();
     }
 
-    public function import(Request $request)
+    public function import(ImportCatalogRequest $request)
     {
-        Log::info('AdminCatalogController: Импорт запрос получен', [
-            'hasFile' => $request->hasFile('csv'),
-            'files' => $request->allFiles(),
-            'content_type' => $request->header('Content-Type'),
-        ]);
-
         try {
-            // Валидируем файл
-            if (!$request->hasFile('csv')) {
-                Log::warning('AdminCatalogController: CSV файл не предоставлен');
-                return response()->json([
-                    'success' => false,
-                    'error' => 'CSV файл не предоставлен',
-                ], 400);
-            }
-
-            $csvFile = $request->file('csv');
-
-            if (!$csvFile->isValid()) {
-                Log::warning('AdminCatalogController: Неверный файл', [
-                    'error' => $csvFile->getError(),
-                    'errorMessage' => $csvFile->getErrorMessage()
-                ]);
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Неверный файл: ' . $csvFile->getErrorMessage(),
-                ], 400);
-            }
-
-            $allowedMimeTypes = ['text/csv', 'text/plain', 'application/csv'];
-            $fileExtension = strtolower($csvFile->getClientOriginalExtension());
-            $mimeType = $csvFile->getMimeType();
-
-            if ($fileExtension !== 'csv' && !in_array($mimeType, $allowedMimeTypes)) {
-                Log::warning('AdminCatalogController: Неверный формат файла', [
-                    'extension' => $fileExtension,
-                    'mimeType' => $mimeType,
-                    'originalName' => $csvFile->getClientOriginalName()
-                ]);
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Неверный формат файла. Ожидается CSV.',
-                ], 400);
-            }
-
-            Log::info('AdminCatalogController: Запуск импорта CSV', [
-                'file' => $csvFile->getClientOriginalName(),
-                'size' => $csvFile->getSize(),
-                'mimeType' => $mimeType,
-                'extension' => $fileExtension
-            ]);
-
-            $result = $this->catalogExportService->importCatalog($csvFile);
-
-            Log::info('AdminCatalogController: Результат импорта', $result);
-
+            $result = $this->catalogExportService->importCatalog($request->file('csv'));
             return response()->json($result, $result['success'] ? 200 : 500);
-
         } catch (\Exception $e) {
-            Log::error('AdminCatalogController: Ошибка импорта каталога', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            Log::error('AdminCatalogController: Ошибка импорта каталога', ['error' => $e->getMessage()]);
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
