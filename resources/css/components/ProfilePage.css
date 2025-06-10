@@ -58,7 +58,6 @@
     cursor: pointer;
     padding: 10px;
     list-style: none;
-    /* background-color: var(--color-light-gray); */
     border: 2px solid var(--color-light-gray);
     border-radius: 5px; 
 }
@@ -116,4 +115,8 @@
 
 .error {
     color: red;
+}
+
+.page--user .loading{
+     height: 300px!important;
 }

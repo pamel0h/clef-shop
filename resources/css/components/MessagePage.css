@@ -1,0 +1,165 @@
+@import '../_variables.css';
+
+
+.page--admin-messages{
+    height: 100%;
+}
+
+.page--admin-messages h1{
+   margin-bottom: 30px!important;
+   font-size:2.5rem;
+}
+
+.admin-messages-container {
+    display: flex;
+    gap: 20px;
+    height: 90%;
+}
+
+.conversations-list {
+    width: 300px;
+    border-right: 1px solid var(--color-light-gray);
+    overflow-y: auto;
+}
+
+.conversations-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.conversations-list li {
+    padding: 10px;
+    border-bottom: 1px solid var(--color-light-gray);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.conversations-list li:hover {
+    background-color: #f5f5f5;
+}
+
+.conversations-list li.active {
+    background-color:var(--color-light-gray);
+}
+
+.user-info {
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.user-info strong{
+    font-size: 1.4rem;
+}
+
+
+.user-info span {
+    display: block;
+    font-size: 0.8em;
+    color: #666;
+}
+.last-message{
+    display: flex;
+    gap: 10px;
+}
+.last-message p {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.last-data {
+    color: #999;
+    font-size: 0.6rem;
+}
+
+.unread-count {
+    display: inline-block;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    font-size: 0.8em;
+    /* float: right; */
+}
+
+.messages-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 300px;
+    max-height: 500px;
+}
+
+.select-conversation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #999;
+}
+
+/* Общие стили для сообщений (можно вынести в отдельный файл) */
+.messages-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    min-height: 300px;
+    max-height: 400px;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 70%;
+}
+
+.user-message {
+    background-color: var(--color-light-gray);
+    margin-left: auto;
+}
+
+.admin-message {
+    background-color:var(--color-white);
+    margin-right: auto;
+    border: 1px solid var(--color-light-gray);
+}
+
+.message-time {
+    font-size: 0.8em;
+    color:var(--color-gray);
+    margin-top: 5px;
+}
+
+.message-form {
+    display: flex;
+    gap: 10px;
+    
+}
+
+.message-form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.message-form button{
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+

@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import '../../../../css/components/AboutPage.css';
+import TelegramIcon from '../../icons/TelegramIcon';
+import VkIcon from '../../icons/VkIcon';
+import TikTokIcon from '../../icons/TikTokIcon';
+import '../../../../css/components/Loading.css';
 
 const AboutPage = () => {
   const { t, i18n } = useTranslation();
@@ -75,11 +79,20 @@ const AboutPage = () => {
   }, [i18n.language, t]);
 
   if (loading) {
-    return <div className="page-loading">Загрузка...</div>;
+   return <div className="loading"></div>;
   }
 
   return (
     <div className="page page--about">
+     <div className='lines lines-top'>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+                <div className='lineItem'></div>
+            </div>
       <h1 className="titleAbout">{content.mainTitle}</h1>
       <div className="imageAbout">
         <img src={content.image} alt="Main" />
@@ -91,9 +104,18 @@ const AboutPage = () => {
       <div className="imageAbout1"></div>
       <div className="imageAbout2" dangerouslySetInnerHTML={{ __html: content.text3 }} />
       <h1 className="titleAbout3">{content.title3}</h1>
-      <div className="media1"></div>
-      <div className="media2"></div>
-      <div className="media3"></div>
+      <div className="media1 media"> 
+        <TelegramIcon/>
+        <p>@clef_shop</p>
+      </div>
+      <div className="media2 media">
+        <VkIcon/>
+        <p>@clef_mus</p>
+      </div>
+      <div className="media3 media">
+        <TikTokIcon />
+        <p>@clef</p>
+      </div>
       <p className="sign">{content.sign}</p>
     </div>
   );

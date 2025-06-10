@@ -15,37 +15,43 @@
 
 .success-modal-content {
     background: white;
-    padding: 20px;
+    padding: 20px 20px 30px;
     border-radius: 8px;
     max-width: 400px;
     width: 100%;
     text-align: center;
     position: relative;
-}
-.success-modal-content h2{
-    font-size: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.success-modal-close {
+
+
+.success-modal-content h3{
+    font-size: 2rem;
+    font-family: var(--font-main);
+    text-transform: none;
+    margin: 15px 0 0;
+}
+
+.success-modal-content p{
+     font-size: 1.2rem!important;
+     color: var(--color-gray);
+}
+
+
+.success-modal-content .btn{
+    margin-top: 15px;
+}
+
+.modal-close {
     position: absolute;
     top: 10px;
     right: 10px;
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 2rem;
     cursor: pointer;
 }
 
-.submit-button {
-    background-color: var(--color-primary);
-    color: white;
-    padding: 10px 20intreпланшет 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.submit-button:hover {
-    background-color:var(--color-gray)!important;
-}

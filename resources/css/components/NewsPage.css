@@ -1,54 +1,62 @@
-.titleNews { 
-    grid-area: 1 / 1 / 2 / 3; }
-.descNews { grid-area: 2 / 1 / 3 / 2; }
-.news1 { grid-area: 3 / 1 / 4 / 3; }
-.news2 { grid-area: 3 / 3 / 4 / 4; }
-.news3 { grid-area: 4 / 1 / 5 / 2; }
-.news4 { grid-area: 4 / 2 / 5 / 3; }
-.news5 { grid-area: 4 / 3 / 5 / 4; }
-.news6 { grid-area: 5 / 1 / 6 / 4; }
-.titleArchive { grid-area: 6 / 1 / 7 / 3; }
-.news7 { grid-area: 7 / 1 / 8 / 2; }
-.news8 { grid-area: 7 / 2 / 8 / 3; }
-.news9 { grid-area: 7 / 3 / 8 / 4; }
-.news10 { grid-area: 8 / 1 / 9 / 2; }
-.news11 { grid-area: 8 / 2 / 9 / 3; }
-.news12 { grid-area: 8 / 3 / 9 / 4; }
-.listpages { grid-area: 9 / 2 / 10 / 3; }
-
-.page--news{
-     grid-template-rows:
-      repeat(2, 0.5fr)
-      repeat(3, 2fr)      
-      repeat(1, 0.5fr) 
-      repeat(2, 2fr)   
-      repeat(1, 0.5fr);     
-
+.page--news {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  grid-auto-rows: minmax(50px, auto);
 }
 
-.titleNews, .titleArchive{
-    font-size: 6rem;
-    margin: 0;
+.titleNews {
+  grid-column: 1 / -1;
+  font-size: 6rem;
+  margin: 0;
 }
 
-.descNews{
-    font-size: 1.5rem;
-    margin: 0;
+.descNews {
+  grid-column: 1 / -1;
+  font-size: 1.8rem;
+  margin: 0;
 }
 
-.listpages{
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
+
+.page--news.first-page .news1 {
+  grid-column: span 2;
+  grid-row: span 2;
 }
 
-.listpages p{
-    font-size: 1.5rem;
+
+.news-item {
+  grid-column: span 1;
+  grid-row: span 1;
 }
 
-.listpages .buttons{
-    gap:10px;
-    display: flex;
-    justify-content: center;
+.titleArchive {
+  grid-column: span 2;
+  font-size: 6rem;
+  margin: 0;
+}
+
+.listpages {
+  grid-column: 2;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.listpages p {
+  font-size: 1.6rem;
+}
+
+.listpages .buttons {
+  gap: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.listpages .buttons button.active {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-primary);
+  color:var(--color-primary);
 }

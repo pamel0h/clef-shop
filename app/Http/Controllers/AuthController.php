@@ -28,6 +28,7 @@ class AuthController extends Controller
             'user' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'show_subscription' => true // Добавляем флаг
         ], 201);
     }
 
@@ -47,6 +48,7 @@ class AuthController extends Controller
             'user' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'show_subscription' => true // Добавляем флаг
         ]);
     }
 

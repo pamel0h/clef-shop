@@ -20,6 +20,7 @@ import AdminDashboard from '../components/pages/Admin/AdminDashboard';
 import AdminPageEditor from '../components/pages/Admin/AdminPageEditor';
 import TableOrders from '../components/pages/Admin/TableOrders';
 import TableUsers from '../components/pages/Admin/TableUsers';
+import MessagesPage from '../components/pages/Admin/MessagePage';
 
 export const routes = [
     {
@@ -100,6 +101,14 @@ export const routes = [
                 element: (
                 <AdminProtectedRoute>
                     <TableUsers />
+                </AdminProtectedRoute>
+                ),
+            },
+            {
+                path: '/admin/messages',
+                element: (
+                <AdminProtectedRoute>
+                    <MessagesPage />
                 </AdminProtectedRoute>
                 ),
             }

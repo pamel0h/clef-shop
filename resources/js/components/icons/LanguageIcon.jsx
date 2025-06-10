@@ -1,21 +1,48 @@
 import * as React from "react"
 const LanguageIcon = () => (
   <svg
-    width={23}
-    height={22}
+    xmlns="http://www.w3.org/2000/svg"
+    width={25}
+    height={25}
     fill="none"
+    viewBox="0 0 24 24"
+
   >
     <path
-      stroke="#000"
-      strokeLinecap="square"
-      strokeWidth={2}
-      d="M11.5 21c5.753 0 10.417-4.477 10.417-10S17.253 1 11.5 1 1.083 5.477 1.083 11 5.747 21 11.5 21Z"
+      stroke="#292D32"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="m19.06 18.67-2.14-4.27-2.14 4.27M15.17 17.91h3.52"
     />
     <path
-      stroke="#000"
+      stroke="#292D32"
       strokeLinecap="round"
+      strokeLinejoin="round"
       strokeWidth={1.5}
-      d="M11.5 21c2.778-2.424 4.167-5.758 4.167-10S14.277 3.424 11.5 1C8.722 3.424 7.333 6.758 7.333 11s1.39 7.576 4.167 10ZM1.604 8h19.792M1.604 14h19.792"
+      d="M16.92 22a5.08 5.08 0 1 1 .001-10.162A5.08 5.08 0 0 1 16.92 22ZM5.02 2h3.92c2.07 0 3.07 1 3.02 3.02v3.92c.05 2.07-.95 3.07-3.02 3.02H5.02C3 12 2 11 2 8.93V5.01C2 3 3 2 5.02 2ZM9.01 5.85H4.95M6.969 5.17v.68"
+    />
+    <path
+      stroke="#292D32"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M7.99 5.84c0 1.75-1.37 3.17-3.05 3.17"
+    />
+    <path
+      stroke="#292D32"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M9.01 9.01c-.73 0-1.39-.39-1.85-1.01"
+    />
+    <path
+      stroke="#292D32"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M2 15c0 3.87 3.13 7 7 7l-1.05-1.75M22 9c0-3.87-3.13-7-7-7l1.05 1.75"
+      opacity={0.4}
     />
   </svg>
 )

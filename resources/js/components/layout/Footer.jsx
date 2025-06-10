@@ -1,4 +1,4 @@
-import '../../../css/components/Footer.css'; 
+import '../../../css/components/Layout/Footer.css'; 
 import TelegramIcon from '../icons/TelegramIcon';
 import VkIcon from '../icons/VkIcon'
 import TikTokIcon from '../icons/TikTokIcon'

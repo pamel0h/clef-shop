@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../../../css/components/AuthModal.css';
+import Button from './Button';
+
 
 const AuthModal = ({ isOpen, onClose, onAuthSuccess, redirectToProfile = true }) => {
     const { t } = useTranslation();
@@ -16,6 +18,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess, redirectToProfile = true })
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    
 
     useEffect(() => {
         if (!isOpen) {
@@ -84,14 +87,14 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess, redirectToProfile = true })
 
     return (
         <div className="modal-overlay">
-            <div className="modal-content">
+            <div className="auth-modal-content">
                 <button className="modal-close" onClick={onClose}>
                     ×
                 </button>
                 <h2>{isLogin ? t('auth.login') : t('auth.register')}</h2>
                 <div className="auth-tabs">
                     <button
-                        className={`tab ${isLogin ? 'active' : ''}`}
+                        className={`tab login-btn ${isLogin ? 'active' : ''}`}
                         onClick={() => {
                             setIsLogin(true);
                             resetForm();
@@ -100,7 +103,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess, redirectToProfile = true })
                         {t('auth.login')}
                     </button>
                     <button
-                        className={`tab ${!isLogin ? 'active' : ''}`}
+                        className={`tab register-btn ${!isLogin ? 'active' : ''}`}
                         onClick={() => {
                             setIsLogin(false);
                             resetForm();
@@ -159,12 +162,12 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess, redirectToProfile = true })
                         </div>
                     )}
                     {error && <p className="error">{error}</p>}
-                    <button type="submit" className="submit-button" disabled={loading}>
+                    <Button className='submit--btn' type="submit" disabled={loading}>
                         {loading 
                             ? t('auth.loading') 
                             : (isLogin ? t('auth.login') : t('auth.register'))
                         }
-                    </button>
+                    </Button>
                 </form>
             </div>
         </div>

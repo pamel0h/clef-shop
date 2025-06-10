@@ -64,8 +64,8 @@ const AdminPageEditor = () => {
         return {
           mainTitle: { type: 'text', label: 'Главный заголовок' },
           phones: { type: 'text', label: 'Заголовок телефонов' },
-          phoneNumbers: { type: 'textarea', label: 'Номера телефонов (по одному на строку)' },
-          aviable: { type: 'text', label: 'Текст доступности' },
+          phoneNumbers: { type: 'editor', label: 'Номера телефонов (по одному на строку)' },
+          aviable: { type: 'editor', label: 'Текст доступности' },
           howTitle: { type: 'text', label: 'Заголовок "Как добраться"' },
           howText: { type: 'editor', label: 'Текст "Как добраться"' },
           questionsTitle: { type: 'text', label: 'Заголовок вопросов' },

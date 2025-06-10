@@ -1,3 +1,5 @@
+@import '../../_variables.css';
+
 .form{
     padding: 20px;
     padding-bottom: 50px;
@@ -16,6 +18,12 @@
 }
 
 .form h2{
-    font-size: 1.7rem;
-    align-self: start;
+    font-family: var( --font-main-sb)!important;
+    font-size: 2.2rem!important;
+    align-self: start!important;
+    margin: 0 0 8px!important;
+}
+
+.form label{
+    font-size: 1.4rem
 }

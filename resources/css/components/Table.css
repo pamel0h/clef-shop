@@ -158,6 +158,8 @@ tbody tr {
   justify-content: space-between;
 }
 
+
+
 .collection input, .search-container input, .items-per-page-container input{
   padding: 6px;
   font-size: 14px;
@@ -191,3 +193,43 @@ tbody tr {
 }
 
 
+.date-filter-container {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.date-filter-container label {
+  margin-right: 5px;
+  white-space: nowrap;
+}
+
+.date-picker-input {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  margin-right: 5px;
+  width: 120px;
+}
+
+.clear-date-filters-btn {
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 10px;
+  transition: background-color 0.3s;
+}
+
+.clear-date-filters-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.settings-table{
+  display: flex;
+  margin-bottom: 14px;
+  gap:5px
+}

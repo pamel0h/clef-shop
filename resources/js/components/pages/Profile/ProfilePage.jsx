@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../../context/AuthContext';
 import axios from 'axios';
 import "../../../../css/components/ProfilePage.css";
+import '../../../../css/components/Loading.css';
 import Order from './Order';
 import ProfileForm from './ProfileForm';
-import Message from './Message'; // Новый компонент для отображения сообщений
 import Button from '../../UI/Button';
+import Input from '../../UI/Input';
+import SendIcon from '../../icons/SendIcon';
 
 const ProfilePage = () => {
     const { t } = useTranslation();
@@ -19,56 +21,147 @@ const ProfilePage = () => {
     const [loadingOrders, setLoadingOrders] = useState(false);
     const [loadingMessages, setLoadingMessages] = useState(false);
     const [error, setError] = useState('');
+    const [messageText, setMessageText] = useState('');
+    
+    // Ref для отслеживания последнего ID сообщения
+    const lastMessageIdRef = useRef(null);
+    const pollingIntervalRef = useRef(null);
+    const messagesEndRef = useRef(null); // Ref for the messages container
 
+    // Функция для получения всех сообщений (при первой загрузке)
+    const fetchAllMessages = async () => {
+        setLoadingMessages(true);
+        try {
+            const response = await axios.get('/api/messages');
+            setMessages(response.data);
+            
+            // Обновляем последний ID сообщения
+            if (response.data.length > 0) {
+                lastMessageIdRef.current = response.data[response.data.length - 1].id;
+            }
+        } catch (err) {
+            setError(t('profile.messages_error'));
+        } finally {
+            setLoadingMessages(false);
+        }
+    };
+
+    // Функция для получения только новых сообщений
+    const fetchNewMessages = async () => {
+        if (!lastMessageIdRef.current) return;
+        
+        try {
+            const response = await axios.get(`/api/messages?since=${lastMessageIdRef.current}`);
+            
+            if (response.data.length > 0) {
+                setMessages(prev => [...prev, ...response.data]);
+                // Обновляем последний ID
+                lastMessageIdRef.current = response.data[response.data.length - 1].id;
+            }
+        } catch (err) {
+            console.error('Error fetching new messages:', err);
+        }
+    };
+
+    // Загрузка заказов
+    const fetchOrders = async () => {
+        setLoadingOrders(true);
+        try {
+            const response = await axios.get('/api/order');
+            setOrders(response.data);
+        } catch (err) {
+            setError(t('profile.orders_error'));
+        } finally {
+            setLoadingOrders(false);
+        }
+    };
+
+    // Первоначальная загрузка данных при смене контейнера
     useEffect(() => {
         if (user) {
-            const fetchOrders = async () => {
-                setLoadingOrders(true);
-                setError('');
-                try {
-                    const response = await axios.get('/api/order');
-                    setOrders(response.data.orders);
-                } catch (err) {
-                    setError(t('profile.orders_error'));
-                } finally {
-                    setLoadingOrders(false);
-                }
-            };
-
-            const fetchMessages = async () => {
-                setLoadingMessages(true);
-                setError('');
-                try {
-                    const response = await axios.get('/api/messages', {
-                        params: { userId: user.id },
-                    });
-                    setMessages(response.data.messages);
-                } catch (err) {
-                    setError(t('profile.messages_error'));
-                } finally {
-                    setLoadingMessages(false);
-                }
-            };
-
-            fetchOrders();
-            fetchMessages();
+            if (activeContainer === 'orders' || activeContainer === 'purchases') {
+                fetchOrders();
+            } else if (activeContainer === 'messages') {
+                fetchAllMessages();
+            }
         }
-    }, [user, t]);
+    }, [user, activeContainer, t]);
+
+    // Настройка polling только для сообщений
+    useEffect(() => {
+        // Очищаем предыдущий интервал
+        if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+        }
+
+        if (activeContainer === 'messages' && user && messages.length > 0) {
+            // Запускаем polling только для новых сообщений
+            pollingIntervalRef.current = setInterval(() => {
+                fetchNewMessages();
+            }, 5000); // Проверяем каждые 5 секунд
+        }
+
+        return () => {
+            if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+            }
+        };
+    }, [activeContainer, user, messages.length]);
+
+    // Scroll to the bottom of the messages list when messages or activeContainer changes
+    useEffect(() => {
+        if (activeContainer === 'messages' && messagesEndRef.current) {
+            messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+        }
+    }, [messages, activeContainer]);
+
+    const handleSendMessage = async (e) => {
+        e.preventDefault();
+        setError('');
+        
+        try {
+            const response = await axios.post('/api/messages', {
+                message: messageText
+            });
+            
+            // Добавляем новое сообщение к существующим
+            setMessages(prev => [...prev, response.data]);
+            // Обновляем последний ID сообщения
+            lastMessageIdRef.current = response.data.id;
+            setMessageText('');
+        } catch (err) {
+            setError(t('profile.message_send_error'));
+        }
+    };
+
+    const handleMessageChange = (e) => {
+        setMessageText(e.target.value);
+    };
 
     const handleLogout = async () => {
+        // Очищаем интервал при выходе
+        if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+        }
         await logout();
         navigate('/');
     };
 
+    // Очистка при размонтировании компонента
+    useEffect(() => {
+        return () => {
+            if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+            }
+        };
+    }, []);
+
     if (loading) {
-        return (
-            <div className="page--user page">
-                <div className="loading">{t('profile.loading')}</div>
-            </div>
-        );
+        return <div className="loading"></div>;
     }
 
-    // Разделяем заказы на текущие и завершенные
     const currentOrders = orders.filter(order => order.status !== 'completed');
     const completedOrders = orders.filter(order => order.status === 'completed');
 
@@ -116,7 +209,7 @@ const ProfilePage = () => {
                     <div className="orders-container">
                         <h2>{t('profile.my_orders')}</h2>
                         {loadingOrders ? (
-                            <p>{t('profile.loading')}</p>
+                            <div className="loading"></div>
                         ) : error ? (
                             <p className="error">{error}</p>
                         ) : currentOrders.length === 0 ? (
@@ -132,7 +225,7 @@ const ProfilePage = () => {
                     <div className="purchases-container">
                         <h2>{t('profile.my_purchases')}</h2>
                         {loadingOrders ? (
-                            <p>{t('profile.loading')}</p>
+                           <div className="loading"></div>
                         ) : error ? (
                             <p className="error">{error}</p>
                         ) : completedOrders.length === 0 ? (
@@ -145,20 +238,42 @@ const ProfilePage = () => {
                     </div>
                 )}
                 {activeContainer === 'messages' && (
-                    <div className="messages-container">
-                        <h2>{t('profile.messages')}</h2>
-                        {loadingMessages ? (
-                            <p>{t('profile.loading')}</p>
-                        ) : error ? (
-                            <p className="error">{error}</p>
-                        ) : messages.length === 0 ? (
-                            <p>{t('profile.no_messages')}</p>
-                        ) : (
-                            messages.map(message => (
-                                <Message key={message.id} message={message} />
-                            ))
-                        )}
-                    </div>
+                <div className="messages-container">
+                    <h2>{t('profile.messages')}</h2>
+                    {loadingMessages ? (
+                        <div className="loading"></div>
+                    ) : error ? (
+                        <p className="error">{error}</p>
+                    ) : messages.length === 0 ? (
+                        <p>{t('profile.no_messages')}</p>
+                    ) : (
+                        <div className="messages-list" ref={messagesEndRef} style={{ overflowY: 'auto', maxHeight: '400px' }}>
+                            {messages.map((msg, index) => (
+                                <div 
+                                    key={msg.id || index} 
+                                    className={`message ${msg.is_admin ? 'admin-message' : 'user-message'}`}
+                                >
+                                    <div className="message-content">
+                                        {msg.message}
+                                    </div>
+                                    <div className="message-time">
+                                        {new Date(msg.created_at).toLocaleString()}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    <form onSubmit={handleSendMessage} className="message-form">
+                        <Input 
+                            type="text"
+                            value={messageText}
+                            onChange={handleMessageChange}
+                            placeholder={t('profile.type_message')}
+                            required
+                        />
+                        <Button variant='icon' type="submit"><SendIcon/></Button>
+                    </form>
+                </div>
                 )}
             </div>
         </div>

@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import ContactForm from './ContactForm';
 import sanitizeHtml from 'sanitize-html';
-import '../../../../css/components/ContactPage.css';
+import '../../../../css/components/Contact/ContactPage.css';
+import '../../../../css/components/Loading.css';
 
 const ContactPage = () => {
   const { t, i18n } = useTranslation();
@@ -90,7 +91,7 @@ const ContactPage = () => {
   };
 
   if (loading) {
-    return <div className="page-loading text-center">Загрузка...</div>;
+    return <div className="loading"></div>;
   }
 
   return (
@@ -107,7 +108,7 @@ const ContactPage = () => {
             <li>Нет номеров телефонов</li>
           )}
         </ul>
-        <p>{content.aviable}</p>
+        <p dangerouslySetInnerHTML={{__html: sanitizeContent(content.aviable)}}></p>
       </div>
       <h2>{content.howTitle}</h2>
       <div className="cardShop">

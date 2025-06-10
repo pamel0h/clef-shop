@@ -128,6 +128,14 @@
             "clear": "Clear",
             "selectKey": "Select Key"
         },
+        "messages":{
+            "title":"Messages",
+            "conversations":"Conversation",
+            "select_conversation":"Select conversation",
+            "type_message":"Type message",
+            "chat_with":"Chat with "
+
+        },
         "title": "Admin Panel",
         "main": "Panel editor",
         "pages": "Pages",
@@ -402,7 +410,8 @@
         "no_purchases": "No purchases",
         "no_orders": "No orders",
         "loading": "Loading...",
-        "messages": "Messages"
+        "messages": "Messages",
+        "type_message":"Type message..."
     },
     "admin_orders": {
         "search_orders": "Search orders",
@@ -420,6 +429,14 @@
         "delete_item": "Delete",
         "validation_error": "Please fix the errors in the form",
         "address_required": "Address is required",
+        "created_at": "Created",
+        "updated_at": "Updated",
+        "from_date": "From",
+        "to_date": "To",
+        "clear_dates": "Clear dates",
+        "all_statuses": "All statuses",
+        "all_delivery_types": "All delivery types",
+        "export_csv": "Export to CSV",
         "order_status": {
             "pending": "Pending",
             "processing": "Processing",

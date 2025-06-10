@@ -1,5 +1,5 @@
 import Button from '../../UI/Button';
-import '../../../../css/components/Banner.css'; 
+import '../../../../css/components/UI/Banner.css'; 
 
 const Banner = ({ 
   children,
@@ -26,9 +26,10 @@ const Banner = ({
       style={style}
     >
       {overlay && backgroundImage && <div className="banner-overlay"></div>}
-      
-      <h3>{title}</h3>
-      <div className="banner-content">{children}</div>
+      <div className='banner-text'>
+        <h3>{title}</h3>
+        <div className="banner-content">{children}</div>
+      </div>
       {variant === 'line' && (
         <Button variant='success' size='large'>Подробнее</Button>
       )}
