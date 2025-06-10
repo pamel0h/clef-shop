@@ -48,7 +48,7 @@ class StoreUpdateProductRequest extends FormRequest
         'specs' => 'nullable|array',
             'specs.*.isNewSpec' => 'nullable|boolean',
             'specs.*.key' => 'nullable|string',  
-            'specs.*.value' => 'nullable|string', 
+            'specs.*.value' => 'nullable', 
             'specs.*.newSpec' => [
                 'nullable',
                 'array',
@@ -56,31 +56,35 @@ class StoreUpdateProductRequest extends FormRequest
             'specs.*.newSpec.slug' => 'nullable|string',
             'specs.*.newSpec.ru' => 'nullable|string',
             'specs.*.newSpec.en' => 'nullable|string', 
-            'specs.*.newSpec.value' => 'nullable|string', 
+            'specs.*.newSpec.value' => 'nullable', 
         
         ];
     }
 
-protected function withValidator($validator)
-{
-    $validator->after(function ($validator) {
-        if ($this->input('specs')) {
-            foreach ($this->input('specs') as $key => $spec) {
-                if (isset($spec['isNewSpec']) && $spec['isNewSpec'] == 0) {
-                    // Валидация для существующих характеристик
-                    if (empty($spec['key']) || empty($spec['value'])) {
-                        $validator->errors()->add("Specification " . ($key + 1), 'Please fill in all specification fields.');
-                    }
-                } elseif (isset($spec['isNewSpec']) && $spec['isNewSpec'] == 1) {
-                    // Валидация для новых характеристик
-                    if (empty($spec['newSpec']['slug']) || empty($spec['newSpec']['ru']) || empty($spec['newSpec']['en']) || empty($spec['newSpec']['value'])) {
-                        $validator->errors()->add("Specification " . ($key + 1), 'Please fill in all fields for the new specification.');
+    protected function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if ($this->input('specs')) {
+                foreach ($this->input('specs') as $key => $spec) {
+                    if (isset($spec['isNewSpec']) && $spec['isNewSpec'] == 0) {
+                        // Валидация для существующих характеристик
+                        if (!isset($spec['key']) || $spec['key'] === null || $spec['key'] === '' ||
+                            !isset($spec['value']) || $spec['value'] === null || $spec['value'] === '') {
+                            $validator->errors()->add("Specification " . ($key + 1), 'Please fill in all specification fields.');
+                        }
+                    } elseif (isset($spec['isNewSpec']) && $spec['isNewSpec'] == 1) {
+                        // Валидация для новых характеристик
+                        if (!isset($spec['newSpec']['slug']) || $spec['newSpec']['slug'] === null || $spec['newSpec']['slug'] === '' ||
+                            !isset($spec['newSpec']['ru']) || $spec['newSpec']['ru'] === null || $spec['newSpec']['ru'] === '' ||
+                            !isset($spec['newSpec']['en']) || $spec['newSpec']['en'] === null || $spec['newSpec']['en'] === '' ||
+                            !isset($spec['newSpec']['value']) || $spec['newSpec']['value'] === null || $spec['newSpec']['value'] === '') {
+                            $validator->errors()->add("Specification " . ($key + 1), 'Please fill in all fields for the new specification.');
+                        }
                     }
                 }
             }
-        }
-    });
-}
+        });
+    }
 
     public function messages()
     {
