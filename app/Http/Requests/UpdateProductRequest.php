@@ -71,25 +71,20 @@ class UpdateProductRequest extends FormRequest
             'specs.*.value' => [
                 Rule::requiredIf(function () {
                     $index = $this->getValidationIndex('specs.*.value');
-                    $newSpec = $this->input("specs.$index.newSpec");
-                    $hasAnyFilled = $newSpec && (
-                        (!empty($newSpec['slug']) && trim($newSpec['slug']) !== '') ||
-                        (!empty($newSpec['ru']) && trim($newSpec['ru']) !== '') ||
-                        (!empty($newSpec['en']) && trim($newSpec['en']) !== '')
-                    );
-                    return $this->input("specs.$index.key") || ($this->input("specs.$index.isNewSpec") && $hasAnyFilled);
+                    return !$this->input("specs.$index.isNewSpec");
                 }),
                 'string',
             ],
+            'specs.*.isNewSpec' => 'nullable|boolean',
             'specs.*.newSpec' => [
                 Rule::requiredIf(function () {
                     $index = $this->getValidationIndex('specs.*.newSpec');
-                    return $this->input("specs.$index.isNewSpec");
+                    return $this->input("specs.$index.isNewSpec") == 1;
                 }),
                 new RequiredFieldsGroup(
-                    ['slug', 'ru', 'en'],
+                    ['slug', 'ru', 'en', 'value'],
                     'Все поля новой характеристики (slug, русский, английский, значение) должны быть заполнены.',
-                    true // Разрешаем пустые поля
+                    false // Не разрешаем пустые поля
                 ),
             ],
             'specs_data' => 'nullable|json',
@@ -99,10 +94,13 @@ class UpdateProductRequest extends FormRequest
     public function messages()
     {
         return [
-            'category.required' => 'Категория должна быть выбрана, если не создается новая категория.',
-            'subcategory.required' => 'Подкатегория должна быть выбрана, если не создается новая подкатегория.',
+            'category.required' => 'The category field must be selected.',
+            'subcategory.required' => 'The subcategory field must be selected.',
+            'new_category.required' => 'Все поля новой категории (slug, русский, английский) должны быть заполнены.',
+            'new_subcategory.required' => 'Все поля новой подкатегории (slug, русский, английский) должны быть заполнены.',
             'specs.*.key.required' => 'Ключ характеристики обязателен, если не создается новая характеристика.',
-            'specs.*.value.required' => 'Значение характеристики обязательно, если указан ключ или новая характеристика.',
+            'specs.*.value.required' => 'Значение характеристики обязательно, если не создается новая характеристика.',
+            'specs.*.newSpec.required' => 'Все поля новой характеристики (slug, русский, английский, значение) должны быть заполнены.',
         ];
     }
 

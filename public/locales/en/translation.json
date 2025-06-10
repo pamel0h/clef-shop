@@ -143,6 +143,7 @@
     },
     "specs": {
         "mainTitle": "Product specifications",
+        "noSpecs":"No specifications",
         "inputs": "Inputs",
         "outputs": "Outputs",
         "connectivity": "Connectivity",

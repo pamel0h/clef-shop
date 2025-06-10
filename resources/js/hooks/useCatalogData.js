@@ -117,12 +117,8 @@ export default function useCatalogData(type, options = {}, skip = false) {
   // Отдельная функция для обновления переводов
   const reloadTranslations = useCallback(async () => {
     try {
-      console.log('Reloading translations for language:', i18n.language);
       i18n.services.backendConnector.backend.cache?.clear?.();
-      await i18n.reloadResources(i18n.language, 'translation');
-      console.log('Translations reloaded successfully');
     } catch (reloadError) {
-      console.error('Failed to reload translations:', reloadError);
     }
   }, []);
 

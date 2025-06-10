@@ -18,7 +18,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     brand: '',
     discount: '',
     images: [],
-    specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+    specs: [], // Изначально пустой массив
     isNewCategory: false,
     newCategory: { slug: '', ru: '', en: '' },
     isNewSubcategory: false,
@@ -29,7 +29,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const modalContentRef = useRef(null); // Референс для modal-content
+  const modalContentRef = useRef(null);
 
   const { data: categories, loading: categoriesLoading, pausePolling, resumePolling } = useCatalogData('categories');
   const { data: subcategories, loading: subcategoriesLoading } = useCatalogData('subcategories', { category: selectedCategory }, !selectedCategory);
@@ -43,7 +43,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
   useEffect(() => {
     if (initialData) {
-      // Для редактирования: заполняем форму данными товара
       setSelectedCategory(initialData.category || '');
       setFormData({
         id: initialData.id || '',
@@ -61,9 +60,9 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
               key,
               value: String(value),
               isNewSpec: false,
-              newSpec: { slug: '', ru: '', en: '' },
+              newSpec: { slug: '', ru: '', en: '', value: '' },
             }))
-          : [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+          : [],
         isNewCategory: false,
         newCategory: { slug: '', ru: '', en: '' },
         isNewSubcategory: false,
@@ -76,7 +75,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         setImagePreviews([]);
       }
     } else {
-      // Для добавления: очищаем форму
       setSelectedCategory('');
       setFormData({
         name: '',
@@ -88,7 +86,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         brand: '',
         discount: '',
         images: [],
-        specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+        specs: [],
         isNewCategory: false,
         newCategory: { slug: '', ru: '', en: '' },
         isNewSubcategory: false,
@@ -96,7 +94,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       });
       setImagePreviews([]);
     }
-    setError(''); // Сбрасываем ошибку при открытии формы
+    setError('');
   }, [initialData]);
 
   useEffect(() => {
@@ -115,24 +113,14 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     setTranslatedSpecKeys(translatedKeys);
   }, [specKeysValues, t]);
 
-  const getFilteredSpecKeys = (searchTerm) => {
+  const getFilteredSpecKeys = () => {
     if (!specKeysValues) return [];
-    const lowercasedSearchTerm = searchTerm.toLowerCase();
-    return Object.keys(specKeysValues).filter((key) => {
-      const translatedKey = translatedSpecKeys[key] || key;
-      return (
-        key.toLowerCase().includes(lowercasedSearchTerm) ||
-        translatedKey.toLowerCase().includes(lowercasedSearchTerm)
-      );
-    });
+    return Object.keys(specKeysValues);
   };
 
-  const getFilteredSpecValues = (key, searchTerm) => {
+  const getFilteredSpecValues = (key) => {
     if (!key || !specKeysValues[key]) return [];
-    const lowercasedSearchTerm = searchTerm.toLowerCase();
-    return specKeysValues[key].filter((value) =>
-      String(value).toLowerCase().includes(lowercasedSearchTerm)
-    );
+    return specKeysValues[key];
   };
 
   const handleInputChange = (e) => {
@@ -225,7 +213,8 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
         ...newSpecs[index],
         isNewSpec: !newSpecs[index].isNewSpec,
         key: newSpecs[index].isNewSpec ? '' : newSpecs[index].key,
-        newSpec: newSpecs[index].isNewSpec ? { slug: '', ru: '', en: '' } : newSpecs[index].newSpec,
+        value: newSpecs[index].isNewSpec ? '' : newSpecs[index].value,
+        newSpec: newSpecs[index].isNewSpec ? { slug: '', ru: '', en: '', value: '' } : newSpecs[index].newSpec,
       };
       return { ...prev, specs: newSpecs };
     });
@@ -235,7 +224,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     e.preventDefault();
     setFormData((prev) => ({
       ...prev,
-      specs: [...prev.specs, { key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+      specs: [...prev.specs, { key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '', value: '' } }],
     }));
   };
 
@@ -258,7 +247,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       brand: '',
       discount: '',
       images: [],
-      specs: [{ key: '', value: '', isNewSpec: false, newSpec: { slug: '', ru: '', en: '' } }],
+      specs: [],
       isNewCategory: false,
       newCategory: { slug: '', ru: '', en: '' },
       isNewSubcategory: false,
@@ -273,26 +262,26 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
     e.preventDefault();
     setLoading(true);
     setError('');
-  
+
     pausePolling();
-  
+
     try {
       const formDataToSend = new FormData();
       const authToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
-  
+
       if (!authToken) {
         throw new Error(t('auth_token_missing'));
       }
-  
+
       if (initialData) {
         formDataToSend.append('_method', 'PUT');
       }
-  
+
       const fields = ['name', 'description_en', 'description_ru', 'price', 'discount', 'brand'];
       fields.forEach((key) => {
         formDataToSend.append(key, formData[key]?.trim() || '');
       });
-  
+
       formDataToSend.append('is_new_category', formData.isNewCategory ? 1 : 0);
       if (
         formData.isNewCategory &&
@@ -307,7 +296,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       } else {
         formDataToSend.append('category', formData.category?.trim() || '');
       }
-  
+
       formDataToSend.append('is_new_subcategory', formData.isNewSubcategory ? 1 : 0);
       if (
         formData.isNewSubcategory &&
@@ -322,36 +311,46 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
       } else {
         formDataToSend.append('subcategory', formData.subcategory?.trim() || '');
       }
-  
+
       if (Array.isArray(formData.images) && formData.images.length > 0) {
         formDataToSend.append('images[]', formData.images[0]);
       }
-  
+
+      // Добавляем spec_keys_values в FormData
+      formDataToSend.append('spec_keys_values', JSON.stringify(specKeysValues));
+
       const specsObject = formData.specs.reduce((obj, spec, index) => {
-        if (
-          spec.isNewSpec &&
-          spec.newSpec.slug?.trim() &&
-          spec.newSpec.ru?.trim() &&
-          spec.newSpec.en?.trim() &&
-          spec.value?.trim()
-        ) {
-          obj[spec.newSpec.slug.trim()] = {
-            value: spec.value.trim(),
-            translations: { ru: spec.newSpec.ru.trim(), en: spec.newSpec.en.trim() },
-          };
+        formDataToSend.append(`specs[${index}][isNewSpec]`, spec.isNewSpec ? '1' : '0');
+        if (spec.isNewSpec) {
+            formDataToSend.append(`specs[${index}][newSpec][slug]`, spec.newSpec.slug?.trim() || '');
+            formDataToSend.append(`specs[${index}][newSpec][ru]`, spec.newSpec.ru?.trim() || '');
+            formDataToSend.append(`specs[${index}][newSpec][en]`, spec.newSpec.en?.trim() || '');
+            formDataToSend.append(`specs[${index}][newSpec][value]`, spec.newSpec.value?.trim() || '');
+            if (
+                spec.newSpec.slug?.trim() &&
+                spec.newSpec.ru?.trim() &&
+                spec.newSpec.en?.trim() &&
+                spec.newSpec.value?.trim()
+            ) {
+                obj[spec.newSpec.slug.trim()] = {
+                    value: spec.newSpec.value.trim(),
+                    translations: { ru: spec.newSpec.ru.trim(), en: spec.newSpec.en.trim() },
+                };
+            }
         } else if (spec.key?.trim() && spec.value?.trim()) {
-          formDataToSend.append(`specs[${index}][key]`, spec.key.trim());
-          formDataToSend.append(`specs[${index}][value]`, spec.value.trim());
+            formDataToSend.append(`specs[${index}][key]`, spec.key.trim());
+            formDataToSend.append(`specs[${index}][value]`, spec.value.trim());
+            obj[spec.key.trim()] = spec.value.trim();
         }
         return obj;
-      }, {});
-  
-      if (Object.keys(specsObject).length > 0) {
+    }, {});
+    
+    if (Object.keys(specsObject).length > 0) {
         formDataToSend.append('specs_data', JSON.stringify(specsObject));
-      }
-  
+    }
+
       const url = initialData ? `/api/admin/catalog/${initialData.id}` : '/api/admin/catalog';
-  
+
       const response = await fetch(url, {
         method: 'POST',
         body: formDataToSend,
@@ -360,10 +359,10 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
           'X-Requested-With': 'XMLHttpRequest',
         },
       });
-  
+
       const result = await response.json();
       console.log('Response from server:', result);
-  
+
       if (result.success) {
         await refetchAdminCatalog(true);
         await onSubmit(result.data);
@@ -375,7 +374,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
                 const formattedMessages = Array.isArray(messages)
                   ? messages.join(', ')
                   : messages;
-                // Переводим имя поля, если есть перевод, иначе используем само поле
                 return `<li>${t(`admin.catalog.${field}`, field)}: ${formattedMessages}</li>`;
               })
               .join('')
@@ -634,82 +632,89 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
           </div>
           <div className="form-group specs-group">
             <label className="specs-label">{t('specs.mainTitle')}</label>
-            <datalist id="spec-keys">
-              {getFilteredSpecKeys('').map((key) => (
-                <option key={key} value={key}>
-                  {translatedSpecKeys[key] || key}
-                </option>
-              ))}
-            </datalist>
             {formData.specs.map((spec, index) => (
-              <div className="spec-row" key={index}>
-                {spec.isNewSpec ? (
-                  <div className="new-spec-fields">
-                    <input
-                      type="text"
-                      name="slug"
-                      className="spec-input"
-                      placeholder={t('admin.catalog.SlugPlaceholder')}
-                      value={spec.newSpec.slug}
-                      onChange={(e) => handleNewSpecChange(index, 'slug', e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      name="ru"
-                      className="spec-input"
-                      placeholder={t('admin.catalog.RuPlaceholder')}
-                      value={spec.newSpec.ru}
-                      onChange={(e) => handleNewSpecChange(index, 'ru', e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      name="en"
-                      className="spec-input"
-                      placeholder={t('admin.catalog.EnPlaceholder')}
-                      value={spec.newSpec.en}
-                      onChange={(e) => handleNewSpecChange(index, 'en', e.target.value)}
-                    />
-                  </div>
-                ) : (
-                  <input
+    <div className="spec-row" key={index}>
+        {spec.isNewSpec ? (
+            <div className="new-spec-fields">
+                <input
                     type="text"
+                    name="slug"
                     className="spec-input"
-                    placeholder={t('admin.catalog.keyPlaceholder')}
+                    placeholder={t('admin.catalog.SlugPlaceholder')}
+                    value={spec.newSpec.slug}
+                    onChange={(e) => handleNewSpecChange(index, 'slug', e.target.value)}
+                />
+                <input
+                    type="text"
+                    name="ru"
+                    className="spec-input"
+                    placeholder={t('admin.catalog.RuPlaceholder')}
+                    value={spec.newSpec.ru}
+                    onChange={(e) => handleNewSpecChange(index, 'ru', e.target.value)}
+                />
+                <input
+                    type="text"
+                    name="en"
+                    className="spec-input"
+                    placeholder={t('admin.catalog.EnPlaceholder')}
+                    value={spec.newSpec.en}
+                    onChange={(e) => handleNewSpecChange(index, 'en', e.target.value)}
+                />
+                <input
+                    type="text"
+                    name="value"
+                    className="spec-input"
+                    placeholder={t('admin.catalog.valuePlaceholder')}
+                    value={spec.newSpec.value}
+                    onChange={(e) => handleNewSpecChange(index, 'value', e.target.value)}
+                />
+            </div>
+        ) : (
+            <>
+                <select
+                    className="spec-input"
                     value={spec.key}
                     onChange={(e) => handleSpecChange(index, 'key', e.target.value)}
-                    list="spec-keys"
-                  />
-                )}
+                >
+                    <option value="">{t('admin.catalog.selectKey')}</option>
+                    {getFilteredSpecKeys().map((key) => (
+                        <option key={key} value={key}>
+                            {translatedSpecKeys[key] || key}
+                        </option>
+                    ))}
+                </select>
                 <input
-                  type="text"
-                  className="spec-input"
-                  placeholder={t('admin.catalog.valuePlaceholder')}
-                  value={spec.value}
-                  onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-                  list={`spec-values-${index}`}
+                    type="text"
+                    className="spec-input"
+                    placeholder={t('admin.catalog.valuePlaceholder')}
+                    value={spec.value}
+                    onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                    disabled={!spec.key} // Блокируем, если key не выбран
+                    list={`spec-values-${index}`}
                 />
                 <datalist id={`spec-values-${index}`}>
-                  {getFilteredSpecValues(spec.key, '').map((value) => (
-                    <option key={value} value={String(value)} />
-                  ))}
+                    {getFilteredSpecValues(spec.key).map((value) => (
+                        <option key={value} value={String(value)} />
+                    ))}
                 </datalist>
-                <div className="spec-actions">
-                  <label className="spec-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={spec.isNewSpec}
-                      onChange={() => handleSpecCheckboxChange(index)}
-                    />
-                    {t('admin.catalog.addNewSpec')}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={(e) => removeSpecField(index, e)}
-                    className="remove-spec-button"
-                    disabled={formData.specs.length === 1}
-                  >
-                    −
-                  </button>
+            </>
+        )}
+        <div className="spec-actions">
+            <label className="spec-checkbox">
+                <input
+                    type="checkbox"
+                    checked={spec.isNewSpec}
+                    onChange={() => handleSpecCheckboxChange(index)}
+                />
+                {t('admin.catalog.addNewSpec')}
+            </label>
+            <button
+                type="button"
+                onClick={(e) => removeSpecField(index, e)}
+                className="remove-spec-button"
+            >
+                −
+            </button>
                 </div>
               </div>
             ))}
