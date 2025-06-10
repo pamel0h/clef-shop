@@ -130,15 +130,18 @@ class UserService
     {
         try {
             $currentUserId = auth()->id();
-            if ($currentUserId == $id) {
+            Log::debug('Deleting user', ['user_id' => $id, 'current_user_id' => $currentUserId]);
+            if ((string) $currentUserId === (string) $id) {
                 throw ValidationException::withMessages([
                     'error' => 'You cannot delete yourself!',
                 ]);
             }
             $user = User::findOrFail($id);
             $user->delete();
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
-            Log::error('Error deleting user: ' . $e->getMessage());
+            Log::error('Error deleting user: ' . $e->getMessage(), ['user_id' => $id]);
             throw ValidationException::withMessages([
                 'error' => 'Failed to delete user.',
             ]);

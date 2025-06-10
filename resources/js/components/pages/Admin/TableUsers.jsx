@@ -529,10 +529,10 @@ const TableUsers = () => {
         alert('User deleted successfully.');
       } catch (err) {
         console.error('Delete user error:', err.response?.data);
-        const errorMessage =
-          err.response?.data?.errors?.error?.[0] || // Кастомная ошибка
-          err.response?.data?.error ||
-          'Failed to delete user.';
+        const errorMessage =err.response?.data?.errors?.error?.[0] 
+          // err.response?.data?.errors?.error?.[0] || // Кастомная ошибка
+          // err.response?.data?.error ;
+          // 'Failed to delete user.';
         alert(errorMessage);
       }
     }
