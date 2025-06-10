@@ -126,7 +126,8 @@
             "uploadError": "Import Error",
             "noCsvFile": "No CSV file",
             "imagePreview": "Image Preview",
-            "clear": "Clear"
+            "clear": "Clear",
+            "selectKey":"Select Key"
         },
         "title": "Admin Panel",
         "main": "Panel editor",
@@ -364,21 +365,6 @@
             "digital_pianos": "Digital Pianos",
             "midi_controllers": "MIDI Controllers",
             "synthesizers": "Synthesizers"
-        },
-        "sdsdsd": {
-            "gfgfgfgf": "fgfgfg"
-        },
-        "gfgfg": {
-            "hghgh": "hghghghg"
-        },
-        "myneww": {
-            "mynewsubcat": "Newnewsubbs"
-        },
-        "kukusiki": {
-            "kusiki": "Kukusiki"
-        },
-        "rere": {
-            "meme": "Memek"
         }
     },
     "profile": {

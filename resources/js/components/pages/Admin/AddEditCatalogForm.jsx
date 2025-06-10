@@ -119,6 +119,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
   };
 
   const getFilteredSpecValues = (key) => {
+    console.log(specKeysValues);
     if (!key || !specKeysValues[key]) return [];
     return specKeysValues[key];
   };

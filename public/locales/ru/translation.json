@@ -126,19 +126,12 @@
             "noCsvFile": "CSV файл не найден",
             "imagePreview": "Превью изображения",
             "clear": "Очистить",
-            "new_category.slug": "Slug новой категории",
-            "new_category.ru": "Русское название новой категории",
-            "new_category.en": "Английское название новой категории",
+            "new_category": "Новая категория",
             "new_subcategory": "Новая подкатегория",
             "new_subcategory.slug": "Slug новой подкатегории",
             "new_subcategory.ru": "Русское название новой подкатегории",
             "new_subcategory.en": "Английское название новой подкатегории",
-            "specs.*.key": "Ключ характеристики",
-            "specs.*.value": "Значение характеристики",
-            "specs.*.newSpec": "Новая характеристика",
-            "specs.*.newSpec.slug": "Slug новой характеристики",
-            "specs.*.newSpec.ru": "Русское название новой характеристики",
-            "specs.*.newSpec.en": "Английское название новой характеристики"
+            "selectKey":"Выберите ключ"
         },
         "title": "Админ-панель",
         "main": "Панель управления",
@@ -253,12 +246,7 @@
         "knobs": "Ручки",
         "faders": "Фейдеры",
         "oscillators": "Осцилляторы",
-        "effects": "Эффекты",
-        "hjhjhj": "ророро",
-        "dssdsdsdsds": "вавававава",
-        "kukusikig": "масюсики",
-        "ggggg": "гггггг",
-        "ddd": "ввв"
+        "effects": "Эффекты"
     },
     "contacts": {
         "mainTitle": "Контакты",
@@ -397,21 +385,6 @@
             "digital_pianos": "Цифровые пианино",
             "midi_controllers": "MIDI-контроллеры",
             "synthesizers": "Синтезаторы"
-        },
-        "sdsdsd": {
-            "gfgfgfgf": "папа"
-        },
-        "gfgfg": {
-            "hghgh": "рпрпрп"
-        },
-        "myneww": {
-            "mynewsubcat": "Новаяноваяподкатегория"
-        },
-        "kukusiki": {
-            "kusiki": "Кукусики"
-        },
-        "rere": {
-            "meme": "Мемек"
         }
     },
     "admin_orders": {

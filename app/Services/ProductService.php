@@ -356,31 +356,26 @@ if ($request->has('specs') && is_array($request->input('specs'))) {
         try {
             // Log::info('ProductService: getSpecKeysAndValues begin');
             $items = Item::whereNotNull('specs')->get();
-            // Log::info('ProductService: Items with specs', [
-            //     'count' => $items->count(),
-            //     'specs' => $items->pluck('specs')->toArray()
-            // ]);
-
+            
             $specData = [];
             foreach ($items as $item) {
                 $specs = $item->specs;
                 if (is_string($item->specs)) {
                     $specs = json_decode($item->specs, true);
-                    // Log::info('ProductService: Decoded string specs for item', [
-                    //     'item_id' => $item->id,
-                    //     'specs' => $specs
-                    // ]
-                // );
                 }
-
+    
                 if ($specs && (is_array($specs) || is_object($specs)) && !empty($specs)) {
                     foreach ((array)$specs as $key => $value) {
                         if (!empty($key) && $value !== null) {
                             if (!isset($specData[$key])) {
                                 $specData[$key] = [];
                             }
-                            if (!in_array($value, $specData[$key])) {
-                                $specData[$key][] = $value;
+                            
+                            // Нормализуем значение к строке
+                            $normalizedValue = $this->normalizeSpecValue($value);
+                            
+                            if (!in_array($normalizedValue, $specData[$key])) {
+                                $specData[$key][] = $normalizedValue;
                             }
                         }
                     }
@@ -393,13 +388,17 @@ if ($request->has('specs') && is_array($request->input('specs'))) {
                     }
                 }
             }
-
+    
+            // Сортируем ключи по алфавиту
+            ksort($specData);
+            
+            // Сортируем значения для каждого ключа
             foreach ($specData as $key => $values) {
                 sort($specData[$key]);
             }
-
+    
             // Log::info('ProductService: Spec keys and values', ['spec_data' => $specData]);
-
+    
             return [
                 'success' => true,
                 'data' => $specData
@@ -410,6 +409,23 @@ if ($request->has('specs') && is_array($request->input('specs'))) {
                 'trace' => $e->getTraceAsString()
             ]);
             throw $e;
+        }
+    }
+    
+    /**
+     * Нормализует значение спецификации к строке
+     */
+    private function normalizeSpecValue($value)
+    {
+        if (is_array($value)) {
+            // Если массив, то соединяем элементы через запятую
+            return implode(', ', $value);
+        } elseif (is_object($value)) {
+            // Если объект, конвертируем в JSON строку
+            return json_encode($value);
+        } else {
+            // Если уже строка или число, приводим к строке
+            return (string)$value;
         }
     }
 }
