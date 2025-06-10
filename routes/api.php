@@ -10,7 +10,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\TranslationController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\ImageUploadController;
@@ -57,11 +57,11 @@ Route::get('/catalog/data', [CatalogController::class, 'fetchData'])
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
    
     // Управление пользователями
-    Route::get('/users', [AdminController::class, 'getUsers']);
-    Route::get('/users/{id}', [AdminController::class, 'getUser']);
-    Route::post('/users', [AdminController::class, 'createUser']);
-    Route::put('/users/{id}', [AdminController::class, 'updateUser']);
-    Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+    Route::get('/users', [AdminUserController::class, 'getUsers']);
+    Route::get('/users/{id}', [AdminUserController::class, 'getUser']);
+    Route::post('/users', [AdminUserController::class, 'createUser']);
+    Route::put('/users/{id}', [AdminUserController::class, 'updateUser']);
+    Route::delete('/users/{id}', [AdminUserController::class, 'deleteUser']);
     Route::post('/catalog/import', [AdminCatalogController::class, 'import'])->name('admin.catalog.import');
         Route::get('/catalog/data', [AdminCatalogController::class, 'fetchData'])->name('admin.catalog.data');
         Route::post('/catalog', [AdminCatalogController::class, 'store'])->name('admin.catalog.store');

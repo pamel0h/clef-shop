@@ -6,7 +6,7 @@ use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Services\UserService;
 
-class AdminController extends Controller
+class AdminUserController extends Controller
 {
     protected $userService;
 
