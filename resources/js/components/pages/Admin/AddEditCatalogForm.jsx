@@ -119,7 +119,6 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
   };
 
   const getFilteredSpecValues = (key) => {
-    console.log(specKeysValues);
     if (!key || !specKeysValues[key]) return [];
     return specKeysValues[key];
   };
@@ -280,7 +279,7 @@ const AddEditCatalogForm = ({ isOpen, onClose, onSubmit, initialData, title }) =
 
       const fields = ['name', 'description_en', 'description_ru', 'price', 'discount', 'brand'];
       fields.forEach((key) => {
-        formDataToSend.append(key, formData[key]?.trim() || '');
+        formDataToSend.append(key, String(formData[key] || '').trim());
       });
 
       formDataToSend.append('is_new_category', formData.isNewCategory ? 1 : 0);

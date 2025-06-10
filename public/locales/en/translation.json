@@ -41,11 +41,10 @@
         "mainTitle": "Catalog",
         "categories": "All categories",
         "noProducts": "No products",
-        "description":"Product description",
-        "brand":"Brand",
-        "no_brand":"No brand",
-        "no_name":"No name"
-
+        "description": "Product description",
+        "brand": "Brand",
+        "no_brand": "No brand",
+        "no_name": "No name"
     },
     "search": {
         "mainTitle": "Search",
@@ -127,7 +126,7 @@
             "noCsvFile": "No CSV file",
             "imagePreview": "Image Preview",
             "clear": "Clear",
-            "selectKey":"Select Key"
+            "selectKey": "Select Key"
         },
         "title": "Admin Panel",
         "main": "Panel editor",
@@ -144,7 +143,7 @@
     },
     "specs": {
         "mainTitle": "Product specifications",
-        "noSpecs":"No specifications",
+        "noSpecs": "No specifications",
         "inputs": "Inputs",
         "outputs": "Outputs",
         "connectivity": "Connectivity",
@@ -331,7 +330,11 @@
         "gfgfg": "gfgfgf",
         "myneww": "Newneww",
         "kukusiki": "Kusiki",
-        "rere": "Rerek"
+        "rere": "Rerek",
+        "Hhuhuhu": "Huhri muhri",
+        "jhjhjh": "hghgh",
+        "dfsg": "sgszg",
+        "rathgn": "tfxjrsgf"
     },
     "subcategory": {
         "accessories": {
@@ -365,6 +368,18 @@
             "digital_pianos": "Digital Pianos",
             "midi_controllers": "MIDI Controllers",
             "synthesizers": "Synthesizers"
+        },
+        "Hhuhuhu": {
+            "hihihihihik": "Hihihhihhihihik"
+        },
+        "jhjhjh": {
+            "trhzgfdrh": "dfhzejetdj"
+        },
+        "dfsg": {
+            "szgzg": "szgsfdzg"
+        },
+        "rathgn": {
+            "athrdz": "rthzd"
         }
     },
     "profile": {

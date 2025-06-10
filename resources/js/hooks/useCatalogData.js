@@ -117,8 +117,13 @@ export default function useCatalogData(type, options = {}, skip = false) {
   // Отдельная функция для обновления переводов
   const reloadTranslations = useCallback(async () => {
     try {
+      // Очищаем кэш бэкенда
       i18n.services.backendConnector.backend.cache?.clear?.();
+      // Принудительно перезагружаем ресурсы для текущего языка
+      await i18n.reloadResources(null, null, () => {
+      });
     } catch (reloadError) {
+      console.error('Error reloading translations:', reloadError);
     }
   }, []);
 

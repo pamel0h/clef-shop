@@ -41,10 +41,10 @@
         "mainTitle": "Каталог",
         "categories": "Все категории",
         "noProducts": "Товаров нет",
-        "description":"Описание товара",
-        "brand":"Бренд",
-        "no_brand":"Бренд отсутствует",
-        "no_name":"Название отсутствует"
+        "description": "Описание товара",
+        "brand": "Бренд",
+        "no_brand": "Бренд отсутствует",
+        "no_name": "Название отсутствует"
     },
     "search": {
         "mainTitle": "Поиск",
@@ -131,7 +131,7 @@
             "new_subcategory.slug": "Slug новой подкатегории",
             "new_subcategory.ru": "Русское название новой подкатегории",
             "new_subcategory.en": "Английское название новой подкатегории",
-            "selectKey":"Выберите ключ"
+            "selectKey": "Выберите ключ"
         },
         "title": "Админ-панель",
         "main": "Панель управления",
@@ -246,7 +246,8 @@
         "knobs": "Ручки",
         "faders": "Фейдеры",
         "oscillators": "Осцилляторы",
-        "effects": "Эффекты"
+        "effects": "Эффекты",
+        "ddd": "ddd"
     },
     "contacts": {
         "mainTitle": "Контакты",
@@ -351,7 +352,11 @@
         "gfgfg": "папапа",
         "myneww": "Новая новая",
         "kukusiki": "Кусики",
-        "rere": "Рекфек"
+        "rere": "Рекфек",
+        "Hhuhuhu": "Хухры мухры",
+        "jhjhjh": "привет",
+        "dfsg": "хеллоу",
+        "rathgn": "аммамамама"
     },
     "subcategory": {
         "accessories": {
@@ -385,6 +390,18 @@
             "digital_pianos": "Цифровые пианино",
             "midi_controllers": "MIDI-контроллеры",
             "synthesizers": "Синтезаторы"
+        },
+        "Hhuhuhu": {
+            "hihihihihik": "Хихоньки хахоньки"
+        },
+        "jhjhjh": {
+            "trhzgfdrh": "хай"
+        },
+        "dfsg": {
+            "szgzg": "хихик"
+        },
+        "rathgn": {
+            "athrdz": "кыеоаочеокг"
         }
     },
     "admin_orders": {

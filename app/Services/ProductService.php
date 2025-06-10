@@ -68,7 +68,6 @@ class ProductService
                 Log::info('ProductService: Images processed', ['images' => $imagesPaths]);
             }
     
-           // Обработка характеристик
 // Обработка характеристик
 $specs = new stdClass();
 
@@ -120,42 +119,7 @@ if ($request->has('specs') && is_array($request->input('specs'))) {
         }
     }
 }
-    
-            // // Обработка specs_data (для совместимости, если используется)
-            // $specsString = $request->input('specs_data');
-            // if (!empty($specsString)) {
-            //     try {
-            //         $specsArray = json_decode($specsString, true);
-            //         if (is_array($specsArray)) {
-            //             foreach ($specsArray as $key => $value) {
-            //                 if (!empty($key)) {
-            //                     if (is_array($value) && isset($value['value'], $value['translations'])) {
-            //                         $specs->{$key} = $value['value'];
-            //                         $this->translationService->storeTranslation(
-            //                             'specs',
-            //                             $key,
-            //                             $value['translations']['ru'],
-            //                             $value['translations']['en']
-            //                         );
-            //                         Log::info('ProductService: New spec translation saved from specs_data', [
-            //                             'spec' => $key,
-            //                             'translations' => $value['translations']
-            //                         ]);
-            //                     } else if (!empty($value)) {
-            //                         $specs->{$key} = $value;
-            //                         if (!$this->translationService->translationExists('specs', $key)) {
-            //                             $this->translationService->storeTranslation('specs', $key, $key, $key, null, true);
-            //                             Log::info('ProductService: Added temporary translation for spec', ['spec_key' => $key]);
-            //                         }
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //     } catch (\Exception $e) {
-            //         Log::error('ProductService: Error parsing specs JSON', ['error' => $e->getMessage()]);
-            //     }
-            // }
-    
+
             Log::info('ProductService: Final specs object', ['specs' => (array) $specs]);
     
             // Создание товара
@@ -201,47 +165,39 @@ if ($request->has('specs') && is_array($request->input('specs'))) {
                 'validated' => $validated,
             ]);
             
+            $item = Item::findOrFail($id);
+    
+            // Проверка новой категории
             if ($request->input('is_new_category') == '1') {
                 $newCategory = $request->input('new_category');
                 if (empty($newCategory['slug']) || empty($newCategory['ru']) || empty($newCategory['en'])) {
-                    throw new \Exception('All new category fields are required');
+                    throw new \Exception('Все поля новой категории обязательны');
+                }
+                $this->translationService->storeTranslation('category', $newCategory['slug'], $newCategory['ru'], $newCategory['en']);
+                Log::info('ProductService: New category translation saved', ['category' => $newCategory]);
+            } else {
+                $category = $validated['category'];
+                if (!$this->translationService->translationExists('category', $category)) {
+                    $this->translationService->storeTranslation('category', $category, $category, $category, null, true);
+                    Log::info('ProductService: Added temporary translation for category', ['category' => $category]);
                 }
             }
-            
+    
+            // Проверка новой подкатегории
             if ($request->input('is_new_subcategory') == '1') {
                 $newSubcategory = $request->input('new_subcategory');
                 if (empty($newSubcategory['slug']) || empty($newSubcategory['ru']) || empty($newSubcategory['en'])) {
-                    throw new \Exception('All new subcategory fields are required');
+                    throw new \Exception('Все поля новой подкатегории обязательны');
                 }
-            }
-            $item = Item::findOrFail($id);
-    
-            // Обработка категории
-            $category = $validated['category'] ?? null;
-            if ($request->input('is_new_category') && $request->has('new_category')) {
-                $newCategory = $request->input('new_category');
-                if (isset($newCategory['slug'], $newCategory['ru'], $newCategory['en'])) {
-                    $this->translationService->storeTranslation('category', $newCategory['slug'], $newCategory['ru'], $newCategory['en']);
-                    $category = $newCategory['slug']; // Используем slug как category
-                    Log::info('ProductService: New category translation saved', ['category' => $newCategory]);
+                $this->translationService->storeTranslation('subcategory', $newSubcategory['slug'], $newSubcategory['ru'], $newSubcategory['en'], $validated['category']);
+                Log::info('ProductService: New subcategory translation saved', ['subcategory' => $newSubcategory]);
+            } else {
+                $subcategory = $validated['subcategory'];
+                $category = $validated['category'];
+                if (!$this->translationService->translationExists('subcategory', $subcategory, $category)) {
+                    $this->translationService->storeTranslation('subcategory', $subcategory, $subcategory, $subcategory, $category, true);
+                    Log::info('ProductService: Added temporary translation for subcategory', ['subcategory' => $subcategory, 'category' => $category]);
                 }
-            } elseif (!$this->translationService->translationExists('category', $category)) {
-                $this->translationService->storeTranslation('category', $category, $category, $category, null, true);
-                Log::info('ProductService: Added temporary translation for category', ['category' => $category]);
-            }
-    
-            // Обработка подкатегории
-            $subcategory = $validated['subcategory'] ?? null;
-            if ($request->input('is_new_subcategory') && $request->has('new_subcategory')) {
-                $newSubcategory = $request->input('new_subcategory');
-                if (isset($newSubcategory['slug'], $newSubcategory['ru'], $newSubcategory['en'])) {
-                    $this->translationService->storeTranslation('subcategory', $newSubcategory['slug'], $newSubcategory['ru'], $newSubcategory['en'], $category);
-                    $subcategory = $newSubcategory['slug']; // Используем slug как subcategory
-                    Log::info('ProductService: New subcategory translation saved', ['subcategory' => $newSubcategory]);
-                }
-            } elseif (!$this->translationService->translationExists('subcategory', $subcategory, $category)) {
-                $this->translationService->storeTranslation('subcategory', $subcategory, $subcategory, $subcategory, $category, true);
-                Log::info('ProductService: Added temporary translation for subcategory', ['subcategory' => $subcategory, 'category' => $category]);
             }
     
             // Обработка изображений
@@ -258,42 +214,63 @@ if ($request->has('specs') && is_array($request->input('specs'))) {
     
             // Обработка характеристик
             $specs = new stdClass();
+    
             if ($request->has('specs') && is_array($request->input('specs'))) {
                 foreach ($request->input('specs') as $spec) {
-                    if (!empty($spec['key']) && !empty($spec['value'])) {
-                        $specKey = trim($spec['key']);
-                        $specValue = trim($spec['value']);
-                        $specs->{$specKey} = $specValue;
-                        if (!$this->translationService->translationExists('specs', $specKey)) {
-                            $this->translationService->storeTranslation('specs', $specKey, $specKey, $specKey, null, true);
-                            Log::info('ProductService: Added temporary translation for spec', ['spec_key' => $specKey]);
+                    if (!empty($spec['isNewSpec'])) {
+                        // Новая характеристика
+                        if (
+                            !empty($spec['newSpec']['slug']) &&
+                            !empty($spec['newSpec']['ru']) &&
+                            !empty($spec['newSpec']['en']) &&
+                            !empty($spec['newSpec']['value'])
+                        ) {
+                            $specKey = trim($spec['newSpec']['slug']);
+                            $specValue = trim($spec['newSpec']['value']);
+                            $specs->{$specKey} = $specValue;
+                            $this->translationService->storeTranslation(
+                                'specs',
+                                $specKey,
+                                $spec['newSpec']['ru'],
+                                $spec['newSpec']['en'],
+                                null,
+                                false
+                            );
+                            Log::info('ProductService: New spec translation saved', [
+                                'spec' => $specKey,
+                                'translations' => $spec['newSpec']
+                            ]);
+                        }
+                    } else {
+                        // Существующая характеристика
+                        if (!empty($spec['key']) && !empty($spec['value'])) {
+                            $specKey = trim($spec['key']);
+                            $specValue = trim($spec['value']);
+                            $specs->{$specKey} = $specValue;
+                            if (!$this->translationService->translationExists('specs', $specKey)) {
+                                $this->translationService->storeTranslation(
+                                    'specs',
+                                    $specKey,
+                                    $specKey,
+                                    $specKey,
+                                    null,
+                                    true
+                                );
+                                Log::info('ProductService: Added temporary translation for spec', ['spec_key' => $specKey]);
+                            }
+                            Log::info('ProductService: Processed spec', ['key' => $specKey, 'value' => $specValue]);
                         }
                     }
                 }
-                Log::info('ProductService: Specs processed', ['specs' => (array) $specs]);
             } else {
+                // Если нет новых specs, оставляем существующие
                 $specs = $item->specs ?? new stdClass();
                 Log::info('ProductService: Keeping existing specs', ['specs' => (array) $specs]);
             }
     
-            $specsString = $request->input('specs_data');
-            if (!empty($specsString)) {
-                try {
-                    $specsArray = json_decode($specsString, true);
-                    if (is_array($specsArray)) {
-                        foreach ($specsArray as $key => $value) {
-                            if (!empty($key) && isset($value['value'], $value['translations']['ru'], $value['translations']['en'])) {
-                                $specs->{$key} = $value['value'];
-                                $this->translationService->storeTranslation('specs', $key, $value['translations']['ru'], $value['translations']['en']);
-                                Log::info('ProductService: New spec translation saved', ['spec' => $key, 'translations' => $value['translations']]);
-                            }
-                        }
-                    }
-                } catch (\Exception $e) {
-                    Log::error('ProductService: Error parsing specs JSON', ['error' => $e->getMessage()]);
-                }
-            }
+            Log::info('ProductService: Final specs object', ['specs' => (array) $specs]);
     
+            // Обновление товара
             $item->update([
                 'name' => $validated['name'],
                 'description' => [
@@ -301,8 +278,8 @@ if ($request->has('specs') && is_array($request->input('specs'))) {
                     'ru' => $validated['description_ru'] ?? ''
                 ],
                 'price' => (float)$validated['price'],
-                'category' => $category,
-                'subcategory' => $subcategory,
+                'category' => $validated['category'],
+                'subcategory' => $validated['subcategory'],
                 'brand' => $validated['brand'],
                 'discount' => (float)($validated['discount'] ?? 0),
                 'images' => $imagesPaths,
@@ -314,7 +291,7 @@ if ($request->has('specs') && is_array($request->input('specs'))) {
             return [
                 'success' => true,
                 'data' => $productFormatter->formatProduct($item),
-                'message' => 'Product updated successfully'
+                'message' => 'Товар успешно обновлен'
             ];
         } catch (\Exception $e) {
             Log::error('ProductService: Error updating product', [
