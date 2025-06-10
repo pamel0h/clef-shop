@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreProductRequest;
-use App\Http\Requests\UpdateProductRequest;
+use App\Http\Requests\StoreUpdateProductRequest;
+// use App\Http\Requests\StoreUpdateProductRequest;
 use App\Models\Item;
 use App\Services\ProductService;
 use App\Formatters\ProductFormatter;
@@ -46,7 +46,7 @@ class AdminCatalogController extends Controller
         }
     }
 
-    public function store(StoreProductRequest $request)
+    public function store(StoreUpdateProductRequest $request)
     {
         try {
             $validated = $request->validated();
@@ -60,7 +60,7 @@ class AdminCatalogController extends Controller
         }
     }
 
-    public function update(UpdateProductRequest $request, $id)
+    public function update(StoreUpdateProductRequest $request, $id)
     {
         try {
             $validated = $request->validated();

@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateProductRequest extends FormRequest
+class StoreUpdateProductRequest extends FormRequest
 {
     public function authorize()
     {
@@ -14,8 +14,15 @@ class UpdateProductRequest extends FormRequest
 
     public function rules()
     {
+        $id = $this->route('id'); // Получаем ID из маршрута
         return [
-            'name' => 'required|string|max:255',
+            // 'name' => 'required|string|max:255|unique:items',
+            'name' => [
+            'required',
+            'string',
+            'max:255',
+            Rule::unique('items')->ignore($id), // Игнорируем текущий товар при обновлении
+        ],
             'description_en' => 'nullable|string',
             'description_ru' => 'nullable|string',
             'price' => 'required|numeric|min:0',
