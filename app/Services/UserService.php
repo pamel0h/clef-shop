@@ -129,6 +129,12 @@ class UserService
     public function deleteUser(string $id): void
     {
         try {
+            $currentUserId = auth()->id();
+            if ($currentUserId == $id) {
+                throw ValidationException::withMessages([
+                    'error' => __('admin_users.self_delete_error'),
+                ]);
+            }
             $user = User::findOrFail($id);
             $user->delete();
         } catch (\Exception $e) {

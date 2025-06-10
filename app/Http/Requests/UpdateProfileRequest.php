@@ -13,10 +13,11 @@ class UpdateProfileRequest extends FormRequest
 
     public function rules()
     {
+        $id = $this->route('id');
         return [
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,',
-            'phone' => 'sometimes|string|nullable|max:20',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,'. $id,
+            'phone' => 'sometimes|string|nullable|max:20|unique:users,phone,'. $id,
             'address' => 'sometimes|string|nullable|max:255',
             'password' => 'sometimes|string|min:8',
         ];

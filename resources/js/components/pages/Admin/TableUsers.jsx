@@ -120,7 +120,8 @@ const TableUsers = () => {
       setValidationErrors({});
     } catch (err) {
       console.error('Update user error:', err.response?.data);
-      setError(err.response?.data?.message || t('admin_users.update_error'));
+      // setError(err.response?.data?.message || t('admin_users.update_error'));
+      throw new Error(err.response?.data?.message || t('admin_users.update_error'));
     }
   };
 
@@ -140,8 +141,10 @@ const TableUsers = () => {
         }
       } catch (err) {
         console.error('Delete user error:', err.response?.data);
-        setError(t('admin_users.delete_error'));
+        // setError(t('admin_users.delete_error'));
+        throw new Error(t('admin_users.delete_error'));
       }
+      
     }
   };
 
