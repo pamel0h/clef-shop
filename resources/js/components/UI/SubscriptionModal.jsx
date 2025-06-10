@@ -7,7 +7,7 @@ const SubscriptionModal = () => {
 
   return (
     <div className="subscription-modal">
-      <div className="modal-content">
+      <div className="sub-modal-content">
         <h2>Подпишитесь на рассылку!</h2>
         <p>Получайте самые свежие новости и эксклюзивные предложения на вашу почту.</p>
         

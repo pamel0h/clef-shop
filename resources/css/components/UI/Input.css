@@ -1,0 +1,53 @@
+@import '../../_variables.css';
+
+.input {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%; 
+    box-sizing: border-box; 
+    min-height: 34px;
+}
+
+.input input,
+.input textarea {
+    font-family: var(--font-main);
+    font-size: 0.8rem; 
+    width: 100%;
+    height: 100%;
+    padding: 4px 10px; 
+    border: 1px solid #ddd;
+    border-radius: 0.15rem; 
+    background-color: var(--color-light-gray); 
+    outline: none;
+    box-shadow: none;
+    box-sizing: border-box; 
+}
+
+.input textarea {
+    min-height: 150px; 
+    resize: vertical; 
+    line-height: 1.2; 
+    max-height: 300px;
+}
+
+.input--disabled input,
+.input--disabled textarea {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.input--search .input__icon {
+    position: absolute;
+    right: 10px;
+    top:10px;
+}
+
+.input--password {
+    position: relative;
+}
+
+.input--password button {
+    position: absolute;
+    right: 10px;
+}

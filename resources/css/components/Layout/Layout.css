@@ -15,3 +15,7 @@ h1{
     background-color: rgb(76, 75, 74);
 }
 
+
+main{
+    min-height: 100vh;
+}

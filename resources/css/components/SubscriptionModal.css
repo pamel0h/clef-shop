@@ -16,12 +16,12 @@
 
 
 /* Контент модалки */
-.modal-content {
+.sub-modal-content {
   background: white;
-  padding: 2rem;
+  padding: 10px 20px 30px;
   border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
+  max-width: 400px;
+  width: 50%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   transform: translateY(20px);
   transition: transform 0.3s ease;
@@ -32,14 +32,14 @@
 }
 
 /* Заголовок и текст */
-.modal-content h2 {
-  font-size: 1.5rem;
+.sub-modal-content h2 {
+  font-size: 2rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: #333;
 }
 
-.modal-content p {
+.sub-modal-content p {
   margin-bottom: 1.5rem;
   color: #666;
   line-height: 1.5;
@@ -52,6 +52,9 @@
   gap: 1rem;
 }
 
+.modal-form button{
+  font-family: var(--font-main);
+}
 
 /* Кнопки */
 .subscribe-btn {

@@ -7,6 +7,7 @@
     repeat(1, 200px)  
 }
 .page--cart h1{
+    text-transform: uppercase;
     grid-column: span 3; 
     font-size: 4rem; 
 }
@@ -25,13 +26,23 @@
 
 .orderForm{
     color: white;
-    padding: 10px 20px 30px;
+    padding: 10px 20px 45px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     background-color: var(--color-primary);
     grid-column: span 1; 
     border-radius: 5px;
+    
+   
+}
+
+.orderForm form{
+     max-height: 250px;
+}
+
+.orderForm form label{
+   color: var(--color-white);
 }
 
 .submitOrder{
@@ -49,6 +60,12 @@
   margin-bottom: 20px;
   border: 1px solid white;
   border-radius: 5px;
+ 
+}
+
+.order-tabs button{
+ font-family: var(--font-main);
+ font-size: 1rem;
 }
 
 .pickup-btn{

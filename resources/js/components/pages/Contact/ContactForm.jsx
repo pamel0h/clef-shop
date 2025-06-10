@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../../context/AuthContext';
 import axios from 'axios';
-import "../../../../css/components/ContactForm.css";
+import "../../../../css/components/Contact/ContactForm.css";
 import Button from '../../UI/Button';
 import Input from '../../UI/Input';
 import AuthModal from '../../UI/AuthModal';
@@ -11,17 +11,15 @@ import SuccessModal from '../../UI/SuccessModal';
 const ContactForm = () => {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const [message, setMessage] = useState('');
+    const [messageText, setMessageText] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [pendingSubmit, setPendingSubmit] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-    // Проверяем, пустое ли поле сообщения
-    const isMessageEmpty = message.trim() === '';
+    const isMessageEmpty = messageText.trim() === '';
 
-    // Обработка отправки формы
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -35,29 +33,26 @@ const ContactForm = () => {
         setLoading(true);
 
         try {
-            await axios.post('/api/messages', {
-                userId: user.id,
-                message,
-                createdAt: new Date(),
+            const response = await axios.post('/api/messages', {
+                message: messageText
             });
-            setMessage('');
+            
+            setMessageText('');
             setIsSuccessModalOpen(true);
         } catch (err) {
-            setError(t('contactForm.error'));
+            setError(err.response?.data?.message || t('contactForm.error'));
         } finally {
             setLoading(false);
             setPendingSubmit(false);
         }
     };
 
-    // Эффект для автоматической отправки после авторизации
     useEffect(() => {
         if (user && pendingSubmit && !isMessageEmpty) {
             handleSubmit({ preventDefault: () => {} });
         }
     }, [user, pendingSubmit]);
 
-    // Коллбэк для обработки успешной авторизации
     const handleAuthSuccess = () => {
         setIsAuthModalOpen(false);
         if (!isMessageEmpty) {
@@ -68,12 +63,15 @@ const ContactForm = () => {
     return (
         <>
             <form className="form" onSubmit={handleSubmit}>
+            <div>
                 <h2>{t('contactForm.title')}</h2>
                 <label>{t('contactForm.message')}</label>
+            </div>
+                
                 <Input
                     type="textarea"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
                     placeholder={t('contactForm.message_placeholder')}
                     required
                 />
@@ -87,13 +85,14 @@ const ContactForm = () => {
                     </Button>
                     <Button 
                         type="button" 
-                        onClick={() => setMessage('')}
+                        onClick={() => setMessageText('')}
                         disabled={isMessageEmpty}
                     >
                         {t('contactForm.reset')}
                     </Button>
                 </div>
             </form>
+            
             <AuthModal 
                 isOpen={isAuthModalOpen} 
                 onClose={() => {
@@ -103,6 +102,7 @@ const ContactForm = () => {
                 onAuthSuccess={handleAuthSuccess}
                 redirectToProfile={false}
             />
+            
             <SuccessModal 
                 isOpen={isSuccessModalOpen}
                 onClose={() => setIsSuccessModalOpen(false)}

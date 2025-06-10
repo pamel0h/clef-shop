@@ -3,7 +3,7 @@ import SearchIcon from "../icons/SearchIcon";
 import Eye from "../icons/Eye";
 import EyeClosed from "../icons/EyeClosed";
 import Button from './Button';
-import '../../../css/components/Input.css';
+import '../../../css/components/UI/Input.css';
 
 const Input = ({
     placeholder,

@@ -1,5 +1,5 @@
 // src/components/Layout.jsx
-import '../../../css/components/Layout.css'; 
+import '../../../css/components/Layout/Layout.css'; 
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';

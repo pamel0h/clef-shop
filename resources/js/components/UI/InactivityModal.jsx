@@ -1,5 +1,6 @@
 // src/components/UI/InactivityModal.jsx
 import '../../../css/components/InactivityModal.css';
+import Button from './Button';
 
 const InactivityModal = ({ userName, onContinue, onLogout }) => {
     return (
@@ -8,12 +9,12 @@ const InactivityModal = ({ userName, onContinue, onLogout }) => {
                 <h2>Активность сессии</h2>
                 <p>Продолжить как {userName}?</p>
                 <div className="modal-actions">
-                    <button className="continue-btn" onClick={onContinue}>
+                    <Button className="continue-btn" onClick={onContinue}>
                         Продолжить
-                    </button>
-                    <button className="logout-btn" onClick={onLogout}>
+                    </Button>
+                    <Button variant='secondary' className="logout-btn" onClick={onLogout}>
                         Выйти
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

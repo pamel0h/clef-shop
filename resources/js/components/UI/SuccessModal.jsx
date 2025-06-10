@@ -1,5 +1,6 @@
 import React from 'react';
 import '../../../css/components/SuccessModal.css';
+import Button from './Button';
 
 const SuccessModal = ({ isOpen, onClose, title, message }) => {
     if (!isOpen) return null;
@@ -10,11 +11,11 @@ const SuccessModal = ({ isOpen, onClose, title, message }) => {
                 <button className="modal-close" onClick={onClose}>
                     ×
                 </button>
-                <h2>{title}</h2>
+                <h3>{title}</h3>
                 <p>{message}</p>
-                <button className="submit-button" onClick={onClose}>
+                <Button onClick={onClose}>
                     OK
-                </button>
+                </Button>
             </div>
         </div>
     );

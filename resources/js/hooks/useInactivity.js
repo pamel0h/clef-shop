@@ -4,7 +4,7 @@ import axios from 'axios';
 
 export const updateLastActivity = () => {
     const now = Date.now();
-    localStorage.setItem('lastActivity', now);
+    sessionStorage.setItem('lastActivity', now);
     console.log('Activity updated at:', new Date(now).toLocaleTimeString());
 };
 
@@ -42,7 +42,7 @@ export const useInactivity = (userName, token, logout) => {
         if (!token) return; // Не запускаем таймер, если нет токена
 
         const checkInactivity = async () => {
-            const lastActivity = localStorage.getItem('lastActivity');
+            const lastActivity = sessionStorage.getItem('lastActivity');
             
             if (!lastActivity) {
                 updateLastActivity(); // Инициализируем при первом запуске

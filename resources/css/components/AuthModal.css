@@ -13,13 +13,14 @@
   z-index: 1000;
 }
 
-.modal-content {
+.auth-modal-content {
   background: var(--color-white);
-  padding: 20px;
+  padding: 25px 20px 40px;
   border-radius: 8px;
   width: 400px;
   max-width: 90%;
   position: relative;
+  
 }
 
 .modal-close {
@@ -35,6 +36,8 @@
 .auth-tabs {
   display: flex;
   margin-bottom: 20px;
+  border: 1px solid var(--color-primary);
+  border-radius: 5px;
 }
 
 .tab {
@@ -42,8 +45,22 @@
   padding: 10px;
   text-align: center;
   background: var(--color-white);
+  color: var(--color-primary);
   border: none;
   cursor: pointer;
+}
+
+.auth-tabs button{
+ font-family: var(--font-main);
+ font-size: 1rem;
+}
+
+.login-btn{
+    border-radius: 4px 0px 0px 4px;
+}
+
+.register-btn{
+    border-radius: 0px 4px 4px 0px;
 }
 
 .tab.active {
@@ -71,7 +88,7 @@
   margin-bottom: 10px;
 }
 
-.submit-button {
+.auth-modal-content .submit--btn {
   width: 100%;
   padding: 10px;
   background: var(--color-primary);
@@ -84,3 +101,4 @@
 .submit-button:hover {
   background:var(--color-gray);
 }
+

@@ -1,6 +1,6 @@
 // resources/js/components/ui/Button.jsx
 import React from 'react';
-import '../../../css/components/Button.css'; 
+import '../../../css/components/UI/Button.css'; 
 
 const Button = ({
   children,

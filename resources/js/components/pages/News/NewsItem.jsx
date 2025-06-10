@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import sanitizeHtml from 'sanitize-html';
 import '../../../../css/components/NewsItem.css';
+import '../../../../css/components/Categories.css';
+import '../../../../css/components/Loading.css';
 
 const NewsItem = () => {
   const { newsId } = useParams();
@@ -88,7 +90,7 @@ const NewsItem = () => {
   }, [newsId, i18n.language, t]);
 
   if (loading) {
-    return <div className="page-loading text-center">{t('newsItem.loading')}</div>;
+    return <div className="loading"></div>;
   }
 
   if (error) {
@@ -102,9 +104,9 @@ const NewsItem = () => {
 
   return (
     <div className="page page--news-item">
-      <h2>{newsItem.title}</h2>
-      <div className="blocknews">
-        <img src={newsItem.image} alt={newsItem.title} />
+      <h1>{newsItem.title}</h1>
+      <div className="blocknews" style={ {backgroundImage: `url(${newsItem.image})`}}>
+        {/* <img src={newsItem.image} alt={newsItem.title} /> */}
       </div>
       <div
         className="news-description"

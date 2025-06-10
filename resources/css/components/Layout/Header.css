@@ -1,11 +1,11 @@
-@import '../_variables.css';
+@import '../../_variables.css';
 
 .header{
   
    display: flex; 
    justify-content: space-between;
    height: 90px;
-  
+   gap:30px
 }
 
 .container{
@@ -15,7 +15,6 @@
 }
 .container::after{
     content: '';
-   
     height: 2px;
     background-color: var(--color-gray);
 }
@@ -24,10 +23,12 @@
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    min-width: 173px;
 }
 
 .block--search{
-    width:660px;
+    max-width:660px;
+    width: 100%;
 }
 
 .icons{
@@ -45,6 +46,8 @@
     text-align: end;
 }
 
-/* .logo{
-    max-width:223px;
-} */
+.logo{
+   align-self: center;
+   max-width: 100%;
+   height: auto;
+} 

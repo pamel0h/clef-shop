@@ -367,7 +367,8 @@
         "no_purchases": "No purchases",
         "no_orders": "No orders",
         "loading": "Loading...",
-        "messages": "Messages"
+        "messages": "Messages",
+        "type_message":"Type message..."
     },
     "admin_orders": {
         "search_orders": "Search orders",

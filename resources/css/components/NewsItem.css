@@ -2,27 +2,42 @@
 
 .page--news-item{
     grid-template-rows: 
-    repeat(1, 0.6fr)
-    repeat(2, 1fr)  
+    repeat(1, 0.3fr)
+    repeat(1, 1fr)
+    repeat(2, 1fr);
+    padding-top: 40px;
 }
 
-.page--news-item h2{
-     font-size: 3rem;
-     margin: 0;
-     grid-column: span 3;
+.page--news-item h1{
+    font-size: 5rem;
+    margin: 0;
+    grid-column: span 3;
 }
 
 .page--news-item p{
      grid-column: span 3;
 }
 
+.news-description{
+    grid-column: span 1;
+    font-size: 1.5rem;
+    margin: 0px;
+}
+
+.news-content{
+    font-size: 1.5rem;
+}
+
 .blocknews{
     grid-column: span 2;
-    background-color: var(--color-light-gray) ;
-    height: 250px;
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+
 }
 
 .blocknews img{
     width: 100%;
     height: 100%;
 }
+

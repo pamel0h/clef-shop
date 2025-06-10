@@ -1,17 +1,34 @@
 import * as React from "react"
 const ProfileIcon = () => (
   <svg
-    width={16}
-    height={20}
+    xmlns="http://www.w3.org/2000/svg"
+    width={25}
+    height={25}
     fill="none"
-    
+    viewBox="0 0 24 24"
   >
     <path
-      stroke="#2F2F2F"
+      stroke="#292D32"
       strokeLinecap="round"
       strokeLinejoin="round"
-      strokeWidth={2}
-      d="M1 19a7 7 0 1 1 14 0M12 5a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
+      strokeWidth={1.5}
+      d="M18.14 21.62c-.88.26-1.92.38-3.14.38H9c-1.22 0-2.26-.12-3.14-.38.22-2.6 2.89-4.65 6.14-4.65 3.25 0 5.92 2.05 6.14 4.65Z"
+      opacity={0.4}
+    />
+    <path
+      stroke="#292D32"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M22 9v6c0 3.78-1.14 5.85-3.86 6.62-.88.26-1.92.38-3.14.38H9c-1.22 0-2.26-.12-3.14-.38C3.14 20.85 2 18.78 2 15V9c0-5 2-7 7-7h6c5 0 7 2 7 7Z"
+    />
+    <path
+      stroke="#292D32"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M15.58 10.58c0 1.98-1.6 3.59-3.58 3.59s-3.58-1.61-3.58-3.59C8.42 8.6 10.02 7 12 7s3.58 1.6 3.58 3.58Z"
+      opacity={0.4}
     />
   </svg>
 )

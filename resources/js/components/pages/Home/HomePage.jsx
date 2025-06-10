@@ -6,7 +6,8 @@ import Button from '../../UI/Button';
 import Banner from './Banner';
 import BrandCarousel from './BrandCarousel';
 import sanitizeHtml from 'sanitize-html';
-import '../../../../css/components/HomePage.css';
+import '../../../../css/components/Loading.css';
+import '../../../../css/components/HomePage/HomePage.css';
 
 const HomePage = () => {
     const { t, i18n } = useTranslation();
@@ -160,7 +161,7 @@ const HomePage = () => {
     };
 
     if (loading) {
-        return <div className="page-loading">Загрузка...</div>;
+       return <div className="loading"></div>;
     }
 
     return (

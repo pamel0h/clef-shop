@@ -6,19 +6,33 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import CartItem from './CartItem';
 import Button from '../../UI/Button';
+import Input from '../../UI/Input';
+import '../../../../css/components/Loading.css';
 import "../../../../css/components/CartPage.css";
 
 const CartPage = () => {
     const { t } = useTranslation();
     const { cartItems, loading, clearCart } = useCart();
-    const { user } = useAuth(); // Получаем текущего пользователя
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [totalPrice, setTotalPrice] = useState(0);
     const [isPickup, setIsPickup] = useState(true);
-    const [phone, setPhone] = useState('');
-    const [address, setAddress] = useState('');
+    const [formData, setFormData] = useState({
+        phone: '',
+        address: ''
+    });
     const [error, setError] = useState('');
     const [loadingSubmit, setLoadingSubmit] = useState(false);
+
+    // Инициализация формы данными пользователя при загрузке
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                phone: user.phone || '',
+                address: user.address || ''
+            });
+        }
+    }, [user]);
 
     useEffect(() => {
         const total = cartItems.reduce((sum, item) => {
@@ -29,8 +43,10 @@ const CartPage = () => {
     }, [cartItems]);
 
     const resetForm = () => {
-        setPhone('');
-        setAddress('');
+        setFormData({
+            phone: user?.phone || '',
+            address: user?.address || ''
+        });
         setError('');
         setLoadingSubmit(false);
     };
@@ -46,13 +62,13 @@ const CartPage = () => {
             return;
         }
 
-        if (!phone) {
+        if (!formData.phone) {
             setError(t('cart.phone_required'));
             setLoadingSubmit(false);
             return;
         }
 
-        if (!isPickup && !address) {
+        if (!isPickup && !formData.address) {
             setError(t('cart.address_required'));
             setLoadingSubmit(false);
             return;
@@ -65,17 +81,17 @@ const CartPage = () => {
                     quantity: item.quantity,
                     attributes: item.attributes || [],
                 })),
-                phone,
+                phone: formData.phone,
                 delivery_type: isPickup ? 'pickup' : 'delivery',
-                ...(isPickup ? {} : { address }), // Добавляем адрес только для доставки
+                ...(isPickup ? {} : { address: formData.address }),
             };
 
             const response = await axios.post('/api/order/create', orderData);
 
             if (response.data.success) {
-                clearCart(); // Очищаем корзину после успешного заказа
+                clearCart();
                 resetForm();
-                navigate('/profile'); // Перенаправляем в профиль
+                navigate('/profile');
             } else {
                 setError(response.data.message || t('cart.order_error'));
             }
@@ -86,7 +102,15 @@ const CartPage = () => {
         }
     };
 
-    if (loading) return <p>{t('cart.loading')}</p>;
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    if (loading) return <div className="loading"></div>;
 
     return (
         <div className="page--cart page">
@@ -126,22 +150,23 @@ const CartPage = () => {
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label>{t('cart.phone_label')}</label>
-                        <input
+                        <Input
                             type="text"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
                             placeholder={t('cart.phone_placeholder')}
-                            required
                             disabled={loadingSubmit}
                         />
                     </div>
                     {!isPickup && (
                         <div className="form-group">
                             <label>{t('cart.address_label')}</label>
-                            <input
+                            <Input
                                 type="text"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
+                                name="address"
+                                value={formData.address}
+                                onChange={handleChange}
                                 placeholder={t('cart.address_placeholder')}
                                 required
                                 disabled={loadingSubmit}

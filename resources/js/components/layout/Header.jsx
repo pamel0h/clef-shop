@@ -1,4 +1,4 @@
-import '../../../css/components/Header.css'; 
+import '../../../css/components/Layout/Header.css'; 
 import Navbar from "./Navbar";
 import Input from "../UI/Input"
 import Button from '../UI/Button';
@@ -30,15 +30,23 @@ function Header() {
     const handleSearch = (e) => {
         if (e.key === 'Enter' && searchQuery.trim()) {
             navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
-            setSearchQuery(''); //Очищаем поле после поиска
+            setSearchQuery('');
         }
     };
+
+    const handleCartClick = () => {
+        navigate('/cart')
+    }
+
+    const handleHomeClick = () => {
+        navigate('/')
+    }
 
     
     return(
         <div className='container'>
             <div className='header'>
-                <div className='logo' >
+                <div className='logo' onClick={handleHomeClick} >
                     <LogoIcon />
                 </div>
                 <div className='block block--search'>
@@ -66,9 +74,7 @@ function Header() {
                             icon={<ProfileIcon />}
                             onClick={handleProfileClick}
                         />
-                        <Link to="/cart">
-                            <Button variant='icon' icon={<CartIcon />} />
-                        </Link>
+                        <Button variant='icon' icon={<CartIcon />} onClick={handleCartClick}/>
                     </div>
                 </div>
             </div>

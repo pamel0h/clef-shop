@@ -4,9 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../../context/AuthContext';
 import axios from 'axios';
 import "../../../../css/components/ProfilePage.css";
+import '../../../../css/components/Loading.css';
 import Order from './Order';
 import ProfileForm from './ProfileForm';
 import Button from '../../UI/Button';
+import Input from '../../UI/Input';
+import SendIcon from '../../icons/SendIcon';
 
 const ProfilePage = () => {
     const { t } = useTranslation();
@@ -84,17 +87,19 @@ const ProfilePage = () => {
         }
     };
 
+    // Обработчик изменения значения в Input
+    const handleMessageChange = (e) => {
+        setMessageText(e.target.value);
+    };
+
+
     const handleLogout = async () => {
         await logout();
         navigate('/');
     };
 
     if (loading) {
-        return (
-            <div className="page--user page">
-                <div className="loading">{t('profile.loading')}</div>
-            </div>
-        );
+        return <div className="loading"></div>;
     }
 
 
@@ -145,7 +150,7 @@ const ProfilePage = () => {
                     <div className="orders-container">
                         <h2>{t('profile.my_orders')}</h2>
                         {loadingOrders ? (
-                            <p>{t('profile.loading')}</p>
+                            <div className="loading"></div>
                         ) : error ? (
                             <p className="error">{error}</p>
                         ) : currentOrders.length === 0 ? (
@@ -161,7 +166,7 @@ const ProfilePage = () => {
                     <div className="purchases-container">
                         <h2>{t('profile.my_purchases')}</h2>
                         {loadingOrders ? (
-                            <p>{t('profile.loading')}</p>
+                           <div className="loading"></div>
                         ) : error ? (
                             <p className="error">{error}</p>
                         ) : completedOrders.length === 0 ? (
@@ -174,41 +179,41 @@ const ProfilePage = () => {
                     </div>
                 )}
                 {activeContainer === 'messages' && (
-                    <div className="messages-container">
-                        <h2>{t('profile.messages')}</h2>
-                        {loadingMessages ? (
-                            <p>{t('profile.loading')}</p>
-                        ) : error ? (
-                            <p className="error">{error}</p>
-                        ) : messages.length === 0 ? (
-                            <p>{t('profile.no_messages')}</p>
-                        ) : (
-                            <div className="messages-list">
-                                {messages.map((msg, index) => (
-                                    <div 
-                                        key={index} 
-                                        className={`message ${msg.is_admin ? 'admin-message' : 'user-message'}`}
-                                    >
-                                        <div className="message-content">
-                                            {msg.message}
-                                        </div>
-                                        <div className="message-time">
-                                            {new Date(msg.created_at).toLocaleString()}
-                                        </div>
+                <div className="messages-container">
+                    <h2>{t('profile.messages')}</h2>
+                    {loadingMessages ? (
+                        <div className="loading"></div>
+                    ) : error ? (
+                        <p className="error">{error}</p>
+                    ) : messages.length === 0 ? (
+                        <p>{t('profile.no_messages')}</p>
+                    ) : (
+                        <div className="messages-list">
+                            {messages.map((msg, index) => (
+                                <div 
+                                    key={index} 
+                                    className={`message ${msg.is_admin ? 'admin-message' : 'user-message'}`}
+                                >
+                                    <div className="message-content">
+                                        {msg.message}
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                    <div className="message-time">
+                                        {new Date(msg.created_at).toLocaleString()}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                         <form onSubmit={handleSendMessage} className="message-form">
-                            <input 
-                                type="text" 
-                                value={messageText}
-                                onChange={(e) => setMessageText(e.target.value)}
-                                placeholder={t('profile.type_message')}
-                                required
-                            />
-                            <button type="submit">{t('profile.send')}</button>
-                        </form>
+                        <Input 
+                            type="text"
+                            value={messageText}
+                            onChange={handleMessageChange}
+                            placeholder={t('profile.type_message')}
+                            required
+                        />
+                        <Button variant='icon' type="submit"><SendIcon/></Button>
+                    </form>
                     </div>
                 )}
             </div>

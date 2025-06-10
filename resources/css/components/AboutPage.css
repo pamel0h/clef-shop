@@ -1,11 +1,12 @@
 .page--about{
     grid-template-rows: 
-    repeat(3, 1fr)
+    repeat(1, 0.8fr)
+    repeat(2, 1fr)
     repeat(2, 0.5fr)
     repeat(3, 1fr)
-    repeat(1, 0.5fr)
-
-
+    repeat(1, 0.5fr);
+    position: relative;
+     padding-top: 100px;
 }
 
 .titleAbout { grid-area: 1 / 1 / 2 / 3; }
@@ -24,7 +25,6 @@
 
 .page--about div{
     font-size: 1.4rem;
-    /* background-color: beige; */
 }
 
 .text1, .text2{
@@ -33,7 +33,7 @@
 
 .titleAbout{
     align-self: center;
-    font-size: 6.25rem;
+    font-size: 5rem;
     text-transform: uppercase;
 }
 
@@ -57,7 +57,37 @@
     height: 350px;
 }
 
+.page--about .media{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    height: 400px;
+    gap:10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.page--about .media:hover{
+    transform: translateY(-5px);
+}
+
+.page--about .media svg{
+   stroke: black;
+   width: 200px;
+   height: 200px;
+}
+.page--about .media path{
+    stroke: black!important;
+}
+
+
 .sign{
     text-align: center;
     font-size: 2.5rem;
+}
+
+
+.page--about .lines-top{
+ top: 60px;
 }

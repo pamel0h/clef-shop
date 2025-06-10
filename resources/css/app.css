@@ -1,10 +1,5 @@
 @import './_variables.css';
 
-@font-face {
-    font-family: 'Eina01';
-    src: url('/public/fonts/Eina01-Bold.ttf');
-  }
-  
   @font-face {
     font-family: 'TildaSans';
     src: url('/public/fonts/TildaSans-Regular.ttf');
@@ -13,6 +8,11 @@
   @font-face {
     font-family: 'TildaSans-SemiBold';
     src: url('/public/fonts/TildaSans-SemiBold.ttf');
+  }
+
+ @font-face {
+    font-family: 'Bounded';
+    src: url('/public/fonts/Bounded-Regular.ttf');
   }
   
 html{

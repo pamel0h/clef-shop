@@ -1,4 +1,4 @@
-@import '../_variables.css';
+@import '../../_variables.css';
 
 .footer{
     display: flex;
@@ -20,7 +20,11 @@
 .qr-code{
     width: 200px;
     height: 200px;
-    background-color: var(--color-white);
+    background-image: url('images/qr-code.png');
+    background-size: cover;
+    border-radius: 8px;
+    padding: 3px;
+    box-sizing: border-box;
 }
 
 .footer p{
