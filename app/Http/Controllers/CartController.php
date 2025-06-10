@@ -7,14 +7,16 @@ use App\Http\Requests\CartUpdateRequest;
 use App\Http\Requests\CartSyncRequest;
 use App\Services\CartService;
 use Illuminate\Http\Request;
+use App\Formatters\ProductFormatter;
 
 class CartController extends Controller
 {
     protected $cartService;
 
-    public function __construct(CartService $cartService)
+    public function __construct(CartService $cartService, ProductFormatter $productFormatter)
     {
         $this->cartService = $cartService;
+        $this->productFormatter = $productFormatter;
     }
 
     public function index(Request $request)
@@ -37,7 +39,7 @@ class CartController extends Controller
 
             return response()->json([
                 'message' => 'Item added to cart',
-                'cart' => $this->cartService->formatCartItems($cart->items),
+                'cart' => $this->productFormatter->formatCartItems($cart->items),
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 422);
@@ -52,7 +54,7 @@ class CartController extends Controller
 
             return response()->json([
                 'message' => 'Cart updated successfully',
-                'cart' => $this->cartService->formatCartItems($cart->items),
+                'cart' => $this->productFormatter->formatCartItems($cart->items),
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 422);
@@ -71,7 +73,7 @@ class CartController extends Controller
 
             return response()->json([
                 'message' => 'Item removed from cart',
-                'cart' => $this->cartService->formatCartItems($cart->items),
+                'cart' => $this->productFormatter->formatCartItems($cart->items),
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 404);
@@ -102,7 +104,7 @@ class CartController extends Controller
 
             return response()->json([
                 'message' => 'Cart synchronized successfully',
-                'cart' => $this->cartService->formatCartItems($cart->items),
+                'cart' => $this->productFormatter->formatCartItems($cart->items),
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 422);

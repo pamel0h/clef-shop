@@ -41,6 +41,7 @@ const ProductDetailsPage = () => {
       <div className="product-details-grid">
         <ProductImage src={product.image} alt={product.name || 'Товар'} variant="main" />
         <ProductInfo
+        id ={productId}
           name={product.name}
           price={product.price}
           discount={product.discount}

@@ -3,12 +3,13 @@ import ProductPrice from './ProductPrice';
 import { useCart } from '../../../../context/CartContext'; // Импортируем useCart
 import Button from '../../UI/Button';
 
-const ProductInfo = ({ name, price, discount, brand, description }) => {
+const ProductInfo = 
+({ id, name, price, discount, brand, description }) => {
   const { t, i18n } = useTranslation();
   const { addToCart } = useCart(); // Получаем функцию addToCart
 
   const handleAddToCart = async () => {
-    const result = await addToCart(product.id, 1); // Добавляем 1 товар
+    const result = await addToCart(id, 1); // Добавляем 1 товар
     if (!result.success) {
         console.error(result.error);
     }

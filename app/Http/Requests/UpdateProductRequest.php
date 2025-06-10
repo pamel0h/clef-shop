@@ -46,7 +46,8 @@ class UpdateProductRequest extends FormRequest
                 }),
                 new RequiredFieldsGroup(
                     ['slug', 'ru', 'en'],
-                    'Все поля новой категории (slug, русский, английский) должны быть заполнены.'
+                    'Все поля новой категории (slug, русский, английский) должны быть заполнены.',
+                    false // Не разрешаем пустые поля
                 ),
             ],
             'new_subcategory' => [
@@ -55,7 +56,8 @@ class UpdateProductRequest extends FormRequest
                 }),
                 new RequiredFieldsGroup(
                     ['slug', 'ru', 'en'],
-                    'Все поля новой подкатегории (slug, русский, английский) должны быть заполнены.'
+                    'Все поля новой подкатегории (slug, русский, английский) должны быть заполнены.',
+                    false // Не разрешаем пустые поля
                 ),
             ],
             'specs' => 'nullable|array',
@@ -69,7 +71,13 @@ class UpdateProductRequest extends FormRequest
             'specs.*.value' => [
                 Rule::requiredIf(function () {
                     $index = $this->getValidationIndex('specs.*.value');
-                    return $this->input("specs.$index.key") || $this->input("specs.$index.newSpec.slug");
+                    $newSpec = $this->input("specs.$index.newSpec");
+                    $hasAnyFilled = $newSpec && (
+                        (!empty($newSpec['slug']) && trim($newSpec['slug']) !== '') ||
+                        (!empty($newSpec['ru']) && trim($newSpec['ru']) !== '') ||
+                        (!empty($newSpec['en']) && trim($newSpec['en']) !== '')
+                    );
+                    return $this->input("specs.$index.key") || ($this->input("specs.$index.isNewSpec") && $hasAnyFilled);
                 }),
                 'string',
             ],
@@ -80,7 +88,8 @@ class UpdateProductRequest extends FormRequest
                 }),
                 new RequiredFieldsGroup(
                     ['slug', 'ru', 'en'],
-                    'Все поля новой характеристики (slug, русский, английский, значение) должны быть заполнены.'
+                    'Все поля новой характеристики (slug, русский, английский, значение) должны быть заполнены.',
+                    true // Разрешаем пустые поля
                 ),
             ],
             'specs_data' => 'nullable|json',
