@@ -63,18 +63,20 @@ const ProfilePage = () => {
         }
     };
 
-    // Загрузка заказов
-    const fetchOrders = async () => {
-        setLoadingOrders(true);
-        try {
-            const response = await axios.get('/api/order');
-            setOrders(response.data);
-        } catch (err) {
-            setError(t('profile.orders_error'));
-        } finally {
-            setLoadingOrders(false);
-        }
-    };
+// Загрузка заказов
+const fetchOrders = async () => {
+    setLoadingOrders(true);
+    try {
+        const response = await axios.get('/api/order');
+        // Проверяем, если ответ содержит массив или объект с массивом orders
+        setOrders(Array.isArray(response.data) ? response.data : response.data.orders || []);
+    } catch (err) {
+        setError(t('profile.orders_error'));
+        setOrders([]); // Устанавливаем пустой массив в случае ошибки
+    } finally {
+        setLoadingOrders(false);
+    }
+};
 
     // Первоначальная загрузка данных при смене контейнера
     useEffect(() => {
