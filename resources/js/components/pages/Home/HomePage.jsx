@@ -23,7 +23,8 @@ const HomePage = () => {
         serviceText: '',
         deliveryTitle: '',
         deliveryText: '',
-        banners: []
+        banners: [],
+        brands: [], // Добавляем brands в состояние
     });
     const [loading, setLoading] = useState(true);
 
@@ -76,10 +77,10 @@ const HomePage = () => {
                                 content: 'desroptionfodofdofdododdofdofosfosfs',
                                 visible: true
                             }
-                        ]
+                        ],
+                        brands: pageContent.brands || [], // Добавляем fallback для brands
                     });
                 } else {
-                    // Fallback к переводам
                     setContent({
                         mainTitle: t('home.mainTitle'),
                         image: '/images/mainphoto.jpg',
@@ -121,12 +122,12 @@ const HomePage = () => {
                                 content: 'desroptionfodofdofdododdofdofosfosfs',
                                 visible: true
                             }
-                        ]
+                        ],
+                        brands: [], // Fallback для brands
                     });
                 }
             } catch (error) {
                 console.error('Error loading home page content:', error);
-                // Fallback к переводам при ошибке
                 setContent({
                     mainTitle: t('home.mainTitle'),
                     image: '/images/mainphoto.jpg',
@@ -139,7 +140,8 @@ const HomePage = () => {
                     serviceText: t('home.serviceText'),
                     deliveryTitle: t('home.deliveryTitle'),
                     deliveryText: t('home.deliveryText'),
-                    banners: []
+                    banners: [],
+                    brands: [], // Fallback для brands
                 });
             } finally {
                 setLoading(false);
@@ -149,7 +151,6 @@ const HomePage = () => {
         loadContent();
     }, [i18n.language, t]);
 
-    // Функция для очистки HTML
     const sanitizeContent = (html) => {
         return sanitizeHtml(html || '', {
             allowedTags: ['p', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'br', 'span', 'div'],
@@ -191,10 +192,11 @@ const HomePage = () => {
                 .filter(banner => banner.visible !== false)
                 .map(banner => (
                     <Banner 
+                    link={banner.link}
                     key={banner.id}
                     variant={banner.variant}
                     title={banner.title}
-                    backgroundImage={banner.image} // Передаем image как backgroundImage
+                    backgroundImage={banner.image}
                     >
                     <div dangerouslySetInnerHTML={{ __html: sanitizeContent(banner.content) }} />
                     </Banner>
@@ -202,7 +204,7 @@ const HomePage = () => {
             }
             
             <h1 className='titleBrands'>{content.brandsTitle}</h1>
-            <BrandCarousel />
+            <BrandCarousel brands={content.brands} /> {/* Передаем brands */}
             <h1 className='titleWhy'>{content.whyTitle}</h1>
             
             <div className='lines lines-bottom'>

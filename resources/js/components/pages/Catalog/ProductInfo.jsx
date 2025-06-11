@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ProductPrice from './ProductPrice';
 import { useCart } from '../../../../context/CartContext'; // Импортируем useCart
@@ -7,11 +8,16 @@ const ProductInfo =
 ({ id, name, price, discount, brand, description,category,subcategory }) => {
   const { t, i18n } = useTranslation();
   const { addToCart } = useCart(); // Получаем функцию addToCart
+  const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = async () => {
-    const result = await addToCart(id, 1); // Добавляем 1 товар
-    if (!result.success) {
-        console.error(result.error);
+    const result = await addToCart(product.id, 1); // Добавляем 1 товар
+    if (result.success) {
+      setIsAdded(true);
+     
+      setTimeout(() => setIsAdded(false), 2000);
+    } else {
+      console.error(result.error);
     }
 };
 
@@ -23,7 +29,7 @@ const ProductInfo =
       <h1 className="product-name">{name || t('catalog.no_name')}</h1>
       <ProductPrice price={price} discount={discount} />
       <Button onClick={handleAddToCart}>
-                {t('cart.add_to_cart')}
+                {isAdded ? t('cart.added_to_cart') : t('cart.add_to_cart')}
       </Button>
       <div className="product-description">
         <p>

@@ -304,7 +304,8 @@
         "phone_required": "Phone number is required",
         "address_required": "Delivery address is required",
         "order_error": "Error creating order",
-        "add_to_cart": "Add to cart"
+        "add_to_cart": "Add to cart",
+        "added_to_cart":"Added to cart"
     },
     "order": {
         "title": "Order #",

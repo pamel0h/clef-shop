@@ -26,6 +26,7 @@ const BannerEditor = ({ banners, onChange, currentLanguage }) => {
       content: '',
       image: '',
       visible: true,
+      link: '', // Добавляем поле link
     };
     onChange([...banners, newBanner]);
   };
@@ -131,11 +132,34 @@ const BannerEditor = ({ banners, onChange, currentLanguage }) => {
 
             <div className="form-group">
               <label>Заголовок:</label>
+              
+              <Editor
+                apiKey="vkcmcx49iuev9aqstqk1ab9q30dlj8x8je5ak45gx8tqid1s"
+                value={banner.title || ''}
+                onEditorChange={(title) => handleBannerChange(index, 'title', title)}
+                init={{
+                  height: 200,
+                  menubar: false,
+                  plugins: [
+                    'lists', 'link', 'charmap', 'anchor', 'searchreplace',
+                    'visualblocks', 'code', 'insertdatetime', 'preview', 'help'
+                  ],
+                  toolbar: 'undo redo | bold italic forecolor | ' +
+                    'alignleft aligncenter alignright | bullist numlist | link',
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                  language: currentLanguage === 'ru' ? 'ru' : 'en'
+                }}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Ссылка:</label>
               <input
                 type="text"
-                value={banner.title || ''}
-                onChange={(e) => handleBannerChange(index, 'title', e.target.value)}
+                value={banner.link || ''}
+                onChange={(e) => handleBannerChange(index, 'link', e.target.value)}
                 className="form-input"
+                placeholder="Введите URL (например, /catalog)"
               />
             </div>
 

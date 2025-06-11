@@ -18,9 +18,10 @@
 .carousel-item .brand {
   height: 100px; 
   width: 300px;
-  background-color: black;
-  filter: grayscale(100%) opacity(0.7);
   transition: filter 0.3s;
+  background-size: cover;
+  background-position-x: center;
+  background-position-y: center;
 }
 
 .carousel-item .brand:hover {

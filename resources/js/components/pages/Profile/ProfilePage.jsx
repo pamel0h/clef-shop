@@ -63,8 +63,8 @@ const ProfilePage = () => {
         }
     };
 
-// Загрузка заказов
-const fetchOrders = async () => {
+    // Загрузка заказов
+    const fetchOrders = async () => {
     setLoadingOrders(true);
     try {
         const response = await axios.get('/api/order');

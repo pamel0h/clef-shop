@@ -31,37 +31,68 @@ class SeedHomePage extends Command
                             [
                                 'id' => 1,
                                 'variant' => 'line',
-                                'title' => 'СПЕЦИАЛЬНАЯ АКЦИЯ 50%',
-                                'content' => 'Успей купить со скидкой до конца месяца!',
-                                'image' => '/images/mainphoto.jpg',
-                                'visible' => true
+                                'title' => 'Аудиоинтерфейсы для домашней студии',
+                                'content' => 'Focusrite, PreSonus — записывай как профи!',
+                                'image' => '',
+                                'visible' => true,
+                                'link' => '/catalog/audio_equipment/audio_interfaces' 
                             ],
                             [
                                 'id' => 2,
                                 'variant' => 'main',
-                                'title' => 'НОВИНКИ',
-                                'content' => 'Ознакомьтесь с новыми поступлениями в нашем каталоге',
-                                'image' => '/images/mainphoto.jpg',
-                                'visible' => true
+                                'title' => 'Аксессуары по выгодным ценам',
+                                'content' => 'Струны, медиаторы, чехлы и многое другое',
+                                'image' => '/storage/product_images/accessories/evans_g2.jpg',
+                                'visible' => true,
+                                'link' => '/catalog/accessories'
                             ],
                             [
                                 'id' => 3,
                                 'variant' => 'mini',
-                                'title' => 'БЫСТРАЯ ДОСТАВКА',
-                                'content' => 'Доставим ваш заказ в течение 24 часов',
-                                'image' => '/images/mainphoto.jpg',
-                                'visible' => true
+                                'title' => 'Электронные барабаны в наличии',
+                                'content' => 'Тихие репетиции без соседей!',
+                                'image' => '/storage/product_images/drums/alesis_nitro_mesh.jpg',
+                                'visible' => true,
+                                'link' => '/catalog/drums/electronic_drums'
                             ],
                             [
                                 'id' => 4,
                                 'variant' => 'mini',
-                                'title' => 'ГАРАНТИЯ КАЧЕСТВА',
-                                'content' => 'Официальная гарантия на все товары',
-                                'image' => '/images/mainphoto.jpg',
-                                'visible' => true
+                                'title' => 'Топовые микрофоны AKG – спеццена',
+                                'content' => 'Эталон живого звука',
+                                'image' => '/storage/product_images/audio/akg_d112.jpg',
+                                'visible' => true,
+                                'link' => '/catalog/audio_equipment/microphones/68283ecc144c62cab70df135'
                             ]
-                        ]
+                            ],
+                            
+                    'brands' => [
+                        [
+                            'id' => 1,
+                            'image' => '/storage/logo_images/110.png',
+                        ],
+                        [
+                            'id' => 2,
+                            'image' => '/storage/logo_images/KAWAI-Logo-AI-cu_s9999x200.png',
+                        ],
+                        [
+                            'id' => 3,
+                            'image' => '/storage/logo_images/Martin_guitar_logo.png',
+                        ],
+                        [
+                            'id' => 4,
+                            'image' => '/storage/logo_images/avantone.jpg',
+                        ],
+                        [
+                            'id' => 5,
+                            'image' => '/storage/logo_images/5736608673_f3dde1cd43_h.jpg',
+                        ],
+                        [
+                            'id' => 6,
+                            'image' => '/storage/logo_images/yamaha-black-logo-on-transparent-background-free-vector.jpg',
+                        ],
                     ],
+                ],
                     'en' => [
                         'mainTitle' => 'YOUR PERFECT SOUND STARTS HERE',
                         'image' => '/images/mainphoto.jpg',
@@ -75,40 +106,71 @@ class SeedHomePage extends Command
                         'deliveryTitle' => 'Delivery',
                         'deliveryText' => 'You can choose a payment scheme that suits you and a convenient delivery method: courier or pick-up',
                         'banners' => [
-                            [
-                                'id' => 1,
-                                'variant' => 'line',
-                                'title' => 'SPECIAL OFFER 50%',
-                                'content' => 'Hurry up to buy with a discount until the end of the month!',
-                                'image' => '/images/mainphoto.jpg',
-                                'visible' => true
+                                [
+                                    'id' => 1,
+                                    'variant' => 'line',
+                                    'title' => 'Audio interfaces for home studio',
+                                    'content' => 'Focusrite, PreSonus - record like a pro!',
+                                    'image' => '',
+                                    'visible' => true,
+                                    'link' => '/catalog/audio_equipment/audio_interfaces' 
+                                ],
+                                [
+                                    'id' => 2,
+                                    'variant' => 'main',
+                                    'title' => 'Accessories at great prices',
+                                    'content' => 'Strings, picks, cases and much more',
+                                    'image' => '/storage/product_images/accessories/evans_g2.jpg',
+                                    'visible' => true,
+                                    'link' => '/catalog/accessories'
+                                ],
+                                [
+                                    'id' => 3,
+                                    'variant' => 'mini',
+                                    'title' => 'Electronic drums in stock',
+                                    'content' => 'Quiet rehearsals without neighbors!',
+                                    'image' => '/storage/product_images/drums/alesis_nitro_mesh.jpg',
+                                    'visible' => true,
+                                    'link' => '/catalog/drums/electronic_drums'
+                                ],
+                                [
+                                    'id' => 4,
+                                    'variant' => 'mini',
+                                    'title' => 'Top AKG microphones - special price',
+                                    'content' => 'The gold standard of live sound',
+                                    'image' => '/storage/product_images/audio/akg_d112.jpg',
+                                    'visible' => true,
+                                    'link' => '/catalog/audio_equipment/microphones/68283ecc144c62cab70df135'
+                                ]
                             ],
-                            [
-                                'id' => 2,
-                                'variant' => 'main',
-                                'title' => 'NEW ARRIVALS',
-                                'content' => 'Check out new arrivals in our catalog',
-                                'image' => '/images/mainphoto.jpg',
-                                'visible' => true
-                            ],
-                            [
-                                'id' => 3,
-                                'variant' => 'mini',
-                                'title' => 'FAST DELIVERY',
-                                'content' => 'We will deliver your order within 24 hours',
-                                'image' => '/images/mainphoto.jpg',
-                                'visible' => true
-                            ],
-                            [
-                                'id' => 4,
-                                'variant' => 'mini',
-                                'title' => 'QUALITY GUARANTEE',
-                                'content' => 'Official guarantee for all products',
-                                'image' => '/images/mainphoto.jpg',
-                                'visible' => true
-                            ]
-                        ]
+                             
+                    'brands' => [
+                        [
+                            'id' => 1,
+                            'image' => '/storage/logo_images/110.png',
+                        ],
+                        [
+                            'id' => 2,
+                            'image' => '/storage/logo_images/KAWAI-Logo-AI-cu_s9999x200.png',
+                        ],
+                        [
+                            'id' => 3,
+                            'image' => '/storage/logo_images/Martin_guitar_logo.png',
+                        ],
+                        [
+                            'id' => 4,
+                            'image' => '/storage/logo_images/avantone.jpg',
+                        ],
+                        [
+                            'id' => 5,
+                            'image' => '/storage/logo_images/5736608673_f3dde1cd43_h.jpg',
+                        ],
+                        [
+                            'id' => 6,
+                            'image' => '/storage/logo_images/yamaha-black-logo-on-transparent-background-free-vector.jpg',
+                        ],
                     ]
+                    ]  
                 ]
             ];
 
