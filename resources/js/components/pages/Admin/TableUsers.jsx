@@ -191,13 +191,13 @@ const TableUsers = () => {
     const exportToCSV = () => {
         const dataToExport = filteredUsers.map((user) => ({
             ID: user.id,
-            Name: user.name || 'N/A',
+            Имя: user.name || 'N/A', // Русские заголовки
             Email: user.email,
-            Phone: user.phone || 'N/A',
-            Address: user.address || 'N/A',
-            Role: roleOptions.find((r) => r.value === user.role)?.label || user.role,
+            Телефон: user.phone || 'N/A',
+            Адрес: user.address || 'N/A',
+            Роль: roleOptions.find((r) => r.value === user.role)?.label || user.role,
         }));
-
+    
         const headers = Object.keys(dataToExport[0]).join(',');
         const rows = dataToExport
             .map((obj) =>
@@ -206,17 +206,19 @@ const TableUsers = () => {
                     .join(',')
             )
             .join('\n');
-
-        const csvContent = `${headers}\n${rows}`;
-
+    
+        // Добавляем BOM (Byte Order Mark) для корректного отображения кириллицы
+        const BOM = "\uFEFF";
+        const csvContent = BOM + `${headers}\n${rows}`;
+    
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
-
+    
         link.setAttribute('href', url);
         link.setAttribute('download', `users_export_${new Date().toISOString().slice(0, 10)}.csv`);
         link.style.visibility = 'hidden';
-
+    
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

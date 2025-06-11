@@ -114,7 +114,11 @@ const TableOrders = () => {
       ).join(',')
     ).join('\n');
 
-    const csvContent = `${headers}\n${rows}`;
+    // Добавляем BOM (Byte Order Mark) для корректной кодировки UTF-8
+    const BOM = "\uFEFF";
+    const csvContent = BOM + `${headers}\n${rows}`;
+    
+    // Указываем правильный MIME-type с кодировкой
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -126,7 +130,7 @@ const TableOrders = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
+};
 
   const toggleProducts = (orderId) => {
     setOpenOrderId(openOrderId === orderId ? null : orderId);

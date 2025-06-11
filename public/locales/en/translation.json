@@ -278,6 +278,7 @@
         "name": "Name",
         "email": "Email",
         "password": "Password",
+        "loading":"Loading...",
         "password_confirmation": "Confirm Password",
         "name_placeholder": "Enter your name",
         "email_placeholder": "Enter your email",
@@ -326,6 +327,8 @@
             "cancelled": "Cancelled"
         }
     },
+    "banner": {
+        "about": "More.."},
     "contactForm": {
         "title": "Contact Us",
         "message": "Your Message",

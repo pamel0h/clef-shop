@@ -50,7 +50,7 @@ const Banner = ({
         <div className="banner-content">{children}</div>
       </div>
       {variant === 'line' && (
-        <Button variant='success' size='large'>Подробнее</Button>
+        <Button variant='success' size='large'>{t('banner.about')}</Button>
       )}
     </div>
   );
