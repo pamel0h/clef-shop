@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Item;
 use App\Formatters\ProductFormatter;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class CatalogService
 {
@@ -46,6 +47,23 @@ class CatalogService
         }
 
         return $this->productFormatter->formatProduct($product);
+    }
+
+    public function getLastUpdated()
+    {
+        try {
+            $latestItem = Item::orderBy('updated_at', 'desc')->first();
+            $lastUpdated = $latestItem ? $latestItem->updated_at->toIso8601String() : null;
+            $translationsLastUpdated = Cache::get('translations_last_updated', now()->toIso8601String());
+
+            return [
+                'last_updated' => $lastUpdated,
+                'translations_last_updated' => $translationsLastUpdated,
+            ];
+        } catch (\Exception $e) {
+            Log::error('CatalogService: Ошибка получения времени обновления', ['error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 
 

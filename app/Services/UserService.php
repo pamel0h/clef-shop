@@ -97,4 +97,6 @@ class UserService
             $this->handleException($e, 'Failed to delete user', ['user_id' => $id]);
         }
     }
+
+    
 }

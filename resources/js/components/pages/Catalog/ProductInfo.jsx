@@ -11,7 +11,7 @@ const ProductInfo =
   const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = async () => {
-    const result = await addToCart(product.id, 1); // Добавляем 1 товар
+    const result = await addToCart(id, 1); // Добавляем 1 товар
     if (result.success) {
       setIsAdded(true);
      

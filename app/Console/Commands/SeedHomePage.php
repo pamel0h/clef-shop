@@ -69,7 +69,7 @@ class SeedHomePage extends Command
                     'brands' => [
                         [
                             'id' => 1,
-                            'image' => '/storage/logo_images/110.png',
+                            'image' => '/images/mainphoto.jpg',
                         ],
                         [
                             'id' => 2,

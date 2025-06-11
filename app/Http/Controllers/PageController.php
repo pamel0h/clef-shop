@@ -2,80 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Page;
+use App\Services\PageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class PageController extends Controller
 {
-    /**
-     * Получить содержимое страницы
-     */
+    public function __construct(private PageService $pageService)
+    {
+    }
+
     public function show(string $pageId): JsonResponse
     {
-        $page = Page::where('pageId', $pageId)->first();
-        
-        if (!$page) {
+        try {
+            $response = $this->pageService->getPage($pageId);
+            return response()->json($response);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Page not found'
-            ], 404);
+                'message' => $e->getMessage()
+            ], $e->getCode());
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $page
-        ]);
     }
 
-    /**
-     * Обновить содержимое страницы (только для администраторов)
-     */
     public function update(Request $request, string $pageId): JsonResponse
     {
-        // Проверяем права администратора
-        if (!$request->user() || !$request->user()->isAdmin()) {
+        try {
+            $response = $this->pageService->updatePage($request, $pageId);
+            return response()->json($response);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
+                'message' => $e->getMessage()
+            ], $e->getCode());
         }
-
-        $request->validate([
-            'content' => 'required|array',
-            'content.*' => 'array', // каждый язык - это массив
-        ]);
-
-        // Находим или создаем страницу
-        $page = Page::updateOrCreate(
-            ['pageId' => $pageId],
-            ['content' => $request->input('content')]
-        );
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Page updated successfully',
-            'data' => $page
-        ]);
     }
 
-    /**
-     * Получить список всех страниц (только для администраторов)
-     */
     public function index(Request $request): JsonResponse
     {
-        if (!$request->user() || !$request->user()->isAdmin()) {
+        try {
+            $response = $this->pageService->getAllPages($request);
+            return response()->json($response);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
+                'message' => $e->getMessage()
+            ], $e->getCode());
         }
-
-        $pages = Page::all();
-
-        return response()->json([
-            'success' => true,
-            'data' => $pages
-        ]);
     }
 }
