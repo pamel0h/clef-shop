@@ -461,7 +461,18 @@
             "user": "Пользователь",
             "admin": "Администратор"
         },
-        "update_success": "Пользователь успешно обновлен"
+        "update_success": "Пользователь успешно обновлен",
+        "loading":"Загрузка...",
+        "user_id":"ID",
+        "name":"Имя",
+        "email":"Email",
+        "all_roles":"Все роли",
+        "phone":"Телефон",
+        "address":"Адрес",
+        "password":"Пароль",
+        "actions":"Действия",
+        "export_csv":"Экспорт в CSV",
+        "role_title":"Роль"
        
     }
 }

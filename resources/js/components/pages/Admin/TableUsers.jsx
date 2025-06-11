@@ -279,7 +279,7 @@ const TableUsers = () => {
                         <th>{t('admin_users.email')}</th>
                         <th>{t('admin_users.phone')}</th>
                         <th>{t('admin_users.address')}</th>
-                        <th>{t('admin_users.role.title')}</th>
+                        <th>{t('admin_users.role_title')}</th>
                         <th>{t('admin_users.password')}</th>
                         <th>{t('admin_users.actions')}</th>
                     </tr>

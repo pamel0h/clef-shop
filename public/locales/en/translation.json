@@ -470,7 +470,18 @@
             "user": "User",
             "admin": "Admin"
         },
-       "update_success": "User updated successfully"
+       "update_success": "User updated successfully",
+       "loading":"Loading...",
+       "user_id":"User ID",
+       "name":"Name",
+       "email":"Email",
+       "all_roles":"All roles",
+       "phone":"Phone",
+       "address":"Address",
+       "password":"Password",
+       "actions":"Actions",
+       "export_csv":"Export CSV",
+       "role_title":"Role"
    
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -29,8 +30,16 @@ class UpdateProfileRequest extends FormRequest
             ],
             'address' => 'sometimes|string|nullable|max:255',
             'password' => 'sometimes|string|min:8',
-            'role' => 'sometimes|string|max:25'
+            'role' => [
+                'sometimes',
+                'string',
+                'max:25',
+                // Запрещаем изменение роли для текущего пользователя
+                Rule::prohibitedIf((string) auth()->id() === (string) $id),
+            ],
         ];
+
+        return $rules;
     }
 
     public function messages()
@@ -51,6 +60,9 @@ class UpdateProfileRequest extends FormRequest
             'address.max' => 'Address cannot exceed 255 characters.',
             'password.string' => 'Password must be a valid string.',
             'password.min' => 'Password must be at least 8 characters.',
+            'role.string' => 'Role must be a valid string.',
+            'role.max' => 'Role cannot exceed 25 characters.',
+            'role.prohibited' => 'You cannot change your own role.'
         ];
     }
 }
