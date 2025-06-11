@@ -5,13 +5,35 @@
     display: flex;
     transition: all 0.3s ease;
     border-radius: 4px;
+    background-size: contain!important;
+    background-repeat: no-repeat;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-light-gray);
+    position: relative; /* Важно для позиционирования псевдоэлемента */
+}
+
+.banner::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%; /* Высота градиента (можно регулировать) */
+  background: linear-gradient(to top, 
+    rgba(59, 59, 59, 0.4) 0%, 
+    rgba(29, 29, 29, 0.1) 50%, 
+    transparent 100%);
+  z-index: 1; /* Чтобы градиент был между текстом и фоном */
+  pointer-events: none; /* Чтобы клики проходили сквозь градиент */
 }
 
 .banner:hover {
   transform: translateY(-5px);
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
-
+.banner.clickable {
+  cursor: pointer; /* Добавляем курсор для кликабельных баннеров */
+}
 .ban--line{
     background-color: var(--color-primary);
     color: var(--color-white);
@@ -19,21 +41,40 @@
     align-items: center;
     font-size: 3.2rem;
     grid-column:  1/-1;
-    padding: 20px 40px;
+    padding: 40px 40px;
+    position: relative;
+    gap: 10px;
   
 }
 
 .ban--line h3{
     margin: 0px;
+    font-size: 3rem;
 }
 
+.ban--line .banner-content{
+    font-size: 1.5rem;
+}
+
+h3 p, h3 span{
+    font-size: 3rem;
+}
+
+
+
 .ban--main{
-    background-color: var(--color-light-gray);
+    background-color: white;
     color: var(--color-primary);
     grid-row: span 2;    
     grid-column: span 2;
     flex-direction: column;
     justify-content: end;
+    text-shadow: 
+    -0.5px -0.5px 0 white,  
+     0.5px -0.5px 0 white,
+    -0.5px  0.5px 0 white,
+     0.5px  0.5px 0 white;
+    
 }
 
 .ban--main h3{
@@ -49,12 +90,17 @@
     font-size: 1.1rem;
 }
 .ban--mini{
-    background-color: var(--color-light-gray);
+    background-color: white;
     color: var(--color-primary);
     grid-row: span 1;    
     grid-column: span 1;
-    flex-direction: column;
-    justify-content: space-between;
+    padding: 25px 25px 30px;
+    text-shadow: 
+    -0.5px -0.5px 0 white,  
+     0.5px -0.5px 0 white,
+    -0.5px  0.5px 0 white,
+     0.5px  0.5px 0 white;
+   
     
 }
 
@@ -65,11 +111,12 @@
 .banner-text{
     display: flex;
     flex-direction: column;
+    justify-content: end;
     gap: 10px;
 }
 
 .ban--line .banner-text{
- gap: 0px;
+ gap: 15px;
 }
 
 .banner-text p{

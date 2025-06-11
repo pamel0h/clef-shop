@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Editor } from '@tinymce/tinymce-react';
 import axios from 'axios';
 import BannerEditor from './BannerEditor';
+import BrandEditor from './BrandEditor'; // Импортируем новый компонент
 import NewsEditor from './NewsEditor';
 import '../../../../css/components/AdminPageEditor.css';
 
@@ -20,7 +21,8 @@ const AdminPageEditor = () => {
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
   const [expandedSections, setExpandedSections] = useState({
     banners: false,
-    news: false
+    news: false,
+    brands: false, // Добавляем для брендов
   });
 
   const toggleSection = (section) => {
@@ -30,7 +32,7 @@ const AdminPageEditor = () => {
     }));
   };
 
-  // Определяем поля для каждой страницы
+  // Обновляем определение полей
   const getPageFields = (pageId) => {
     switch (pageId) {
       case 'about':
@@ -59,6 +61,7 @@ const AdminPageEditor = () => {
           deliveryTitle: { type: 'text', label: 'Заголовок доставки' },
           deliveryText: { type: 'editor', label: 'Текст о доставке' },
           banners: { type: 'banners', label: 'Баннеры' },
+          brands: { type: 'brands', label: 'Бренды' }, // Добавляем поле для брендов
         };
       case 'contacts':
         return {
@@ -87,13 +90,11 @@ const AdminPageEditor = () => {
   const handleImageUpload = async (fieldKey, file) => {
     if (!file) return;
 
-    // Проверяем тип файла
     if (!file.type.startsWith('image/')) {
       alert('Пожалуйста, выберите файл изображения');
       return;
     }
 
-    // Проверяем размер файла (максимум 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert('Размер файла не должен превышать 5MB');
       return;
@@ -104,7 +105,7 @@ const AdminPageEditor = () => {
 
       const formData = new FormData();
       formData.append('image', file);
-      formData.append('folder', pageId); // папка для организации файлов
+      formData.append('folder', pageId);
 
       const token = localStorage.getItem('auth_token');
       const response = await axios.post('/api/admin/upload-image', formData, {
@@ -115,7 +116,6 @@ const AdminPageEditor = () => {
       });
 
       if (response.data.success) {
-        // Обновляем путь к изображению в форме
         handleFieldChange(fieldKey, response.data.path);
       } else {
         alert('Ошибка загрузки изображения');
@@ -151,7 +151,7 @@ const AdminPageEditor = () => {
                   : typeof phoneNumbers === 'string'
                     ? phoneNumbers
                     : '';
-              } else if (fieldKey === 'news' || fieldKey === 'banners') {
+              } else if (fieldKey === 'news' || fieldKey === 'banners' || fieldKey === 'brands') {
                 initialFormData[lang][fieldKey] = content[lang]?.[fieldKey] || [];
               } else {
                 initialFormData[lang][fieldKey] = content[lang]?.[fieldKey] || '';
@@ -251,7 +251,7 @@ const AdminPageEditor = () => {
       <div className="editor-form">
         {Object.entries(fields).map(([fieldKey, fieldConfig]) => (
           <div key={fieldKey} className="form-group">
-            {(fieldConfig.type === 'banners' || fieldConfig.type === 'news') ? (
+            {(fieldConfig.type === 'banners' || fieldConfig.type === 'news' || fieldConfig.type === 'brands') ? (
               <div className="collapsible-section">
                 <button 
                   className="section-toggle"
@@ -272,7 +272,13 @@ const AdminPageEditor = () => {
                         currentLanguage={currentLanguage}
                       />
                     )}
-                    
+                    {fieldConfig.type === 'brands' && (
+                      <BrandEditor
+                        brands={currentFormData[fieldKey] || []}
+                        onChange={(brands) => handleFieldChange(fieldKey, brands)}
+                        currentLanguage={currentLanguage}
+                      />
+                    )}
                     {fieldConfig.type === 'news' && (
                       <NewsEditor
                         news={currentFormData[fieldKey] || []}
@@ -333,7 +339,6 @@ const AdminPageEditor = () => {
                       </div>
                     </div>
                     
-                    {/* Превью изображения */}
                     {currentFormData[fieldKey] && (
                       <div className="image-preview">
                         <img 

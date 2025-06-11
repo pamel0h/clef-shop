@@ -3,25 +3,59 @@
 .news{
     background-color: var(--color-light-gray);
     display: flex;
+    position: relative;
     justify-content: end;
     flex-direction: column;
     padding: 40px 20px;
     box-sizing: border-box;
     transition: all 0.3s ease;
-    color: var(--color-primary);
+    color: var(--color-light-gray);
     text-decoration: none;
     min-height: 250px;
     border-radius: 6px;
+   
+}
+
+.news::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%; /* Высота градиента (можно регулировать) */
+  background: linear-gradient(to top, 
+    rgba(26, 26, 26, 0.8) 0%, 
+    rgba(11, 11, 11, 0.3) 70%, 
+    transparent 100%);
+  z-index: 1; /* Чтобы градиент был между текстом и фоном */
+  pointer-events: none; /* Чтобы клики проходили сквозь градиент */
+}
+
+.news p, .news h3, .news strong{
+    z-index: 2;
+    color: var(--color-light-gray);
+}
+
+.news p{
+    color: var(--color-light-gray);
+    opacity: 0.8;
 }
 
 .news--big h3{
     font-size: 4rem;
+    color: var(--color-light-gray);
     margin: 0;
+    line-height: 4.5rem;
 }
+
 
 .news--small h3{
     font-size: 2rem;
     margin: 0;
+}
+
+.news--small p{
+     font-size: 1rem;
 }
 
 .news:hover {
