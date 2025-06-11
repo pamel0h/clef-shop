@@ -13,8 +13,6 @@ const Breadcrumbs = () => {
   const searchQuery = queryParams.get('query') || '';
   const { filters, sortOption } = location.state || {};
 
-  console.log('Breadcrumbs: location.state', { filters, sortOption });
-
   const isSearchProductPage = pathnames[0] === 'search' && pathnames.length === 2;
   const isCatalogProductPage = pathnames[0] === 'catalog' && pathnames.length === 4;
   const productId = isSearchProductPage ? pathnames[1] : isCatalogProductPage ? pathnames[3] : null;
@@ -32,21 +30,18 @@ const Breadcrumbs = () => {
   const productName = productData?.name || '';
 
   const getDisplayName = (slug, index, pathArray) => {
-    console.log('getDisplayName: Args', { slug, index, pathArray });
     if (!slug) return null;
     if (index === -1) return t('nav.home');
     if (index === 0 && pathArray[0] === 'catalog' && pathArray.length === 1) return t('nav.catalog');
     if (index === 0 && slug === 'search') return t('search.mainTitle');
     if (index === 0 && pathArray[0] === 'catalog') {
       const categoryName = t(`category.${slug}`) || slug;
-      console.log('getDisplayName: Category', { slug, categoryName });
       return categoryName;
     }
     if (index === 1 && pathArray[0] === 'catalog') {
       const category = pathArray[1];
       const subcategoryKey = `subcategory.${category}.${slug}`;
       const subcategoryName = t(subcategoryKey) || slug;
-      console.log('getDisplayName: Subcategory', { slug, category, subcategoryKey, subcategoryName });
       return typeof subcategoryName === 'object' && subcategoryName !== null && 'ru' in subcategoryName
         ? subcategoryName.ru
         : subcategoryName;
@@ -163,7 +158,6 @@ const Breadcrumbs = () => {
               to={item.path}
               className={`breadcrumb-link ${item.className || ''}`}
               state={item.path.state}
-              onClick={() => console.log('Breadcrumbs: Link clicked', { path: item.path, state: item.path.state })}
             >
               {item.name}
             </Link>

@@ -46,6 +46,8 @@ const ProductDetailsPage = () => {
           discount={product.discount}
           brand={product.brand}
           description={product.description}
+          category={product.category}
+          subcategory={product.subcategory}
         />
         <ProductSpecs specs={product.specs} />
       </div>

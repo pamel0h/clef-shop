@@ -4,7 +4,7 @@ import { useCart } from '../../../../context/CartContext'; // Импортиру
 import Button from '../../UI/Button';
 
 const ProductInfo = 
-({ id, name, price, discount, brand, description }) => {
+({ id, name, price, discount, brand, description,category,subcategory }) => {
   const { t, i18n } = useTranslation();
   const { addToCart } = useCart(); // Получаем функцию addToCart
 
@@ -35,6 +35,18 @@ const ProductInfo =
         <p>
         <strong>{t('catalog.brand')}: </strong>  
         {brand || t('catalog.no_brand')}
+        </p>
+      </div>
+      <div className="product-category">
+        <p>
+        <strong>{t('catalog.category')}: </strong>  
+        {t(`category.${category}`) || t('catalog.no_category')}
+        </p>
+      </div>
+      <div className="product-subcategory">
+        <p>
+        <strong>{t('catalog.subcategory')}: </strong>  
+        {t(`subcategory.${category}.${subcategory}`) || t('catalog.no_subcategory')}
         </p>
       </div>
     </div>

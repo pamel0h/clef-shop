@@ -44,7 +44,9 @@
         "description": "Product description",
         "brand": "Brand",
         "no_brand": "No brand",
-        "no_name": "No name"
+        "no_name": "No name",
+        "category": "Category",
+        "subcategory": "Subcategory"
     },
     "search": {
         "mainTitle": "Search",
