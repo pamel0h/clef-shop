@@ -149,7 +149,11 @@
         "saveSuccess": "Content saved",
         "editPage": "Edit page: {{pageId}}",
         "language": "Language",
-        "image": "Image"
+        "image": "Image",
+        "orders": "Orders",
+        "products": "Products",
+        "users": "Users",
+        "message": "Messages"
     },
     "specs": {
         "mainTitle": "Product specifications",

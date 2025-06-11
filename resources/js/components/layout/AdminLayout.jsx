@@ -66,7 +66,7 @@ const AdminLayout = () => {
               to="/admin/orders" 
               className={({ isActive }) => isActive ? 'active' : ''}
             >
-              Заказы
+              {t('admin.orders')}
             </NavLink>
           </li>
           <li>
@@ -74,7 +74,7 @@ const AdminLayout = () => {
               to="/admin/catalog" 
               className={({ isActive }) => isActive ? 'active' : ''}
             >
-              Товары
+              {t('admin.products')}
             </NavLink>
           </li>
           <li>
@@ -82,7 +82,7 @@ const AdminLayout = () => {
               to="/admin/users" 
               className={({ isActive }) => isActive ? 'active' : ''}
             >
-              Пользователи
+              {t('admin.users')}
             </NavLink>
           </li>
           <li>
@@ -90,7 +90,7 @@ const AdminLayout = () => {
                 to="/admin/messages" 
                 className={({ isActive }) => isActive ? 'active' : ''}
               >
-                Сообщения
+               {t('admin.message')}
               </NavLink>
           </li>
           
