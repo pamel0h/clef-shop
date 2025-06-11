@@ -2,8 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../../UI/Button';
 import '../../../../css/components/UI/Banner.css';
 import sanitizeHtml from 'sanitize-html';
+import { useTranslation } from 'react-i18next';
 
 const Banner = ({
+  
   children,
   title = '',
   variant = 'line', // 'line' | 'main' | 'mini'
@@ -15,7 +17,7 @@ const Banner = ({
   const navigate = useNavigate();
   const baseClass = 'banner';
   const variantClass = `ban--${variant}`;
-
+  const { t } = useTranslation();
   const sanitizeContent = (html) => {
           return sanitizeHtml(html || '', {
               allowedTags: ['p', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'br', 'span', 'div'],

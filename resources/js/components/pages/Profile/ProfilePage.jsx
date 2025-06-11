@@ -164,8 +164,8 @@ const ProfilePage = () => {
         return <div className="loading"></div>;
     }
 
-    const currentOrders = orders.filter(order => order.status !== 'completed');
-    const completedOrders = orders.filter(order => order.status === 'completed');
+    const currentOrders = orders.filter(order => order.status !== 'delivered');
+    const completedOrders = orders.filter(order => order.status === 'delivered');
 
     return (
         <div className="page--user page">

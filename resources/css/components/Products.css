@@ -146,7 +146,6 @@ a{
   max-width: 100%;
   max-height: 200px;
   height: 100%;
-  background: #eee;
   margin-bottom: 10px;
   flex-shrink: 0;
 }
