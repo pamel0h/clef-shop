@@ -39,8 +39,6 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/order', [OrderController::class, 'getOrder']);
     Route::post('/order/create', [OrderController::class, 'createOrder']);
-    
-    /*Route::put('/order/update', [CartController::class, 'updateOrder']);*/
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -74,15 +72,15 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::put('/users/{id}', [AdminUserController::class, 'updateUser']);
     Route::delete('/users/{id}', [AdminUserController::class, 'deleteUser']);
     Route::post('/catalog/import', [AdminCatalogController::class, 'import'])->name('admin.catalog.import');
-        Route::get('/catalog/data', [AdminCatalogController::class, 'fetchData'])->name('admin.catalog.data');
-        Route::post('/catalog', [AdminCatalogController::class, 'store'])->name('admin.catalog.store');
-        Route::put('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update');
-        Route::post('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update.post');
-        Route::delete('/catalog/{id}', [AdminCatalogController::class, 'destroy'])->name('admin.catalog.destroy');
-        Route::get('/catalog/spec-keys-values', [AdminCatalogController::class, 'getSpecKeysAndValues'])->name('admin.catalog.spec-keys-values'); 
-        Route::get('/catalog/brands', [AdminCatalogController::class, 'getBrands'])->name('admin.catalog.brands');
-        Route::post('/catalog/translations', [TranslationController::class, 'store'])->name('admin.catalog.translation');
-        Route::get('/catalog/export', [AdminCatalogController::class, 'export'])->name('admin.catalog.export');
+    Route::get('/catalog/data', [AdminCatalogController::class, 'fetchData'])->name('admin.catalog.data');
+    Route::post('/catalog', [AdminCatalogController::class, 'store'])->name('admin.catalog.store');
+    Route::put('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update');
+    Route::post('/catalog/{id}', [AdminCatalogController::class, 'update'])->name('admin.catalog.update.post');
+    Route::delete('/catalog/{id}', [AdminCatalogController::class, 'destroy'])->name('admin.catalog.destroy');
+    Route::get('/catalog/spec-keys-values', [AdminCatalogController::class, 'getSpecKeysAndValues'])->name('admin.catalog.spec-keys-values'); 
+    Route::get('/catalog/brands', [AdminCatalogController::class, 'getBrands'])->name('admin.catalog.brands');
+    Route::post('/catalog/translations', [TranslationController::class, 'store'])->name('admin.catalog.translation');
+    Route::get('/catalog/export', [AdminCatalogController::class, 'export'])->name('admin.catalog.export');
  
   
 
@@ -101,10 +99,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     
 });
 
-// Маршруты только для супер админа
-// Route::middleware(['auth:sanctum', 'super_admin'])->prefix('admin/super')->group(function () {
-    
-// });
+
 // Публичные роуты для получения контента страниц
 Route::get('/pages/{pageId}', [PageController::class, 'show']);
 

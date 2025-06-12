@@ -51,7 +51,7 @@ export const useInactivity = (userName, token, logout) => {
 
             const inactiveMinutes = (Date.now() - parseInt(lastActivity)) / 1000 / 60;
             
-            if (inactiveMinutes >= 5) { // 5 минут неактивности
+            if (inactiveMinutes >= 1) { // 5 минут неактивности
                 const isValid = await checkTokenValidity();
                 if (isValid) {
                     setShowModal(true);
